@@ -38,6 +38,20 @@ Implemented: Next.js scaffold, Tailwind/shadcn, Supabase placeholders, feature f
 - Camera access is requested on explicit tap only; frames never leave the
   device; every exit path stops all MediaStream tracks.
 
+## Location Rules (details in docs/decisions/location-intelligence.md)
+
+- Four states, never collapsed: **VENDOR LIVE**, **SCHEDULED OCCURRENCE**,
+  **RECURRING LOCATION**, **LOCATION HOTSPOT**. A hotspot is a _place_, not a
+  vendor: never give it an identity, a page link, or the words "Open now" /
+  "Live". Only a live session is "Live"; recurring is "Usually here."
+- Vendor truth wins: a live session outranks and suppresses that unit's own
+  recurring/scheduled predictions. Ranking is haversine — never enable PostGIS.
+- Recurring windows are evaluated in the vendor's own timezone (`AT TIME ZONE`).
+  Freshness is explicit: live 30 min, recurring 60 days — no confidence score.
+- Leads and community reports never auto-promote; they stay `UNVERIFIED` and
+  invisible until human review. Public reads go through preview views only;
+  reviewer notes and reporter identity are never exposed.
+
 ## Coding Standards
 
 - TypeScript strict mode

@@ -126,7 +126,41 @@ Status values stay lowercase so historical rows remain valid:
 `pending` = ACTIVE, `confirmed` = CONSUMED, plus `expired`, `cancelled`, and
 `locked`. Legacy 6-character `code` values are preserved and no longer issued.
 
+## Location Intelligence (Implemented)
+
+Four distinct location states, never collapsed. Full rationale in
+`docs/decisions/location-intelligence.md`.
+
+| Table                          | Role                                                      |
+| ------------------------------ | --------------------------------------------------------- |
+| `vendor_recurring_locations`   | Confirmed repeated patterns; `days_of_week` + `timezone`  |
+| `vendor_scheduled_occurrences` | Confirmed one-off appearances; `starts_at`/`ends_at`      |
+| `location_hotspots`            | Open-data leads — a **place**, not a confirmed vendor     |
+| `location_reports`             | Community reports, staged only; reporter id never exposed |
+
+Two enums fix the provenance vocabulary: `location_source_type`
+(`VENDOR_LIVE` … `COMMUNITY_REPORT`) and `location_verification`
+(`CONFIRMED`, `EXPECTED`, `UNVERIFIED`, `STALE`, `REJECTED`). A lead or report
+never auto-promotes — it stays `UNVERIFIED` and invisible until a human reviews.
+
+Public reads go through three preview views —
+`vendor_recurring_location_previews`, `vendor_scheduled_occurrence_previews`,
+`location_hotspot_previews` — which omit reviewer notes and reporter identity.
+Freshness is explicit, not scored: live = 30 min
+(`vendor_location_session_stale_after()`), recurring = 60 days
+(`location_recurring_stale_after()`).
+
+`nearby_vendor_locations(lat, lng, radius, include flags…)` resolves one ranked
+row per location — **live → active scheduled → matching recurring → upcoming
+scheduled → hotspot** — with a live session overriding a unit's own predictions
+and ~40 m proximity dedupe. `reason_label` is composed in SQL so the map marker
+and list card never drift. Ranking is haversine over lat/lng; **PostGIS stays
+disabled by design** (hotspots keep a centroid plus an unqueried GeoJSON
+`boundary` for provenance).
+
 ## Planned (Later Phases)
 
 Menus, reviews, ambassadors, billing, moderation records, POS integration —
-to be specified alongside `docs/PRODUCT_SPEC.md`.
+to be specified alongside `docs/PRODUCT_SPEC.md`. Location: the CSV/GeoJSON
+importer and the admin review queue (approve / associate / mark-stale / reject /
+merge) are deferred until there is a real dataset to exercise them.
