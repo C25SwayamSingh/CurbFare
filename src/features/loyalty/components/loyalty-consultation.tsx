@@ -34,7 +34,7 @@ import {
   CHAIN_BENCHMARKS,
   DEFAULT_STANCE,
   bandFor,
-  placeAgainstChains,
+  benchmarkModelPhrase,
 } from "@/features/loyalty/benchmarks";
 import {
   VISIT_CADENCE_LABEL,
@@ -799,7 +799,7 @@ function ReturnComparison({
           {formatBps(entry.perceivedRateBps)}
         </p>
         <p className="text-[11px] leading-snug text-muted-foreground">
-          {placeAgainstChains(entry.perceivedRateBps)}{" "}
+          {benchmarkModelPhrase(entry.perceivedRateBps)}{" "}
           {isDiscount ? (
             <>Costs you the same {formatBps(entry.costRateBps)}.</>
           ) : (

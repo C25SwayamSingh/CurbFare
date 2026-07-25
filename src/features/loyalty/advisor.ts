@@ -42,8 +42,13 @@ import {
 export type LoyaltyGoal = "repeat_visits" | "bigger_orders" | "new_item";
 export type ExistingSystem = "none" | "paper" | "square_or_pos" | "other";
 
-/** The single points scale. 10 points per $1 is the clearest chain default. */
-export const DEFAULT_POINTS_PER_DOLLAR = 10;
+/**
+ * The single points scale: 100 points per $1, the McDonald's-style currency.
+ * The big numbers are deliberate psychology — a 4,000-point reward feels like
+ * progress in a way a 400-point one doesn't — and they cost nothing, because
+ * the economics live entirely in the redemption ratio, not in this figure.
+ */
+export const DEFAULT_POINTS_PER_DOLLAR = 100;
 
 /**
  * Target customer-perceived reward rate when pricing a reward (basis points).
@@ -143,8 +148,15 @@ type PricedReward = {
 };
 
 /** Round a points value to the nearest 50, minimum 50. */
-function roundPoints(points: number): number {
-  return Math.max(50, Math.round(points / 50) * 50);
+/**
+ * Point prices are advertised numbers, so they land on steps a customer can
+ * hold in their head. The step scales with the points currency: at 10 pts/$1
+ * that is 50-point steps; at the 100 pts/$1 default it is 500 — the same
+ * granularity McDonald's uses for its own tiers.
+ */
+function roundPoints(points: number, pointsPerDollar: number): number {
+  const step = 5 * pointsPerDollar;
+  return Math.max(step, Math.round(points / step) * step);
 }
 
 /**
@@ -168,7 +180,10 @@ function priceReward(
     (e0.vendorCostCents * 10000) / PRICING_COST_CEILING_BPS,
   );
   const spendTarget = Math.max(spendForPerceived, spendForCostFloor);
-  const pointsCost = roundPoints((spendTarget * pointsPerDollar) / 100);
+  const pointsCost = roundPoints(
+    (spendTarget * pointsPerDollar) / 100,
+    pointsPerDollar,
+  );
   const item: CatalogItemConfig = { pointsCost, reward };
   const economics = catalogItemEconomics(item, pointsPerDollar);
 

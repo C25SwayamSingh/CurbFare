@@ -130,8 +130,10 @@ describe("LoyaltyConsultation", () => {
     );
 
     expect(getRecommendations()).toBeInTheDocument();
-    // 10 pts/$ is the scale on every recommendation.
-    expect(screen.getAllByText(/10 points per \$1/i).length).toBeGreaterThan(0);
+    // 100 pts/$ — the McDonald's-style scale — on every recommendation.
+    expect(screen.getAllByText(/100 points per \$1/i).length).toBeGreaterThan(
+      0,
+    );
   });
 
   it("shows a summary of the inputs the numbers came from", async () => {

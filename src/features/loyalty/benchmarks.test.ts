@@ -4,9 +4,11 @@ import {
   CATALOG_BENCHMARKS,
   CHAIN_BENCHMARKS,
   DEFAULT_STANCE,
+  MODEL_MATCH_TOLERANCE_BPS,
   RETURN_BANDS,
   bandFor,
-  placeAgainstChains,
+  benchmarkModelPhrase,
+  benchmarkPosition,
 } from "@/features/loyalty/benchmarks";
 
 describe("chain benchmarks", () => {
@@ -64,23 +66,64 @@ describe("return bands", () => {
   });
 });
 
-describe("placeAgainstChains", () => {
-  it("names the nearest chains a rate falls between", () => {
-    // 6% sits between Subway (5%) and McDonald's (7.5%).
-    const text = placeAgainstChains(600);
-    expect(text).toMatch(/Subway/);
+describe("benchmarkPosition", () => {
+  it("declares an exact chain match a model", () => {
+    const pos = benchmarkPosition(750);
+    expect(pos.kind).toBe("model");
+    if (pos.kind === "model") expect(pos.chain.company).toMatch(/McDonald/);
+  });
+
+  it("treats rounding-distance differences as the same model", () => {
+    const pos = benchmarkPosition(750 - MODEL_MATCH_TOLERANCE_BPS);
+    expect(pos.kind).toBe("model");
+  });
+
+  it("positions a rate between its neighbouring chains", () => {
+    // 6% sits between Subway (5%) and McDonald's (7.5%) — 100 bps from
+    // Subway, 150 from McDonald's, so Subway is nearest.
+    const pos = benchmarkPosition(600);
+    expect(pos.kind).toBe("between");
+    if (pos.kind === "between") {
+      expect(pos.lower.company).toMatch(/Subway/);
+      expect(pos.upper.company).toMatch(/McDonald/);
+      expect(pos.nearest.company).toMatch(/Subway/);
+    }
+  });
+
+  it("flags a program leaner than every chain", () => {
+    const pos = benchmarkPosition(100);
+    expect(pos.kind).toBe("leaner");
+  });
+
+  it("flags a program richer than every chain", () => {
+    const pos = benchmarkPosition(1200);
+    expect(pos.kind).toBe("richer");
+  });
+});
+
+describe("benchmarkModelPhrase", () => {
+  it("names an exact match as an identity, with its structure", () => {
+    const text = benchmarkModelPhrase(750);
+    expect(text).toMatch(/This is the McDonald's model/);
+    expect(text).toMatch(/100 points per \$1/);
+    expect(text).toMatch(/7\.5% back/);
+  });
+
+  it("names the nearest chain and both neighbours in between", () => {
+    const text = benchmarkModelPhrase(600);
+    expect(text).toMatch(/Closest to Subway/);
     expect(text).toMatch(/McDonald/);
   });
 
-  it("says plainly when a program is leaner than all of them", () => {
-    expect(placeAgainstChains(100)).toMatch(/Leaner than every chain/i);
+  it("says plainly when a program is leaner than every chain", () => {
+    expect(benchmarkModelPhrase(100)).toMatch(/Leaner than every published/i);
   });
 
-  it("says plainly when a program is more generous than all of them", () => {
-    expect(placeAgainstChains(1200)).toMatch(/More generous than every chain/i);
+  it("says plainly when a program is richer than every chain", () => {
+    expect(benchmarkModelPhrase(1200)).toMatch(/Richer than every published/i);
   });
 
-  it("recognises a rate matching a chain exactly", () => {
-    expect(placeAgainstChains(500)).toMatch(/Subway/);
+  it("never invents a model name for a non-matching rate", () => {
+    expect(benchmarkModelPhrase(600)).not.toMatch(/This is the/);
   });
 });

@@ -18,8 +18,10 @@ import { createServerClient } from "@/lib/supabase/server";
 import {
   formatCents,
   formatPoints,
+  rateBps,
   rewardDisplayLabel,
 } from "@/features/loyalty/engine";
+import { benchmarkModelPhrase } from "@/features/loyalty/benchmarks";
 import { isLoyaltyConsultantConfigured } from "@/features/loyalty/consultant";
 import { LoyaltyAdvisorChat } from "@/features/loyalty/components/loyalty-advisor-chat";
 import { LoyaltyConsultation } from "@/features/loyalty/components/loyalty-consultation";
@@ -66,6 +68,23 @@ export default async function VendorLoyaltyPage() {
   const stats = statsRows?.[0];
   const hasActiveProgram = Boolean(version);
   const advisorChatEnabled = canManage && isLoyaltyConsultantConfigured();
+
+  // The named benchmark for the live program: which chain's model these
+  // numbers are (or sit between). Computed from the entry tier — the first
+  // reward a customer reaches — matching the engine's headline convention.
+  // `catalog` arrives ordered by points_cost, so the entry tier is row one.
+  const entryTier = catalog?.[0];
+  const benchmarkLine =
+    version?.points_per_dollar && entryTier
+      ? benchmarkModelPhrase(
+          rateBps(
+            entryTier.reward_value_cents,
+            Math.floor(
+              (entryTier.points_cost * 100) / version.points_per_dollar,
+            ),
+          ),
+        )
+      : null;
 
   return (
     <AuthenticatedAppShell>
@@ -124,6 +143,15 @@ export default async function VendorLoyaltyPage() {
                   Customers earn {version.points_per_dollar} points for every $1
                   of eligible spend, confirmed by your staff at the counter.
                 </p>
+
+                {benchmarkLine ? (
+                  <p className="text-sm text-muted-foreground">
+                    <span className="font-medium text-foreground">
+                      Your benchmark:
+                    </span>{" "}
+                    {benchmarkLine}
+                  </p>
+                ) : null}
 
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">

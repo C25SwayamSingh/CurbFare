@@ -133,22 +133,73 @@ export function bandFor(stance: ReturnStance): ReturnBand {
   return RETURN_BANDS.find((b) => b.stance === stance) ?? RETURN_BANDS[1];
 }
 
-/** Where a given return sits against the chains above. */
-export function placeAgainstChains(returnBps: number): string {
+/* ------------------------------------------------------------------ */
+/* Naming the model a program is running                               */
+/* ------------------------------------------------------------------ */
+
+/**
+ * A return within this distance of a chain's published return counts as
+ * running that chain's model. 25 bps is a quarter of a percent — close enough
+ * that the difference is rounding, not a different design.
+ */
+export const MODEL_MATCH_TOLERANCE_BPS = 25;
+
+export type BenchmarkPosition =
+  | { kind: "model"; chain: ChainBenchmark }
+  | {
+      kind: "between";
+      lower: ChainBenchmark;
+      upper: ChainBenchmark;
+      nearest: ChainBenchmark;
+    }
+  | { kind: "leaner"; nearest: ChainBenchmark }
+  | { kind: "richer"; nearest: ChainBenchmark };
+
+/** Where a given customer return sits against the published chains. */
+export function benchmarkPosition(returnBps: number): BenchmarkPosition {
   const sorted = [...CHAIN_BENCHMARKS].sort(
     (a, b) => a.returnBps - b.returnBps,
   );
+  const nearest = sorted.reduce((best, b) =>
+    Math.abs(b.returnBps - returnBps) < Math.abs(best.returnBps - returnBps)
+      ? b
+      : best,
+  );
+  if (Math.abs(nearest.returnBps - returnBps) <= MODEL_MATCH_TOLERANCE_BPS) {
+    return { kind: "model", chain: nearest };
+  }
   const lowest = sorted[0];
   const highest = sorted[sorted.length - 1];
-  if (returnBps < lowest.returnBps) {
-    return `Leaner than every chain here — ${lowest.company} gives back the least at ${(lowest.returnBps / 100).toFixed(1)}%.`;
+  if (returnBps < lowest.returnBps) return { kind: "leaner", nearest: lowest };
+  if (returnBps > highest.returnBps)
+    return { kind: "richer", nearest: highest };
+  const lower = sorted.filter((b) => b.returnBps <= returnBps).at(-1)!;
+  const upper = sorted.find((b) => b.returnBps >= returnBps)!;
+  return { kind: "between", lower, upper, nearest };
+}
+
+function pct(bps: number): string {
+  return `${(bps / 100).toFixed(1).replace(/\.0$/, "")}%`;
+}
+
+/**
+ * One sentence naming the chain model a program is running — shown on the
+ * live-program card and beside the editor, so a vendor always has a named
+ * benchmark. An exact match is stated as an identity ("This is the McDonald's
+ * model"); anything else is a position between named programs. Changing the
+ * numbers changes the sentence, which is the point: you should know whose
+ * program yours has become.
+ */
+export function benchmarkModelPhrase(returnBps: number): string {
+  const pos = benchmarkPosition(returnBps);
+  switch (pos.kind) {
+    case "model":
+      return `This is the ${pos.chain.company} model — ${pos.chain.structure} (${pct(pos.chain.returnBps)} back).`;
+    case "between":
+      return `Closest to ${pos.nearest.company} (${pct(pos.nearest.returnBps)} back) — between ${pos.lower.company} (${pct(pos.lower.returnBps)}) and ${pos.upper.company} (${pct(pos.upper.returnBps)}).`;
+    case "leaner":
+      return `Leaner than every published chain program — nearest is ${pos.nearest.company} at ${pct(pos.nearest.returnBps)} back.`;
+    case "richer":
+      return `Richer than every published chain program — nearest is ${pos.nearest.company} at ${pct(pos.nearest.returnBps)} back.`;
   }
-  if (returnBps > highest.returnBps) {
-    return `More generous than every chain here — ${highest.company} gives back the most at ${(highest.returnBps / 100).toFixed(1)}%.`;
-  }
-  const below = sorted.filter((b) => b.returnBps <= returnBps).at(-1)!;
-  const above = sorted.find((b) => b.returnBps >= returnBps)!;
-  return below.company === above.company
-    ? `About the same as ${below.company}.`
-    : `Between ${below.company} (${(below.returnBps / 100).toFixed(1)}%) and ${above.company} (${(above.returnBps / 100).toFixed(1)}%).`;
 }

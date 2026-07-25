@@ -229,7 +229,7 @@ describe("transparency", () => {
 
   it("states the earning rule in points per dollar", () => {
     const r = recommendPrograms(baseAnswers).recommendations[0];
-    expect(r.earnRule).toMatch(/10 points per \$1/);
+    expect(r.earnRule).toMatch(/100 points per \$1/);
     expect(r.earnRule).toMatch(/staff/i);
   });
 
