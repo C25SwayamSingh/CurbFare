@@ -112,17 +112,23 @@ export default async function VendorDashboardPage() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">
-              {organization?.display_name ?? "Your organization"}
+              {organization?.display_name ?? "Your organization"} Dashboard
             </h1>
             <p className="text-sm text-muted-foreground">
               You are {ctx.membership.role === "owner" ? "an" : "a"}{" "}
               <strong>{ctx.membership.role}</strong> of this organization.
             </p>
           </div>
-          {/* The counter action, one tap from the top — staff live here. */}
-          <Button asChild size="lg">
+          {/* The counter action, one tap from the top — staff live here.
+              Wider than a standard button on purpose: it's the screen's one
+              primary action and a touch target used mid-service. */}
+          <Button
+            asChild
+            size="lg"
+            className="h-12 px-8 text-base font-semibold shadow-md"
+          >
             <Link href="/vendor/checkout">
-              <QrCode aria-hidden="true" />
+              <QrCode className="size-5" aria-hidden="true" />
               Open checkout
             </Link>
           </Button>

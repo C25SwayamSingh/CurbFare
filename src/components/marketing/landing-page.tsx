@@ -42,6 +42,13 @@ const CUISINE_ICONS: Record<string, LucideIcon> = {
   american: Sandwich,
 };
 
+export type LandingViewer = {
+  /** First name for the greeting; null when the profile has no display name. */
+  firstName: string | null;
+  /** Where "dashboard" means for this person (vendor, customer, onboarding). */
+  dashboardHref: string;
+};
+
 /**
  * Marketing landing, marketplace-pattern: search-first hero → popping cuisine
  * tabs → the four location states as cards → customer steps → vendor block.
@@ -49,8 +56,16 @@ const CUISINE_ICONS: Record<string, LucideIcon> = {
  * The four-state cards reuse the discovery vocabulary on purpose ("Live now",
  * "Usually here", hotspot = place, never a vendor) so the landing page teaches
  * the same honesty the product enforces.
+ *
+ * `viewer` is the session state: null renders Sign in / Sign up; a signed-in
+ * visitor gets a greeting and their dashboard instead — the page must never
+ * ask an existing user to sign up.
  */
-export function LandingPage() {
+export function LandingPage({
+  viewer = null,
+}: {
+  viewer?: LandingViewer | null;
+}) {
   return (
     <div className="flex min-h-full flex-col">
       <header className="bg-secondary text-secondary-foreground">
@@ -76,12 +91,29 @@ export function LandingPage() {
                 For Vendors
               </a>
             </nav>
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/sign-in">Sign in</Link>
-            </Button>
-            <Button asChild size="sm">
-              <Link href="/sign-up">Sign up</Link>
-            </Button>
+            {viewer ? (
+              <>
+                {/* Same word as the signed-in shell's nav — one "Dashboard",
+                    one destination, no second dashboard to wonder about. */}
+                <Button asChild size="sm">
+                  <Link href={viewer.dashboardHref}>Dashboard</Link>
+                </Button>
+                {viewer.firstName ? (
+                  <span className="hidden text-sm text-secondary-foreground/85 sm:inline">
+                    Hi, {viewer.firstName}
+                  </span>
+                ) : null}
+              </>
+            ) : (
+              <>
+                <Button asChild variant="ghost" size="sm">
+                  <Link href="/sign-in">Sign in</Link>
+                </Button>
+                <Button asChild size="sm">
+                  <Link href="/sign-up">Sign up</Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </header>

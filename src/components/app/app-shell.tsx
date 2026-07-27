@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { APP_CONFIG } from "@/lib/app-config";
+import { NavLinks } from "@/components/app/nav-links";
 import { SignOutButton } from "@/features/authentication/components/sign-out-button";
 
 /** Shared header/footer chrome for signed-in areas. */
@@ -24,15 +25,7 @@ export function AppShell({
           <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-4">
             {nav ? (
               <nav className="flex gap-3 text-sm text-secondary-foreground/80 sm:gap-5">
-                {nav.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="transition-colors hover:text-primary"
-                  >
-                    {item.label}
-                  </Link>
-                ))}
+                <NavLinks items={nav} />
               </nav>
             ) : null}
             {modeSwitch}

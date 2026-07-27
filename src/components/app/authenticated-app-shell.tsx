@@ -1,13 +1,9 @@
 import { AppShell } from "@/components/app/app-shell";
-import {
-  effectivePreferredMode,
-  hasVendorMembership,
-  resolveDashboardPath,
-} from "@/lib/auth/mode";
+import { effectivePreferredMode, hasVendorMembership } from "@/lib/auth/mode";
 import { getAuthContext } from "@/lib/auth/guards";
 import { ModeSwitch } from "@/features/authentication/components/mode-switch";
 
-/** Signed-in chrome with dashboard nav and interface mode switch. */
+/** Signed-in chrome with interface mode switch (and optional page nav). */
 export async function AuthenticatedAppShell({
   children,
   extraNav,
@@ -16,14 +12,13 @@ export async function AuthenticatedAppShell({
   extraNav?: { href: string; label: string }[];
 }) {
   const ctx = await getAuthContext();
-  const dashboardHref = ctx ? resolveDashboardPath(ctx) : "/customer";
   const effectiveMode = ctx ? effectivePreferredMode(ctx) : "customer";
   const membership = ctx ? hasVendorMembership(ctx) : false;
 
-  const nav = [
-    { href: dashboardHref, label: "Dashboard" },
-    ...(extraNav ?? []),
-  ];
+  // No standing "Dashboard" item: the mode switch already names where you
+  // are, and sub-pages carry their own back links. Only page-specific nav
+  // (e.g. Account ↔ Security) renders here.
+  const nav = extraNav && extraNav.length > 0 ? extraNav : undefined;
 
   return (
     <AppShell

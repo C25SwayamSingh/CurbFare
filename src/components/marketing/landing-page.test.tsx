@@ -42,6 +42,47 @@ describe("LandingPage", () => {
     }
   });
 
+  it("offers Sign in / Sign up to signed-out visitors", () => {
+    render(<LandingPage />);
+
+    expect(screen.getByRole("link", { name: /sign in/i })).toHaveAttribute(
+      "href",
+      "/sign-in",
+    );
+    expect(screen.getByRole("link", { name: /sign up/i })).toHaveAttribute(
+      "href",
+      "/sign-up",
+    );
+  });
+
+  it("greets a signed-in visitor and links their dashboard instead", () => {
+    render(
+      <LandingPage viewer={{ firstName: "Maria", dashboardHref: "/vendor" }} />,
+    );
+
+    expect(screen.getByText("Hi, Maria")).toBeInTheDocument();
+    // Same label as the signed-in shell nav: there is only one "Dashboard".
+    expect(screen.getByRole("link", { name: "Dashboard" })).toHaveAttribute(
+      "href",
+      "/vendor",
+    );
+    // Never ask an existing user to sign up.
+    expect(screen.queryByRole("link", { name: /sign up/i })).toBeNull();
+    expect(screen.queryByRole("link", { name: /sign in/i })).toBeNull();
+  });
+
+  it("shows the dashboard link even without a display name", () => {
+    render(
+      <LandingPage viewer={{ firstName: null, dashboardHref: "/customer" }} />,
+    );
+
+    expect(screen.getByRole("link", { name: "Dashboard" })).toHaveAttribute(
+      "href",
+      "/customer",
+    );
+    expect(screen.queryByText(/^Hi,/)).toBeNull();
+  });
+
   it("presents the four location states with honest wording", () => {
     render(<LandingPage />);
 
