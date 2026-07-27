@@ -147,7 +147,6 @@ type PricedReward = {
   economics: ReturnType<typeof catalogItemEconomics>;
 };
 
-/** Round a points value to the nearest 50, minimum 50. */
 /**
  * Point prices are advertised numbers, so they land on steps a customer can
  * hold in their head. The step scales with the points currency: at 10 pts/$1
@@ -231,7 +230,7 @@ function scoreProgram(
   if (entry.perceivedRateBps >= 400) {
     score += 10;
     breakdown.push(
-      `+10 customers perceive ${formatBps(entry.perceivedRateBps)} back at the entry reward`,
+      `+10 customers see ${formatBps(entry.perceivedRateBps)} back at the first reward`,
     );
   } else if (entry.perceivedRateBps < 250) {
     score -= 15;
@@ -381,13 +380,11 @@ function makeRecommendation(
   const why: string[] = [];
   if (answers.goal === "repeat_visits") {
     why.push(
-      "Points reward every verified visit — the more a regular comes back, the closer their next reward.",
+      "Every visit adds points, so regulars keep coming back to reach their next reward.",
     );
   }
   if (answers.goal === "bigger_orders") {
-    why.push(
-      "Points scale with spend, so a larger order earns proportionally more without any rule change.",
-    );
+    why.push("Bigger orders earn more points automatically — no extra rules.");
   }
   if (answers.goal === "new_item") {
     why.push(
@@ -401,7 +398,7 @@ function makeRecommendation(
     economics.entry.perceivedRateBps >= 350
   ) {
     why.push(
-      `At the entry reward, customers perceive ${formatBps(economics.entry.perceivedRateBps)} back while your real cost stays at ${formatBps(economics.entry.costRateBps)}.`,
+      `Customers see ${formatBps(economics.entry.perceivedRateBps)} back at the first reward; it only costs you ${formatBps(economics.entry.costRateBps)}.`,
     );
   }
 
@@ -535,14 +532,14 @@ function inputSummary(
   return [
     {
       label: "Points per dollar",
-      value: `${pointsPerDollar} — the earning scale, the same across every recommendation`,
+      value: `${pointsPerDollar} points for every $1 spent`,
       source: sourceLabel("estimated"),
     },
     {
       label: "Typical order total",
       value:
         order.value === null
-          ? "not given — monthly exposure can't be projected"
+          ? "not given — we can't estimate your monthly cost without it"
           : formatCents(order.value),
       source: sourceLabel(order.source),
     },

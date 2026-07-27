@@ -147,7 +147,7 @@ describe("LoyaltyConsultation", () => {
     );
 
     const summary = screen
-      .getByText(/What these numbers were calculated from/i)
+      .getByText(/Your numbers/i)
       .closest("div")!.parentElement!;
     expect(
       within(summary).getByText(/Typical order total/),

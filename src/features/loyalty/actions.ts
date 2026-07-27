@@ -77,15 +77,17 @@ const publishSchema = z.object({
   currentFingerprint: z.string().min(1),
 });
 
-/** Owner/manager publishes (or replaces) the org's points program. */
+/**
+ * Owner publishes (or replaces) the org's points program. Owner ONLY:
+ * program economics are the business owner's financial commitment — managers
+ * and staff run the counter but cannot change the deal. The database
+ * function enforces the same rule, so this gate is the polite first line.
+ */
 export async function publishLoyaltyProgramAction(
   _prev: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const ctx = await requireVendorMember(
-    ["owner", "manager"],
-    "/vendor/loyalty",
-  );
+  const ctx = await requireVendorMember(["owner"], "/vendor/loyalty");
 
   const parsed = publishSchema.safeParse({
     organizationId: formData.get("organizationId"),

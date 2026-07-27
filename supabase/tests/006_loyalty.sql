@@ -15,7 +15,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(41);
+select plan(42);
 
 insert into auth.users (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data)
 values
@@ -67,6 +67,26 @@ select throws_ok(
   '42501',
   NULL,
   'A non-member cannot publish a points program'
+);
+
+-- A manager, to prove program economics are the owner's ALONE: managers
+-- operate the counter and the pause switches, never the deal itself.
+select test_as_service();
+insert into auth.users (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data)
+values
+  ('00000000-0000-0000-0000-000000000006', '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'manager@test.local', 'x', now(), '{"provider":"email"}', '{"display_name":"Manager"}');
+insert into public.organization_members (organization_id, user_id, role, status)
+values
+  ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000006', 'manager', 'active');
+
+select test_as_user('00000000-0000-0000-0000-000000000006'); -- manager
+select throws_ok(
+  $$ select public.loyalty_publish_program(
+       '10000000-0000-0000-0000-000000000001', 10,
+       '[{"points_cost":450,"reward_kind":"FREE_ITEM","reward_name":"Horchata","reward_value_cents":350,"reward_est_cost_cents":90}]'::jsonb) $$,
+  '42501',
+  NULL,
+  'A manager cannot publish a points program — economics are owner-only'
 );
 
 select test_as_user('00000000-0000-0000-0000-000000000001'); -- owner

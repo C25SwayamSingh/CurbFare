@@ -95,7 +95,7 @@ describe("rewardEconomics — FIXED_DISCOUNT", () => {
   });
 
   it("explains the absence of leverage", () => {
-    expect(rewardEconomics(discount).modelNote).toMatch(/foregone revenue/i);
+    expect(rewardEconomics(discount).modelNote).toMatch(/costs you the full/i);
   });
 
   it("labels each kind distinctly", () => {

@@ -152,8 +152,8 @@ export function rewardEconomics(reward: RewardSpec): RewardEconomics {
       costSource: entered !== null ? "provided" : "estimated",
       modelNote:
         entered !== null
-          ? `Free item: customers see the ${formatCents(reward.retailCents)} menu price, and you pay your own cost of ${formatCents(cost)}.`
-          : `Free item. You haven't entered your cost, so this uses ${DEFAULT_COST_RATIO_PERCENT}% of the menu price (${formatCents(cost)}) — an estimate, not your real cost.`,
+          ? `Free item: customers see the ${formatCents(reward.retailCents)} menu price; it costs you ${formatCents(cost)}.`
+          : `Free item. No cost entered, so we estimate ${DEFAULT_COST_RATIO_PERCENT}% of menu price (${formatCents(cost)}).`,
     };
   }
 
@@ -163,7 +163,7 @@ export function rewardEconomics(reward: RewardSpec): RewardEconomics {
     customerValueCents: reward.discountCents,
     vendorCostCents: reward.discountCents,
     costSource: "provided",
-    modelNote: `Fixed discount: ${formatCents(reward.discountCents)} off costs you the full ${formatCents(reward.discountCents)} in foregone revenue — no cheaper-than-menu-price ingredient behind it.`,
+    modelNote: `Money off: ${formatCents(reward.discountCents)} off costs you the full ${formatCents(reward.discountCents)} — there is no cheaper ingredient behind it.`,
   };
 }
 
@@ -479,7 +479,7 @@ export function validatePointsProgram(
       issues.push({
         severity: "warning",
         code: "cost_estimated",
-        message: `“${label}” uses an estimated cost (${DEFAULT_COST_RATIO_PERCENT}% of menu price). Enter your real cost for accurate figures.`,
+        message: `“${label}” cost is estimated (${DEFAULT_COST_RATIO_PERCENT}% of menu price). Enter your real cost to be sure.`,
       });
     }
   });

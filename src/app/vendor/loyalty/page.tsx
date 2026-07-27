@@ -33,7 +33,11 @@ export const metadata: Metadata = { title: pageTitle("Loyalty & rewards") };
 export default async function VendorLoyaltyPage() {
   const ctx = await requireVendorMember(undefined, "/vendor/loyalty");
   const organizationId = ctx.membership.organization_id;
-  const canManage =
+  // Two different permissions, deliberately split: the OWNER designs the
+  // program (points scale, rewards, publishing — the business's money);
+  // owners and managers OPERATE it (pause switches). Staff run checkout.
+  const canDesign = ctx.membership.role === "owner";
+  const canOperate =
     ctx.membership.role === "owner" || ctx.membership.role === "manager";
 
   const supabase = await createServerClient();
@@ -67,7 +71,7 @@ export default async function VendorLoyaltyPage() {
 
   const stats = statsRows?.[0];
   const hasActiveProgram = Boolean(version);
-  const advisorChatEnabled = canManage && isLoyaltyConsultantConfigured();
+  const advisorChatEnabled = canDesign && isLoyaltyConsultantConfigured();
 
   // The named benchmark for the live program: which chain's model these
   // numbers are (or sit between). Computed from the entry tier — the first
@@ -156,7 +160,7 @@ export default async function VendorLoyaltyPage() {
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                     Reward menu
-                    {canManage ? (
+                    {canDesign ? (
                       <span className="ml-2 font-normal normal-case tracking-normal">
                         —{" "}
                         <a
@@ -239,7 +243,7 @@ export default async function VendorLoyaltyPage() {
                   </AlertDescription>
                 </Alert>
 
-                {canManage ? (
+                {canOperate ? (
                   <LoyaltyPauseControl
                     earningPaused={Boolean(program?.earning_paused)}
                     redemptionPaused={Boolean(program?.redemption_paused)}
@@ -259,7 +263,7 @@ export default async function VendorLoyaltyPage() {
 
             {advisorChatEnabled ? <LoyaltyAdvisorChat /> : null}
 
-            {canManage ? (
+            {canDesign ? (
               <Card id="change-rewards" className="scroll-mt-4">
                 <CardHeader>
                   <CardTitle className="text-lg">Change your rewards</CardTitle>
@@ -278,7 +282,7 @@ export default async function VendorLoyaltyPage() {
               </Card>
             ) : null}
           </>
-        ) : canManage ? (
+        ) : canDesign ? (
           <>
             <LoyaltyConsultation
               organizationId={organizationId}
@@ -290,7 +294,7 @@ export default async function VendorLoyaltyPage() {
         ) : (
           <Alert>
             <AlertDescription>
-              No loyalty program is published yet. An owner or manager can set
+              No loyalty program is published yet. The business owner can set
               one up with the advisor.
             </AlertDescription>
           </Alert>

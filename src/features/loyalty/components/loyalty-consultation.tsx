@@ -621,8 +621,8 @@ export function LoyaltyConsultation({
                 : "No safe program from these answers"}
             </h2>
             <p className="text-sm text-muted-foreground">
-              Every option earns {computed.result.pointsPerDollar} points per $1
-              of verified spend. They differ in the reward catalog.
+              Each one earns {computed.result.pointsPerDollar} points per $1.
+              The only difference is the rewards.
             </p>
           </div>
 
@@ -773,8 +773,8 @@ function ReturnComparison({
           ))}
         </ul>
         <p className="mt-2 text-[11px] leading-snug text-muted-foreground">
-          Published cash-reward programs, read {CHAIN_BENCHMARKS[0].reviewed}.
-          They change these without notice.
+          Their published programs, checked {CHAIN_BENCHMARKS[0].reviewed}. They
+          can change them anytime.
         </p>
       </div>
 
@@ -786,8 +786,7 @@ function ReturnComparison({
           {formatBps(band.lowBps)}–{formatBps(band.highBps)}
         </p>
         <p className="text-[11px] leading-snug text-muted-foreground">
-          {band.label} — {band.bestFor}. A starting range from the programs on
-          the left, not a guarantee.
+          {band.label} — {band.bestFor}. A starting point, not a promise.
         </p>
       </div>
 
@@ -953,11 +952,9 @@ function InputSummary({
   return (
     <Card className={stale ? "opacity-60" : undefined}>
       <CardHeader>
-        <CardTitle className="text-base">
-          What these numbers were calculated from
-        </CardTitle>
+        <CardTitle className="text-base">Your numbers</CardTitle>
         <CardDescription>
-          Every figure below, and where it came from.
+          Everything below comes from what you typed — nothing invented.
         </CardDescription>
       </CardHeader>
       <CardContent>
