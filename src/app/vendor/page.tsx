@@ -109,14 +109,23 @@ export default async function VendorDashboardPage() {
   return (
     <AuthenticatedAppShell>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {organization?.display_name ?? "Your organization"}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            You are {ctx.membership.role === "owner" ? "an" : "a"}{" "}
-            <strong>{ctx.membership.role}</strong> of this organization.
-          </p>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">
+              {organization?.display_name ?? "Your organization"}
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              You are {ctx.membership.role === "owner" ? "an" : "a"}{" "}
+              <strong>{ctx.membership.role}</strong> of this organization.
+            </p>
+          </div>
+          {/* The counter action, one tap from the top — staff live here. */}
+          <Button asChild size="lg">
+            <Link href="/vendor/checkout">
+              <QrCode aria-hidden="true" />
+              Open checkout
+            </Link>
+          </Button>
         </div>
 
         {isLeadership && ctx.aal !== "aal2" ? (
@@ -187,53 +196,23 @@ export default async function VendorDashboardPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>
-                <span className="flex items-center gap-2">
-                  <Users className="size-5" aria-hidden="true" />
-                  Team
-                </span>
+              <CardTitle className="flex items-center gap-2">
+                <Gift className="size-5 text-brand" aria-hidden="true" />
+                Loyalty &amp; rewards
               </CardTitle>
               <CardDescription>
-                {isLeadership
-                  ? "Everyone with access to this organization."
-                  : "Your membership. Owners and managers can see the full team."}
+                Customers earn points on what they spend and trade them for
+                rewards you choose. CurbAgora prices each reward and shows what
+                it costs you before anything goes live.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {members && members.length > 0 ? (
-                <ul className="space-y-2 text-sm">
-                  {members.map((member) => (
-                    <li
-                      key={member.id}
-                      className="flex items-center justify-between rounded-lg border border-border px-3 py-2"
-                    >
-                      <span className="font-medium">
-                        {nameFor(member.user_id)}
-                        {member.user_id === ctx.user.id ? (
-                          <span className="ml-1.5 text-xs font-normal text-muted-foreground">
-                            (you)
-                          </span>
-                        ) : null}
-                      </span>
-                      <span className="capitalize text-muted-foreground">
-                        {member.role}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  No team members to show.
-                </p>
-              )}
-              {canManageUnit ? (
-                <div className="mt-4 border-t border-border pt-4">
-                  <TeamInvitePanel
-                    canInviteOwner={ctx.membership.role === "owner"}
-                    pending={pendingInvites}
-                  />
-                </div>
-              ) : null}
+              <Button asChild variant="outline">
+                <Link href="/vendor/loyalty">
+                  <Gift aria-hidden="true" />
+                  Rewards &amp; program
+                </Link>
+              </Button>
             </CardContent>
           </Card>
         </div>
@@ -251,29 +230,53 @@ export default async function VendorDashboardPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Gift className="size-5 text-brand" aria-hidden="true" />
-              Loyalty &amp; rewards
+            <CardTitle>
+              <span className="flex items-center gap-2">
+                <Users className="size-5" aria-hidden="true" />
+                Team
+              </span>
             </CardTitle>
             <CardDescription>
-              Customers earn points on what they spend and trade them for
-              rewards you choose. CurbAgora prices each reward and shows what it
-              costs you before anything goes live.
+              {isLeadership
+                ? "Everyone with access to this organization."
+                : "Your membership. Owners and managers can see the full team."}
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-wrap gap-2">
-            <Button asChild>
-              <Link href="/vendor/checkout">
-                <QrCode aria-hidden="true" />
-                Open checkout
-              </Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link href="/vendor/loyalty">
-                <Gift aria-hidden="true" />
-                Rewards &amp; program
-              </Link>
-            </Button>
+          <CardContent>
+            {members && members.length > 0 ? (
+              <ul className="space-y-2 text-sm">
+                {members.map((member) => (
+                  <li
+                    key={member.id}
+                    className="flex items-center justify-between rounded-lg border border-border px-3 py-2"
+                  >
+                    <span className="font-medium">
+                      {nameFor(member.user_id)}
+                      {member.user_id === ctx.user.id ? (
+                        <span className="ml-1.5 text-xs font-normal text-muted-foreground">
+                          (you)
+                        </span>
+                      ) : null}
+                    </span>
+                    <span className="capitalize text-muted-foreground">
+                      {member.role}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                No team members to show.
+              </p>
+            )}
+            {canManageUnit ? (
+              <div className="mt-4 border-t border-border pt-4">
+                <TeamInvitePanel
+                  canInviteOwner={ctx.membership.role === "owner"}
+                  pending={pendingInvites}
+                />
+              </div>
+            ) : null}
           </CardContent>
         </Card>
 

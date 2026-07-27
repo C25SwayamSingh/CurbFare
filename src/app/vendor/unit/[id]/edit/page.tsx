@@ -14,6 +14,7 @@ import { requireVendorMember } from "@/lib/auth/guards";
 import { createServerClient } from "@/lib/supabase/server";
 import { isGooglePlacesConfigured } from "@/lib/geocoding/google-places";
 import { VendorUnitForm } from "@/features/vendors/components/vendor-unit-form";
+import { DeleteUnitSection } from "@/features/vendors/components/delete-unit-section";
 
 export const metadata: Metadata = {
   title: pageTitle("Edit your vendor profile"),
@@ -65,6 +66,8 @@ export default async function EditVendorUnitPage({
             />
           </CardContent>
         </Card>
+
+        <DeleteUnitSection unitId={unit.id} unitName={unit.name} />
       </div>
     </AuthenticatedAppShell>
   );

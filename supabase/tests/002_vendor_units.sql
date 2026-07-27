@@ -15,7 +15,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(24);
+select plan(29);
 
 -- ----------------------------------------------------------------------------
 -- Fixtures: owner + manager + staff of "taco-cart", an unrelated vendor
@@ -352,6 +352,67 @@ select is(
        where id = '20000000-0000-0000-0000-000000000003' $$),
   1,
   'a manager can update a vendor unit belonging to an organization they manage'
+);
+
+-- ----------------------------------------------------------------------------
+-- Deletion: owners/managers only, own organization only, dependents cascade
+-- (covers 20260721000000_vendor_unit_delete.sql)
+-- ----------------------------------------------------------------------------
+
+-- A recurring location hanging off the unit about to be deleted, to prove
+-- the ON DELETE CASCADE actually fires under RLS deletion.
+select test_as_service();
+insert into public.vendor_recurring_locations
+  (id, organization_id, vendor_unit_id, latitude, longitude, public_label,
+   timezone, days_of_week, start_time, end_time, created_by)
+values
+  ('30000000-0000-0000-0000-000000000001',
+   '10000000-0000-0000-0000-000000000001', '20000000-0000-0000-0000-000000000002',
+   30.26, -97.74, 'Cascade fixture', 'America/Chicago',
+   '{1,2,3}', '11:00', '15:00', '00000000-0000-0000-0000-000000000001');
+
+select test_as_user('00000000-0000-0000-0000-000000000003', 'aal1');
+select is(
+  test_rows_updated(
+    $$ delete from public.vendor_units
+       where id = '20000000-0000-0000-0000-000000000002' $$),
+  0,
+  'staff cannot delete a vendor unit — removing a cart is a management decision'
+);
+
+select test_as_user('00000000-0000-0000-0000-000000000001', 'aal1');
+select is(
+  test_rows_updated(
+    $$ delete from public.vendor_units
+       where id = '20000000-0000-0000-0000-000000000003' $$),
+  0,
+  'an owner of one organization cannot delete another organization''s vendor unit'
+);
+
+select test_as_anon();
+select throws_ok(
+  $$ delete from public.vendor_units
+     where id = '20000000-0000-0000-0000-000000000002' $$,
+  '42501',
+  null,
+  'anonymous users have no delete grant on vendor_units at all'
+);
+
+select test_as_user('00000000-0000-0000-0000-000000000001', 'aal1');
+select is(
+  test_rows_updated(
+    $$ delete from public.vendor_units
+       where id = '20000000-0000-0000-0000-000000000002' $$),
+  1,
+  'an owner can delete their own organization''s vendor unit'
+);
+
+select test_as_service();
+select is(
+  (select count(*)::int from public.vendor_recurring_locations
+    where id = '30000000-0000-0000-0000-000000000001'),
+  0,
+  'deleting a unit cascades to its recurring locations — no orphaned claims'
 );
 
 select * from finish();

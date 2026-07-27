@@ -339,3 +339,57 @@ export async function updateVendorUnitAction(
 
   redirect("/vendor");
 }
+
+/**
+ * Permanently delete a vendor unit.
+ *
+ * Owners and managers only (mirrored by the vendor_units_delete_owner_manager
+ * RLS policy — this check is the polite first line, the policy is the
+ * enforcement). Location sessions and recurring patterns cascade away with
+ * the unit; loyalty checkout history and scheduled-occurrence audit rows
+ * survive with their unit reference nulled, so nothing financial is erased.
+ */
+export async function deleteVendorUnitAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const unitId = formData.get("unitId")?.toString() ?? "";
+  if (!z.string().uuid().safeParse(unitId).success) {
+    return errorState(GENERIC_ERROR);
+  }
+
+  const ctx = await requireVendorMember(["owner", "manager"], "/vendor");
+  const supabase = await createServerClient();
+
+  // Read first so the photo object can be cleaned up after the row is gone —
+  // scoped to the caller's own organization, like every unit query here.
+  const { data: unit } = await supabase
+    .from("vendor_units")
+    .select("id, primary_image_path")
+    .eq("id", unitId)
+    .eq("organization_id", ctx.membership.organization_id)
+    .maybeSingle();
+
+  if (!unit) {
+    return errorState("That vendor unit could not be found.");
+  }
+
+  const { error } = await supabase
+    .from("vendor_units")
+    .delete()
+    .eq("id", unitId)
+    .eq("organization_id", ctx.membership.organization_id);
+
+  if (error) {
+    console.error("vendor unit delete failed", { code: error.code });
+    return errorState(GENERIC_ERROR);
+  }
+
+  // Best-effort storage cleanup; a failure here just leaves an orphaned
+  // object, never a broken unit.
+  if (unit.primary_image_path) {
+    await removeUnitPhotoObject(supabase, unit.primary_image_path);
+  }
+
+  redirect("/vendor");
+}
