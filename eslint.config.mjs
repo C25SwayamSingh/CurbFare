@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "playwright-report/**",
     "test-results/**",
+    // Assistant tooling (skills ship their own scripts), not app code.
+    ".claude/**",
   ]),
 ]);
 

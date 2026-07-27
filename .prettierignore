@@ -5,3 +5,5 @@ build
 coverage
 playwright-report
 test-results
+# Assistant tooling — third-party skill content stays as shipped
+.claude/
