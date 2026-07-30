@@ -5,12 +5,15 @@ import {
   HOTSPOT_EXPLANATION,
   STATE_STYLES,
   displayTitle,
+  groupHotspotResults,
   hasNoConfirmedVendors,
   isHotspot,
+  requiredAttribution,
   markerAccessibleName,
   matchesFilter,
   queryFlagsFor,
   sortResults,
+  walkingDirectionsUrl,
   type FilterId,
 } from "@/features/discovery/location-state";
 import type {
@@ -234,5 +237,63 @@ describe("hotspot fallback", () => {
     expect(hasNoConfirmedVendors([result("LIVE"), result("HOTSPOT")])).toBe(
       false,
     );
+  });
+});
+
+describe("walking directions", () => {
+  it("builds a keyless Google Maps walking deep link", () => {
+    const url = walkingDirectionsUrl(40.7178, -74.0431);
+    expect(url).toBe(
+      "https://www.google.com/maps/dir/?api=1&destination=40.7178,-74.0431&travelmode=walking",
+    );
+  });
+});
+
+describe("groupHotspotResults", () => {
+  const spot = (
+    id: string,
+    label: string,
+    miles: number,
+  ): NearbyVendorLocation => ({
+    ...result("HOTSPOT"),
+    result_id: id,
+    public_label: label,
+    distance_miles: miles,
+  });
+
+  it("collapses per-space municipal rows into one card per street", () => {
+    const { vendors, hotspotGroups } = groupHotspotResults([
+      spot("h1", "Columbus Drive · Spot 1", 1.6),
+      spot("h2", "Columbus Drive · Spot 15", 1.5),
+      spot("h3", "Sussex Street · Spot 2", 1.8),
+    ]);
+    expect(vendors).toHaveLength(0);
+    expect(hotspotGroups).toHaveLength(2);
+    expect(hotspotGroups[0].label).toBe("Columbus Drive");
+    expect(hotspotGroups[0].spots).toHaveLength(2);
+    // Nearest spot leads the group, and groups order by nearest distance.
+    expect(hotspotGroups[0].nearest.result_id).toBe("h2");
+    expect(hotspotGroups[1].label).toBe("Sussex Street");
+  });
+
+  it("never groups vendors — each keeps an individual card", () => {
+    const live = result("LIVE");
+    const { vendors, hotspotGroups } = groupHotspotResults([
+      live,
+      spot("h1", "Columbus Drive · Spot 1", 1.6),
+    ]);
+    expect(vendors).toEqual([live]);
+    expect(hotspotGroups).toHaveLength(1);
+  });
+});
+
+describe("requiredAttribution", () => {
+  it("requires the OSM credit only when OSM-derived data is on screen", () => {
+    expect(requiredAttribution([result("LIVE")])).toBeNull();
+    const osm = {
+      ...result("HOTSPOT"),
+      source_type: "THIRD_PARTY_DIRECTORY" as const,
+    };
+    expect(requiredAttribution([osm])).toMatch(/OpenStreetMap contributors/);
   });
 });

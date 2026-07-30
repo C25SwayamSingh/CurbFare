@@ -8,6 +8,7 @@ import {
   STATE_STYLES,
   displayTitle,
   markerAccessibleName,
+  walkingDirectionsUrl,
 } from "@/features/discovery/location-state";
 import { formatDistance } from "@/features/discovery/components/nearby-location-card";
 
@@ -146,8 +147,20 @@ function buildInfoContent(result: NearbyVendorLocation): HTMLElement {
     link.textContent = "View page";
     link.style.fontSize = "12px";
     link.style.fontWeight = "600";
+    link.style.marginRight = "10px";
     root.appendChild(link);
   }
+
+  // Everything on the map is walkable-to: hand off to Google Maps with the
+  // route precomputed. External deep link — no Directions API, no key.
+  const directions = document.createElement("a");
+  directions.href = walkingDirectionsUrl(result.latitude, result.longitude);
+  directions.target = "_blank";
+  directions.rel = "noopener noreferrer";
+  directions.textContent = "Walk there";
+  directions.style.fontSize = "12px";
+  directions.style.fontWeight = "600";
+  root.appendChild(directions);
 
   return root;
 }

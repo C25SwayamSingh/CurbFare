@@ -9,11 +9,16 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import type { NearbyVendorLocation } from "@/lib/supabase/database.types";
 import { NearbyMap } from "@/features/discovery/components/nearby-map";
-import { NearbyLocationCard } from "@/features/discovery/components/nearby-location-card";
+import {
+  HotspotGroupCard,
+  NearbyLocationCard,
+} from "@/features/discovery/components/nearby-location-card";
 import {
   FILTERS,
   HOTSPOT_EXPLANATION,
+  groupHotspotResults,
   queryFlagsFor,
+  requiredAttribution,
   type FilterId,
 } from "@/features/discovery/location-state";
 
@@ -417,21 +422,12 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
               ) : null}
 
               {results.length > 0 ? (
-                <ul
-                  className={cn(
-                    "space-y-3",
-                    view === "map" ? "max-h-72 overflow-y-auto" : "",
-                  )}
-                >
-                  {results.map((result) => (
-                    <NearbyLocationCard
-                      key={result.result_id}
-                      result={result}
-                      selected={selectedId === result.result_id}
-                      onSelect={handleSelect}
-                    />
-                  ))}
-                </ul>
+                <GroupedResultList
+                  results={results}
+                  view={view}
+                  selectedId={selectedId}
+                  onSelect={handleSelect}
+                />
               ) : (
                 <EmptyState
                   radius={radius}
@@ -444,6 +440,60 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
             </>
           ) : null}
         </>
+      ) : null}
+    </div>
+  );
+}
+
+/**
+ * Vendors render one card each; hotspot spots collapse into one card per
+ * street (see groupHotspotResults). If anything on screen derives from
+ * OpenStreetMap, the ODbL attribution renders with it — required the moment
+ * such data is public, free the rest of the time.
+ */
+function GroupedResultList({
+  results,
+  view,
+  selectedId,
+  onSelect,
+}: {
+  results: NearbyVendorLocation[];
+  view: "list" | "map";
+  selectedId: string | null;
+  onSelect: (resultId: string) => void;
+}) {
+  const { vendors, hotspotGroups } = groupHotspotResults(results);
+  const attribution = requiredAttribution(results);
+
+  return (
+    <div className="space-y-2">
+      <ul
+        className={cn(
+          "space-y-3",
+          view === "map" ? "max-h-72 overflow-y-auto" : "",
+        )}
+      >
+        {vendors.map((result) => (
+          <NearbyLocationCard
+            key={result.result_id}
+            result={result}
+            selected={selectedId === result.result_id}
+            onSelect={onSelect}
+          />
+        ))}
+        {hotspotGroups.map((group) => (
+          <HotspotGroupCard
+            key={group.label}
+            group={group}
+            selectedId={selectedId}
+            onSelect={onSelect}
+          />
+        ))}
+      </ul>
+      {attribution ? (
+        <p className="text-right text-[11px] text-muted-foreground">
+          {attribution}
+        </p>
       ) : null}
     </div>
   );
@@ -483,16 +533,12 @@ function EmptyState({
       {filter !== "hotspots" && fallback.length > 0 ? (
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">{HOTSPOT_EXPLANATION}</p>
-          <ul className="space-y-3">
-            {fallback.map((result) => (
-              <NearbyLocationCard
-                key={result.result_id}
-                result={result}
-                selected={selectedId === result.result_id}
-                onSelect={onSelect}
-              />
-            ))}
-          </ul>
+          <GroupedResultList
+            results={fallback}
+            view="list"
+            selectedId={selectedId}
+            onSelect={onSelect}
+          />
         </div>
       ) : null}
     </div>

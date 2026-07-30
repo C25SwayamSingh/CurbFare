@@ -170,3 +170,72 @@ export function sortResults(
     (a, b) => a.rank - b.rank || a.distance_miles - b.distance_miles,
   );
 }
+
+/**
+ * Google Maps walking directions to a point. A universal deep link — no API
+ * key, no billing: it opens the Maps app on phones and maps.google.com on
+ * desktop, with the route already computed.
+ */
+export function walkingDirectionsUrl(
+  latitude: number,
+  longitude: number,
+): string {
+  return `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}&travelmode=walking`;
+}
+
+export type HotspotGroup = {
+  /** The street or zone the spots share, e.g. "Columbus Drive". */
+  label: string;
+  /** Every spot in the group, nearest first. */
+  spots: NearbyVendorLocation[];
+  nearest: NearbyVendorLocation;
+};
+
+/**
+ * Municipal feeds publish one row per permitted curb space ("Columbus Drive
+ * · Spot 15"). Customers think in streets, not space numbers — so hotspot
+ * results collapse into one card per street while vendors always stay
+ * individual. Groups are ordered by their nearest spot.
+ */
+export function groupHotspotResults(results: NearbyVendorLocation[]): {
+  vendors: NearbyVendorLocation[];
+  hotspotGroups: HotspotGroup[];
+} {
+  const vendors: NearbyVendorLocation[] = [];
+  const byStreet = new Map<string, NearbyVendorLocation[]>();
+
+  for (const result of results) {
+    if (result.state !== "HOTSPOT") {
+      vendors.push(result);
+      continue;
+    }
+    const street = result.public_label.split(" · ")[0].trim();
+    const list = byStreet.get(street) ?? [];
+    list.push(result);
+    byStreet.set(street, list);
+  }
+
+  const hotspotGroups = [...byStreet.entries()]
+    .map(([label, spots]) => {
+      const sorted = [...spots].sort(
+        (a, b) => a.distance_miles - b.distance_miles,
+      );
+      return { label, spots: sorted, nearest: sorted[0] };
+    })
+    .sort((a, b) => a.nearest.distance_miles - b.nearest.distance_miles);
+
+  return { vendors, hotspotGroups };
+}
+
+/**
+ * ODbL obligation: any publicly displayed result derived from OpenStreetMap
+ * must carry attribution. Hidden leads need nothing; the moment one is
+ * approved and rendered, this returns the required credit line.
+ */
+export function requiredAttribution(
+  results: NearbyVendorLocation[],
+): string | null {
+  return results.some((r) => r.source_type === "THIRD_PARTY_DIRECTORY")
+    ? "Includes data © OpenStreetMap contributors (ODbL)"
+    : null;
+}
