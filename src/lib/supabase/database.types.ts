@@ -28,8 +28,15 @@ export type LocationSourceType =
   | "EVENT_ORGANIZER"
   | "MUNICIPAL_OPEN_DATA"
   | "THIRD_PARTY_SCHEDULE"
+  | "THIRD_PARTY_DIRECTORY"
   | "SOCIAL_MEDIA_LEAD"
   | "COMMUNITY_REPORT";
+
+export type ImportScheduleType =
+  "HOTSPOT" | "RECURRING" | "SCHEDULED" | "VENDOR_LEAD";
+
+export type ImportRecordStatus =
+  "staged" | "published" | "rejected" | "stale" | "associated";
 
 /** How much that source has been vouched for. */
 export type LocationVerification =
@@ -442,6 +449,134 @@ export type Database = {
         Update: never;
         Relationships: [];
       };
+      location_import_sources: {
+        Row: {
+          id: string;
+          source_name: string;
+          adapter: "SOCRATA" | "OPENDATASOFT" | "ARCGIS" | "OVERPASS";
+          source_type: LocationSourceType;
+          endpoint: string;
+          dataset: string | null;
+          license: string;
+          attribution: string;
+          enabled: boolean;
+          last_attempt_at: string | null;
+          last_success_at: string | null;
+          last_error: string | null;
+          consecutive_failures: number;
+          records_received: number;
+          records_created: number;
+          records_updated: number;
+          records_rejected: number;
+          created_at: string;
+          updated_at: string;
+        };
+        // Written only by the service-role import runner.
+        Insert: {
+          id?: string;
+          source_name: string;
+          adapter: "SOCRATA" | "OPENDATASOFT" | "ARCGIS" | "OVERPASS";
+          source_type: LocationSourceType;
+          endpoint: string;
+          dataset?: string | null;
+          license: string;
+          attribution: string;
+          enabled?: boolean;
+        };
+        Update: Partial<{
+          endpoint: string;
+          dataset: string | null;
+          license: string;
+          attribution: string;
+          enabled: boolean;
+          last_attempt_at: string | null;
+          last_success_at: string | null;
+          last_error: string | null;
+          consecutive_failures: number;
+          records_received: number;
+          records_created: number;
+          records_updated: number;
+          records_rejected: number;
+        }>;
+        Relationships: [];
+      };
+      location_import_records: {
+        Row: {
+          id: string;
+          source_id: string;
+          source_name: string;
+          source_type: LocationSourceType;
+          source_record_id: string;
+          source_url: string | null;
+          source_updated_at: string | null;
+          name: string | null;
+          vendor_name: string | null;
+          latitude: number | null;
+          longitude: number | null;
+          public_label: string | null;
+          schedule_type: ImportScheduleType;
+          starts_at: string | null;
+          ends_at: string | null;
+          days_of_week: number[] | null;
+          timezone: string | null;
+          verification: LocationVerification;
+          status: ImportRecordStatus;
+          published_hotspot_id: string | null;
+          associated_vendor_unit_id: string | null;
+          raw_source: Json;
+          first_seen_at: string;
+          last_seen_at: string;
+          review_notes: string | null;
+          reviewed_by: string | null;
+          reviewed_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        // Written only by the service-role import runner.
+        Insert: {
+          id?: string;
+          source_id: string;
+          source_name: string;
+          source_type: LocationSourceType;
+          source_record_id: string;
+          source_url?: string | null;
+          source_updated_at?: string | null;
+          name?: string | null;
+          vendor_name?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
+          public_label?: string | null;
+          schedule_type: ImportScheduleType;
+          starts_at?: string | null;
+          ends_at?: string | null;
+          days_of_week?: number[] | null;
+          timezone?: string | null;
+          verification?: LocationVerification;
+          status?: ImportRecordStatus;
+          raw_source: Json;
+          last_seen_at?: string;
+        };
+        Update: Partial<{
+          source_url: string | null;
+          source_updated_at: string | null;
+          name: string | null;
+          vendor_name: string | null;
+          latitude: number | null;
+          longitude: number | null;
+          public_label: string | null;
+          schedule_type: ImportScheduleType;
+          starts_at: string | null;
+          ends_at: string | null;
+          days_of_week: number[] | null;
+          timezone: string | null;
+          verification: LocationVerification;
+          status: ImportRecordStatus;
+          published_hotspot_id: string | null;
+          raw_source: Json;
+          last_seen_at: string;
+        }>;
+        Relationships: [];
+      };
       vendor_location_sessions: {
         Row: {
           id: string;
@@ -707,6 +842,26 @@ export type Database = {
       };
     };
     Functions: {
+      location_import_approve_hotspot: {
+        Args: { p_record_id: string };
+        Returns: string;
+      };
+      location_import_reject: {
+        Args: { p_record_id: string; p_note?: string };
+        Returns: undefined;
+      };
+      location_import_mark_stale: {
+        Args: { p_record_id: string };
+        Returns: undefined;
+      };
+      location_import_associate: {
+        Args: {
+          p_record_id: string;
+          p_vendor_unit_id: string;
+          p_note?: string;
+        };
+        Returns: undefined;
+      };
       organization_create_invitation: {
         Args: {
           p_organization_id: string;

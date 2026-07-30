@@ -18,7 +18,9 @@
     "db:reset": "supabase db reset",
     "db:test": "supabase test db",
     "db:lint": "supabase db lint",
-    "db:types": "supabase gen types typescript --local > src/lib/supabase/database.types.ts"
+    "db:types": "supabase gen types typescript --local > src/lib/supabase/database.types.ts",
+    "import:locations": "tsx scripts/import-locations.ts",
+    "smoke:sources": "tsx scripts/smoke-sources.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.112.4",
@@ -56,6 +58,7 @@
     "prettier": "^3.9.4",
     "supabase": "^2.109.0",
     "tailwindcss": "^4",
+    "tsx": "^4.23.1",
     "typescript": "^5",
     "vitest": "^4.1.9"
   }

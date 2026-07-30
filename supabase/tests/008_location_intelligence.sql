@@ -322,7 +322,7 @@ select is(
 select is(
   (select vendor_unit_id from public.nearby_vendor_locations(40.70, -74.00, 5,
      true, true, true, true)
-    where state = 'HOTSPOT'),
+    where state = 'HOTSPOT' and public_label = 'Permitted vending zone'),
   null,
   'A hotspot result carries no vendor at all'
 );
@@ -330,7 +330,7 @@ select is(
 select is(
   (select reason_label from public.nearby_vendor_locations(40.70, -74.00, 5,
      true, true, true, true)
-    where state = 'HOTSPOT'),
+    where state = 'HOTSPOT' and public_label = 'Permitted vending zone'),
   'Food-vendor hotspot — vendor not confirmed',
   'A hotspot says in words that no vendor is confirmed there'
 );
