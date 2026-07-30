@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { AppShell } from "@/components/app/app-shell";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -53,6 +55,21 @@ export default async function AdminPage() {
             </CardHeader>
           </Card>
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Imported locations</CardTitle>
+            <CardDescription>
+              Review externally imported records — municipal zones, permits,
+              directory leads. Approval publishes hotspots only.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild variant="outline" size="sm">
+              <Link href="/admin/locations">Open review queue</Link>
+            </Button>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>
