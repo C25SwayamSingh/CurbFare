@@ -133,16 +133,43 @@ approved. Public reads go through three views —
 `location_hotspot_previews` — which expose **no reviewer notes and no reporter
 identity**, never the base tables.
 
-## 9. Deferred (schema present, tooling later)
+## 9. External open-data imports (implemented 2026-07-28)
 
-The hotspot/report tables carry their full schema and provenance so nothing has
-to be remodelled, but two pieces are **intentionally deferred** until there is a
-real dataset to exercise them against:
+The importer and review queue originally deferred here now exist, in
+`src/features/location-import/` plus migration
+`20260723000000_location_import_pipeline.sql`:
 
-- The **CSV/GeoJSON importer** (municipal / third-party feeds).
-- The **admin review queue** — approve / associate-to-vendor /
-  request-confirmation / mark-stale / reject / merge. `requirePlatformAdmin`
-  already gates `/admin`, so it has a home when built.
+- **Four transport adapters** — Socrata, Opendatasoft, ArcGIS, Overpass —
+  fetch raw rows; per-source mappers in `sources.ts` turn them into one
+  normalized shape whose source-type enum **cannot express a vendor-voiced
+  record**. External data is structurally unable to become "Live".
+- **Launch sources**: Jersey City parking zones (×3, trusted → auto-publish
+  as CONFIRMED hotspots), SF permits (hidden vendor leads), SF weekly
+  schedules (EXPECTED recurring candidates; coordinate-less rows demote to
+  leads, never invented pins), Cambridge permits (leads), NYC Parks
+  carts/trucks (mapper ready, source **disabled**: verified 2026-07-28 that
+  its dataset is an href asset with no rows API — enable when a tabular feed
+  exists; once staged, it publishes only via admin approval), OSM street
+  vendors
+  (`street_vendor=yes` / `fast_food=van` only — never the whole fast-food
+  layer; ODbL attribution stored on the source row).
+- **Staging** (`location_import_records`): raw payloads for audit, unique
+  `(source_name, source_record_id)` with adapter-namespaced ids
+  (`sfgov:rqzj-sfat:{row}`), platform-admin-only RLS, statuses
+  staged/published/rejected/stale/associated. Missing-on-refetch marks
+  stale — never deletes; terminal human decisions are never resurrected.
+- **Source health** (`location_import_sources`): per-feed counters, last
+  success/error, consecutive failures — surfaced at `/admin/locations`.
+- **Review** — SECURITY DEFINER functions (platform admin + aal2):
+  approve-as-hotspot, reject, mark-stale, associate-with-unit (a link only;
+  never account creation or ownership transfer). UI at `/admin/locations`.
+- **Runners**: `npm run import:locations` (service role, server-only) and
+  `npm run smoke:sources` (opt-in live endpoint check; the vitest suite
+  never touches the network).
+
+Still deferred: materializing SF weekly patterns into public occurrences
+(they stay leads until a vendor claims them), CSV/GeoJSON file imports, and
+duplicate-merge tooling beyond associate+reject.
 
 ## 10. Limitations
 
