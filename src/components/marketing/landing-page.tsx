@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import {
+  ArrowRight,
   Beef,
   CakeSlice,
   CalendarClock,
@@ -21,6 +22,7 @@ import {
 
 import { APP_CONFIG } from "@/lib/app-config";
 import { Button } from "@/components/ui/button";
+import { HeroLoopVideo } from "@/components/marketing/hero-loop-video";
 import { CUISINE_CATEGORIES } from "@/features/vendors/schemas";
 
 /**
@@ -119,10 +121,12 @@ export function LandingPage({
       </header>
 
       <main className="flex-1">
-        {/* Hero: one loud teal block, cuisine tabs overlap its bottom edge. */}
+        {/* Hero: night-market loop video over the teal block, cuisine tabs
+            overlap its bottom edge. The teal block is also the fallback: no
+            video file, slow network, or reduced motion all land back on it. */}
         <section className="px-4 pt-4 sm:px-6 sm:pt-6">
           <div className="relative mx-auto w-full max-w-6xl overflow-hidden rounded-3xl bg-secondary px-6 pb-24 pt-12 text-secondary-foreground sm:px-12 sm:pb-28 sm:pt-16">
-            {/* Block-style geometry, not photography: cheap, token-true. */}
+            {/* Block-style geometry: visible whenever the video isn't. */}
             <div
               aria-hidden="true"
               className="absolute -right-16 -top-16 size-56 rounded-full bg-primary/20"
@@ -130,6 +134,17 @@ export function LandingPage({
             <div
               aria-hidden="true"
               className="absolute -bottom-24 right-24 hidden size-40 rounded-full bg-accent/20 md:block"
+            />
+
+            {/* The loop keeps its subjects in the right two-thirds; the scrim
+                keeps the left text column readable over the bright cart glow. */}
+            <HeroLoopVideo
+              webmSrc="/media/hero-loop.webm"
+              mp4Src="/media/hero-loop.mp4"
+            />
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 bg-gradient-to-r from-secondary via-secondary/60 to-secondary/10"
             />
 
             <div className="relative max-w-2xl">
@@ -213,54 +228,85 @@ export function LandingPage({
           <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
             Know before you walk over
           </h2>
-          <p className="mt-2 max-w-2xl text-muted-foreground">
-            Every result tells you exactly how much to trust it — a vendor
-            standing somewhere always beats a prediction.
+          <p className="mt-2 text-muted-foreground">
+            Every pin says how it knows. Tap one to explore.
           </p>
           <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {/* Live is the loud card: it's the one state that means "go now". */}
-            <li className="rounded-2xl bg-primary p-5 text-primary-foreground shadow-md">
-              <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider">
-                <span
+            <li>
+              <Link
+                href="/discover"
+                className="group block rounded-2xl bg-primary p-5 text-primary-foreground shadow-md transition-transform duration-200 hover:-translate-y-0.5"
+              >
+                <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider">
+                  <span
+                    aria-hidden="true"
+                    className="size-2.5 rounded-full bg-primary-foreground motion-safe:animate-pulse"
+                  />
+                  Live now
+                </span>
+                <p className="mt-2 text-sm font-medium">
+                  Confirmed minutes ago. Go.
+                </p>
+                <ArrowRight
+                  className="mt-3 size-4 transition-transform group-hover:translate-x-1"
                   aria-hidden="true"
-                  className="size-2.5 rounded-full bg-primary-foreground motion-safe:animate-pulse"
                 />
-                Live now
-              </span>
-              <p className="mt-3 text-sm font-medium leading-relaxed">
-                The vendor is sharing their exact spot right now — confirmed
-                minutes ago, not guessed.
-              </p>
+              </Link>
             </li>
-            <li className="rounded-2xl border border-border bg-card p-5">
-              <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-live">
-                <CalendarClock className="size-4" aria-hidden="true" />
-                Scheduled
-              </span>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                A confirmed date, time, and place — tonight&apos;s market,
-                tomorrow&apos;s lunch pop-up.
-              </p>
+            <li>
+              <Link
+                href="/discover"
+                className="group block rounded-2xl border border-border bg-card p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary"
+              >
+                <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-live">
+                  <CalendarClock className="size-4" aria-hidden="true" />
+                  Scheduled
+                </span>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Tonight&apos;s market. Tomorrow&apos;s pop-up.
+                </p>
+                <ArrowRight
+                  className="mt-3 size-4 text-primary transition-transform group-hover:translate-x-1"
+                  aria-hidden="true"
+                />
+              </Link>
             </li>
-            <li className="rounded-2xl border border-border bg-card p-5">
-              <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand">
-                <Clock className="size-4" aria-hidden="true" />
-                Usually here
-              </span>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                Their weekly rhythm — the same corner, weekdays 11–3, confirmed
-                by the vendor.
-              </p>
+            <li>
+              <Link
+                href="/discover"
+                className="group block rounded-2xl border border-border bg-card p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary"
+              >
+                <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand">
+                  <Clock className="size-4" aria-hidden="true" />
+                  Usually here
+                </span>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Same corner, same days.
+                </p>
+                <ArrowRight
+                  className="mt-3 size-4 text-primary transition-transform group-hover:translate-x-1"
+                  aria-hidden="true"
+                />
+              </Link>
             </li>
-            <li className="rounded-2xl border border-dashed border-border bg-card/60 p-5">
-              <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                <MapPin className="size-4" aria-hidden="true" />
-                Hotspot
-              </span>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                A place where carts commonly set up. No vendor confirmed — and
-                we&apos;ll never pretend otherwise.
-              </p>
+            <li>
+              <Link
+                href="/discover"
+                className="group block rounded-2xl border border-dashed border-border bg-card/60 p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary"
+              >
+                <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  <MapPin className="size-4" aria-hidden="true" />
+                  Hotspot
+                </span>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Known cart spots. No vendor confirmed.
+                </p>
+                <ArrowRight
+                  className="mt-3 size-4 text-primary transition-transform group-hover:translate-x-1"
+                  aria-hidden="true"
+                />
+              </Link>
             </li>
           </ul>
         </section>
@@ -278,33 +324,51 @@ export function LandingPage({
               Three steps between you and the cart.
             </p>
             <ol className="mt-8 grid gap-4 sm:grid-cols-3">
-              <li className="rounded-2xl border border-border bg-card p-5">
-                <span className="text-3xl font-bold text-primary">1</span>
-                <h3 className="mt-2 font-semibold">Search your block</h3>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  One tap shares your location for one search — never stored,
-                  never tracked.
-                </p>
+              <li>
+                <Link
+                  href="/discover"
+                  className="block rounded-2xl border border-border bg-card p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary"
+                >
+                  <span className="text-3xl font-bold text-primary">1</span>
+                  <h3 className="mt-2 font-semibold">Search your block</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    One tap. Never stored.
+                  </p>
+                </Link>
               </li>
-              <li className="rounded-2xl border border-border bg-card p-5">
-                <span className="text-3xl font-bold text-primary">2</span>
-                <h3 className="mt-2 font-semibold">
-                  Pick who&apos;s really out
-                </h3>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Filter live, scheduled, and usual spots — each result says how
-                  it knows.
-                </p>
+              <li>
+                <Link
+                  href="/discover"
+                  className="block rounded-2xl border border-border bg-card p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary"
+                >
+                  <span className="text-3xl font-bold text-primary">2</span>
+                  <h3 className="mt-2 font-semibold">See who&apos;s out</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Live, scheduled, usual spots.
+                  </p>
+                </Link>
               </li>
-              <li className="rounded-2xl border border-border bg-card p-5">
-                <span className="text-3xl font-bold text-primary">3</span>
-                <h3 className="mt-2 font-semibold">Walk up and earn</h3>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Order at the window and collect points on every dollar at
-                  carts with rewards.
-                </p>
+              <li>
+                <Link
+                  href="/discover"
+                  className="block rounded-2xl border border-border bg-card p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary"
+                >
+                  <span className="text-3xl font-bold text-primary">3</span>
+                  <h3 className="mt-2 font-semibold">Walk up and earn</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Points on every dollar.
+                  </p>
+                </Link>
               </li>
             </ol>
+            <div className="mt-8">
+              <Button asChild size="lg">
+                <Link href="/discover">
+                  <MapPin aria-hidden="true" />
+                  Explore the map
+                </Link>
+              </Button>
+            </div>
           </div>
         </section>
 
@@ -316,8 +380,7 @@ export function LandingPage({
                 For vendors
               </h2>
               <p className="mt-2 text-secondary-foreground/85">
-                Your cart already has regulars. Give them a way to find you —
-                and a reason to come back.
+                Give your regulars a way to find you.
               </p>
             </div>
             <ul className="mt-8 grid gap-4 sm:grid-cols-3">
@@ -328,7 +391,7 @@ export function LandingPage({
                 />
                 <h3 className="font-semibold">Go live in one tap</h3>
                 <p className="mt-1 text-sm text-secondary-foreground/80">
-                  Share today&apos;s spot the moment you open the window.
+                  Share today&apos;s spot instantly.
                 </p>
               </li>
               <li className="rounded-2xl bg-card/10 p-5">
@@ -338,7 +401,7 @@ export function LandingPage({
                 />
                 <h3 className="font-semibold">Post your week</h3>
                 <p className="mt-1 text-sm text-secondary-foreground/80">
-                  Usual corners and one-off events, shown honestly to customers.
+                  Usual corners, one-off events.
                 </p>
               </li>
               <li className="rounded-2xl bg-card/10 p-5">
@@ -348,8 +411,7 @@ export function LandingPage({
                 />
                 <h3 className="font-semibold">Points, not punch cards</h3>
                 <p className="mt-1 text-sm text-secondary-foreground/80">
-                  A loyalty program benchmarked against the big chains — sized
-                  for a cart.
+                  Chain-grade rewards, cart-sized.
                 </p>
               </li>
             </ul>
