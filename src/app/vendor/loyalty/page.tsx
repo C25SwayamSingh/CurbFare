@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, PauseCircle, TrendingUp } from "lucide-react";
+import {
+  ArrowLeft,
+  Coins,
+  Gift,
+  PauseCircle,
+  Users,
+  Wallet,
+} from "lucide-react";
 
 import { AuthenticatedAppShell } from "@/components/app/authenticated-app-shell";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -104,24 +111,75 @@ export default async function VendorLoyaltyPage() {
             Loyalty &amp; rewards
           </h1>
           <p className="text-sm text-muted-foreground">
-            A points card for your regulars — designed with the advisor,
-            approved by you, and safe for your margins.
+            Your program, at a glance.
           </p>
         </div>
 
         {hasActiveProgram && version ? (
           <>
+            {/* The numbers first — a merchant reads the board before the
+                fine print. Big teal figures, small labels, no invented
+                trends: we only show deltas once we have real history. */}
+            {stats ? (
+              <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                <div className="relative rounded-2xl border border-border bg-card p-4 sm:p-5">
+                  <Users
+                    className="absolute right-4 top-4 size-4 text-muted-foreground/60"
+                    aria-hidden="true"
+                  />
+                  <p className="text-3xl font-bold tabular-nums text-brand">
+                    {stats.members}
+                  </p>
+                  <p className="mt-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    Members
+                  </p>
+                </div>
+                <div className="relative rounded-2xl border border-border bg-card p-4 sm:p-5">
+                  <Coins
+                    className="absolute right-4 top-4 size-4 text-muted-foreground/60"
+                    aria-hidden="true"
+                  />
+                  <p className="text-3xl font-bold tabular-nums text-brand">
+                    {Number(stats.points_issued).toLocaleString("en-US")}
+                  </p>
+                  <p className="mt-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    Points issued
+                  </p>
+                </div>
+                <div className="relative rounded-2xl border border-border bg-card p-4 sm:p-5">
+                  <Gift
+                    className="absolute right-4 top-4 size-4 text-muted-foreground/60"
+                    aria-hidden="true"
+                  />
+                  <p className="text-3xl font-bold tabular-nums text-brand">
+                    {stats.rewards_redeemed}
+                  </p>
+                  <p className="mt-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    Rewards redeemed
+                  </p>
+                </div>
+                <div className="relative rounded-2xl border border-border bg-card p-4 sm:p-5">
+                  <Wallet
+                    className="absolute right-4 top-4 size-4 text-muted-foreground/60"
+                    aria-hidden="true"
+                  />
+                  <p className="text-3xl font-bold tabular-nums text-brand">
+                    {formatCents(Number(stats.estimated_liability_cents))}
+                  </p>
+                  <p className="mt-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    Owed in rewards
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground/80">
+                    If every point were spent today. An estimate, not a bill.
+                  </p>
+                </div>
+              </div>
+            ) : null}
+
             <Card>
               <CardHeader>
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div>
-                    <CardTitle className="text-lg">Live program</CardTitle>
-                    <CardDescription>
-                      {version.points_per_dollar} points per $1 ·{" "}
-                      {(catalog ?? []).length} reward
-                      {(catalog ?? []).length === 1 ? "" : "s"}
-                    </CardDescription>
-                  </div>
+                  <CardTitle className="text-lg">Live program</CardTitle>
                   <div className="flex gap-2">
                     {program?.earning_paused ? (
                       <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
@@ -142,106 +200,63 @@ export default async function VendorLoyaltyPage() {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm">
-                  Customers earn {version.points_per_dollar} points for every $1
-                  of eligible spend, confirmed by your staff at the counter.
-                </p>
-
-                {benchmarkLine ? (
-                  <p className="text-sm text-muted-foreground">
-                    <span className="font-medium text-foreground">
-                      Your benchmark:
-                    </span>{" "}
-                    {benchmarkLine}
+              <CardContent className="space-y-5">
+                <div>
+                  <p className="flex flex-wrap items-baseline gap-x-2">
+                    <span className="text-3xl font-bold tabular-nums text-brand">
+                      {version.points_per_dollar}
+                    </span>
+                    <span className="text-sm text-muted-foreground">
+                      points per $1 · confirmed by staff at the counter
+                    </span>
                   </p>
-                ) : null}
+                  {benchmarkLine ? (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {benchmarkLine}
+                    </p>
+                  ) : null}
+                </div>
 
                 <div>
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    Reward menu
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Reward menu
+                    </p>
                     {canDesign ? (
-                      <span className="ml-2 font-normal normal-case tracking-normal">
-                        —{" "}
-                        <a
-                          href="#change-rewards"
-                          className="text-brand underline"
-                        >
-                          change these below
-                        </a>
-                      </span>
+                      <a
+                        href="#change-rewards"
+                        className="text-xs font-medium text-brand underline underline-offset-2"
+                      >
+                        Edit
+                      </a>
                     ) : null}
-                  </p>
-                  <ul className="mt-1 space-y-1 text-sm">
+                  </div>
+                  <ul className="mt-2 divide-y divide-border/60 rounded-xl border border-border/60">
                     {(catalog ?? []).map((item) => (
-                      <li key={item.id} className="flex flex-wrap gap-2">
-                        <span className="rounded-full bg-secondary/20 px-2 py-0.5 text-xs font-medium text-brand">
-                          {formatPoints(item.points_cost)}
-                        </span>
-                        <span>
+                      <li
+                        key={item.id}
+                        className="flex items-center justify-between gap-3 px-3 py-2.5"
+                      >
+                        <span className="text-sm">
                           {rewardDisplayLabel(
                             item.reward_kind,
                             item.reward_name,
                             item.reward_value_cents,
                           )}
-                          {item.reward_kind === "FREE_ITEM"
-                            ? ` (menu value ${formatCents(item.reward_value_cents)})`
-                            : ""}
+                          {item.reward_kind === "FREE_ITEM" ? (
+                            <span className="text-muted-foreground">
+                              {" "}
+                              · {formatCents(item.reward_value_cents)} value
+                            </span>
+                          ) : null}
+                        </span>
+                        <span className="shrink-0 rounded-full bg-secondary/20 px-2.5 py-0.5 text-xs font-semibold tabular-nums text-brand">
+                          {formatPoints(item.points_cost)}
                         </span>
                       </li>
                     ))}
                   </ul>
                 </div>
-
-                {stats ? (
-                  <dl className="grid grid-cols-2 gap-3 rounded-lg bg-muted/60 p-4 text-sm sm:grid-cols-4">
-                    <div>
-                      <dt className="text-xs text-muted-foreground">Members</dt>
-                      <dd className="font-semibold">{stats.members}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs text-muted-foreground">
-                        Points issued
-                      </dt>
-                      <dd className="font-semibold">
-                        {Number(stats.points_issued).toLocaleString("en-US")}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs text-muted-foreground">
-                        Rewards redeemed
-                      </dt>
-                      <dd className="font-semibold">
-                        {stats.rewards_redeemed}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="text-xs text-muted-foreground">
-                        If everyone cashed in
-                      </dt>
-                      <dd className="font-semibold">
-                        {formatCents(Number(stats.estimated_liability_cents))}
-                      </dd>
-                    </div>
-                  </dl>
-                ) : null}
-
-                <Alert>
-                  <TrendingUp aria-hidden="true" />
-                  <AlertDescription>
-                    {/* Leading space inside the element, not between two
-                        siblings — JSX discards the latter unpredictably
-                        depending on where the formatter wraps the line. */}
-                    <strong>If everyone cashed in</strong>
-                    <span>
-                      {" "}
-                      is what the points people are holding would cost you in
-                      food, all at once. It won&apos;t happen in one day, and
-                      it&apos;s an estimate from your own reward costs — not a
-                      bill.
-                    </span>
-                  </AlertDescription>
-                </Alert>
 
                 {canOperate ? (
                   <LoyaltyPauseControl
