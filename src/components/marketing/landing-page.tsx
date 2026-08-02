@@ -213,89 +213,67 @@ export function LandingPage({
             not seven — the states stay distinguishable by color + icon. */}
         <section
           id="customers"
-          className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 sm:py-12"
+          className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-10"
         >
-          <div className="rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-10">
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+          <div className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8">
+            <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
               Know before you walk over
             </h2>
-            <p className="mt-2 text-muted-foreground">
-              Every pin says how it knows. Tap one to explore.
+            <p className="mt-1.5 text-sm text-muted-foreground">
+              Every pin says how it knows.
             </p>
 
-            <ul className="mt-6 flex flex-wrap gap-2.5">
+            {/* Equal-width, non-interactive legend — these teach the four
+                states; the one click in this panel is the button below.
+                Every cell is the same two lines (label, then detail) so the
+                row stays balanced at any width. */}
+            <ul className="mt-4 grid gap-2 text-center sm:grid-cols-2 lg:grid-cols-4">
               {/* Live is the loud chip: the one state that means "go now". */}
-              <li>
-                <Link
-                  href="/discover"
-                  className="inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-4 py-2 text-primary-foreground shadow-sm transition-transform duration-200 hover:-translate-y-0.5"
-                >
+              <li className="flex flex-col items-center justify-center gap-0.5 rounded-2xl border border-transparent bg-primary px-3 py-2.5 text-primary-foreground shadow-sm">
+                <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider">
                   <span
                     aria-hidden="true"
-                    className="size-2.5 rounded-full bg-primary-foreground motion-safe:animate-pulse"
+                    className="size-2 rounded-full bg-primary-foreground motion-safe:animate-pulse"
                   />
-                  <span className="text-xs font-bold uppercase tracking-wider">
-                    Live now
-                  </span>
-                  <span className="text-sm font-medium">
-                    Confirmed minutes ago
-                  </span>
-                </Link>
+                  Live now
+                </span>
+                <span className="text-sm font-medium">
+                  Confirmed minutes ago
+                </span>
               </li>
-              <li>
-                <Link
-                  href="/discover"
-                  className="inline-flex min-h-11 items-center gap-2 rounded-full border border-border bg-background px-4 py-2 transition-colors duration-200 hover:border-primary"
-                >
-                  <CalendarClock
-                    className="size-4 text-live"
-                    aria-hidden="true"
-                  />
-                  <span className="text-xs font-bold uppercase tracking-wider text-live">
-                    Scheduled
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    Tonight&apos;s market
-                  </span>
-                </Link>
+              <li className="flex flex-col items-center justify-center gap-0.5 rounded-2xl border border-border bg-background px-3 py-2.5">
+                <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-live">
+                  <CalendarClock className="size-4" aria-hidden="true" />
+                  Scheduled
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  Tonight&apos;s market
+                </span>
               </li>
-              <li>
-                <Link
-                  href="/discover"
-                  className="inline-flex min-h-11 items-center gap-2 rounded-full border border-border bg-background px-4 py-2 transition-colors duration-200 hover:border-primary"
-                >
-                  <Clock className="size-4 text-brand" aria-hidden="true" />
-                  <span className="text-xs font-bold uppercase tracking-wider text-brand">
-                    Usually here
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    Same corner, same days
-                  </span>
-                </Link>
+              <li className="flex flex-col items-center justify-center gap-0.5 rounded-2xl border border-border bg-background px-3 py-2.5">
+                <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-brand">
+                  <Clock className="size-4" aria-hidden="true" />
+                  Usually here
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  Like clockwork
+                </span>
               </li>
-              <li>
-                <Link
-                  href="/discover"
-                  className="inline-flex min-h-11 items-center gap-2 rounded-full border border-dashed border-border bg-background px-4 py-2 transition-colors duration-200 hover:border-primary"
-                >
-                  <MapPin
-                    className="size-4 text-muted-foreground"
-                    aria-hidden="true"
-                  />
-                  <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    Hotspot
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    No vendor confirmed
-                  </span>
-                </Link>
+              <li className="flex flex-col items-center justify-center gap-0.5 rounded-2xl border border-dashed border-border bg-background px-3 py-2.5">
+                <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  <MapPin className="size-4" aria-hidden="true" />
+                  Hotspot
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  No vendor confirmed
+                </span>
               </li>
             </ul>
 
-            <div className="my-8 border-t border-border/60" />
+            <div className="my-5 border-t border-border/60" />
 
             <h3 className="text-lg font-bold tracking-tight">For customers</h3>
-            <ol className="mt-4 grid gap-4 sm:grid-cols-3">
+            <ol className="mt-3 grid gap-3 sm:grid-cols-3">
               <li className="flex items-start gap-3">
                 <span className="text-2xl font-bold text-primary">1</span>
                 <div>
@@ -325,7 +303,7 @@ export function LandingPage({
               </li>
             </ol>
 
-            <div className="mt-8">
+            <div className="mt-6">
               <Button asChild size="lg">
                 <Link href="/discover">
                   <MapPin aria-hidden="true" />
@@ -339,20 +317,20 @@ export function LandingPage({
         {/* Vendor block: the "become a seller" section, in brand teal.
             Same card geometry as the customer panel above — same width,
             radius, and padding, so the two read as siblings. */}
-        <section id="vendors" className="px-4 pb-10 sm:px-6 sm:pb-12">
-          <div className="mx-auto w-full max-w-6xl rounded-3xl bg-secondary p-6 text-secondary-foreground sm:p-10">
+        <section id="vendors" className="px-4 pb-8 sm:px-6 sm:pb-10">
+          <div className="mx-auto w-full max-w-6xl rounded-3xl bg-secondary p-5 text-secondary-foreground sm:p-8">
             <div className="max-w-2xl">
-              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
                 For vendors
               </h2>
-              <p className="mt-2 text-secondary-foreground/85">
+              <p className="mt-1.5 text-sm text-secondary-foreground/85">
                 Give your regulars a way to find you.
               </p>
             </div>
-            <ul className="mt-8 grid gap-4 sm:grid-cols-3">
-              <li className="rounded-2xl bg-card/10 p-5">
+            <ul className="mt-5 grid gap-3 sm:grid-cols-3">
+              <li className="rounded-2xl bg-card/10 p-4">
                 <MapPin
-                  className="mb-3 size-5 text-primary"
+                  className="mb-2 size-5 text-primary"
                   aria-hidden="true"
                 />
                 <h3 className="font-semibold">Go live in one tap</h3>
@@ -360,9 +338,9 @@ export function LandingPage({
                   Share today&apos;s spot instantly.
                 </p>
               </li>
-              <li className="rounded-2xl bg-card/10 p-5">
+              <li className="rounded-2xl bg-card/10 p-4">
                 <CalendarClock
-                  className="mb-3 size-5 text-primary"
+                  className="mb-2 size-5 text-primary"
                   aria-hidden="true"
                 />
                 <h3 className="font-semibold">Post your week</h3>
@@ -370,9 +348,9 @@ export function LandingPage({
                   Set it once, they show up.
                 </p>
               </li>
-              <li className="rounded-2xl bg-card/10 p-5">
+              <li className="rounded-2xl bg-card/10 p-4">
                 <Store
-                  className="mb-3 size-5 text-primary"
+                  className="mb-2 size-5 text-primary"
                   aria-hidden="true"
                 />
                 <h3 className="font-semibold">Points, not punch cards</h3>
@@ -381,7 +359,7 @@ export function LandingPage({
                 </p>
               </li>
             </ul>
-            <div className="mt-8">
+            <div className="mt-6">
               <Button asChild size="lg">
                 <Link href="/sign-up">Create your vendor profile</Link>
               </Button>
