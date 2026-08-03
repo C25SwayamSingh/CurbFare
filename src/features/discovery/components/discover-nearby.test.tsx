@@ -129,7 +129,7 @@ describe("privacy and lazy loading", () => {
       await screen.findByText(/location permission was denied/i),
     ).toBeDefined();
     expect(
-      screen.getByLabelText(/search a city or neighborhood/i),
+      screen.getByLabelText(/search a street, neighborhood, or city/i),
     ).toBeDefined();
   });
 

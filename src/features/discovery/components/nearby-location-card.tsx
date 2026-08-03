@@ -1,13 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  ExternalLink,
-  Footprints,
-  Info,
-  MapPin,
-  MapPinned,
-} from "lucide-react";
+import { ExternalLink, Footprints, MapPin, MapPinned } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import type { NearbyVendorLocation } from "@/lib/supabase/database.types";
@@ -37,7 +31,8 @@ function formatVerified(iso: string | null): string | null {
   return `Confirmed ${then.toLocaleDateString(undefined, { month: "short", day: "numeric" })}`;
 }
 
-/** Google-Maps walking route, opened outside the card's select behavior. */
+/** Google-Maps walking route as an action pill, opened outside the card's
+ * select behavior. Orange = action, ink on orange per the design system. */
 function WalkThereLink({
   latitude,
   longitude,
@@ -53,11 +48,10 @@ function WalkThereLink({
       target="_blank"
       rel="noopener noreferrer"
       onClick={(event) => event.stopPropagation()}
-      className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-primary underline underline-offset-2"
+      className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground shadow-sm transition-transform hover:-translate-y-0.5"
     >
       <Footprints className="size-3.5" aria-hidden="true" />
       Walk there{note ? ` ${note}` : ""}
-      <ExternalLink className="size-3.5" aria-hidden="true" />
     </a>
   );
 }
@@ -85,10 +79,10 @@ function CardShell({
           }
         }}
         className={cn(
-          "cursor-pointer rounded-lg border bg-card p-3 transition-colors",
+          "cursor-pointer rounded-xl border bg-card p-3.5 transition-all duration-200 sm:p-4",
           selected
             ? "border-secondary bg-accent/40 ring-1 ring-secondary"
-            : "border-border hover:bg-accent/40",
+            : "border-border hover:-translate-y-0.5 hover:border-brand/50 hover:shadow-md",
         )}
       >
         {children}
@@ -118,49 +112,57 @@ export function HotspotGroupCard({
   const style = STATE_STYLES.HOTSPOT;
   const selected = group.spots.some((s) => s.result_id === selectedId);
   const count = group.spots.length;
+  // Watchlist labels carry the area after the street ("Liberty & Broadway ·
+  // Financial District"); municipal spot numbers ("· Spot 3") don't belong
+  // in a subtitle — the count already says it better.
+  const areaSuffix = group.nearest.public_label.split(" · ")[1];
+  const area =
+    count === 1 && areaSuffix && !/^spot\b/i.test(areaSuffix)
+      ? areaSuffix
+      : null;
 
   return (
     <CardShell
       selected={selected}
       onActivate={() => onSelect(group.nearest.result_id)}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-center gap-3">
         <div
-          className="flex size-12 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground ring-1 ring-border"
+          className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-secondary/15 text-brand ring-1 ring-brand/20"
           aria-hidden="true"
         >
           <MapPinned className="size-5" />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="font-medium">{group.label}</p>
-            <span
-              className={cn(
-                "rounded-full px-2 py-0.5 text-xs font-medium",
-                style.badgeClass,
-              )}
-            >
-              {style.badge}
-            </span>
-            {count > 1 ? (
-              <span className="rounded-full bg-secondary/20 px-2 py-0.5 text-xs font-medium text-brand">
-                {count} spots
-              </span>
-            ) : null}
-            <span className="ml-auto text-sm text-muted-foreground">
+          <div className="flex items-baseline justify-between gap-2">
+            <p className="truncate text-base font-semibold tracking-tight">
+              {group.label}
+            </p>
+            <span className="shrink-0 text-sm font-bold tabular-nums">
               {formatDistance(group.nearest.distance_miles)}
             </span>
           </div>
-          <p className="mt-1 flex items-start gap-1.5 text-sm text-muted-foreground">
-            <Info className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
-            {group.nearest.reason_label}
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            {area ? `${area} · ` : ""}
+            {count > 1 ? `${count} curb spots · ` : ""}
+            Vendor not confirmed
           </p>
-          <WalkThereLink
-            latitude={group.nearest.latitude}
-            longitude={group.nearest.longitude}
-            note={count > 1 ? "(nearest spot)" : undefined}
-          />
         </div>
+      </div>
+      <div className="mt-3 flex items-center justify-between gap-2">
+        <span
+          className={cn(
+            "rounded-full px-2.5 py-0.5 text-xs font-semibold",
+            style.badgeClass,
+          )}
+        >
+          {style.badge}
+        </span>
+        <WalkThereLink
+          latitude={group.nearest.latitude}
+          longitude={group.nearest.longitude}
+          note={count > 1 ? "(nearest)" : undefined}
+        />
       </div>
     </CardShell>
   );
@@ -198,7 +200,9 @@ export function NearbyLocationCard({
         />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="font-medium">{result.name ?? result.public_label}</p>
+            <p className="text-base font-semibold tracking-tight">
+              {result.name ?? result.public_label}
+            </p>
             <span
               className={cn(
                 "rounded-full px-2 py-0.5 text-xs font-medium",
@@ -207,7 +211,7 @@ export function NearbyLocationCard({
             >
               {style.badge}
             </span>
-            <span className="ml-auto text-sm text-muted-foreground">
+            <span className="ml-auto text-sm font-bold tabular-nums">
               {formatDistance(result.distance_miles)}
             </span>
           </div>
@@ -232,12 +236,12 @@ export function NearbyLocationCard({
           {verified && result.state !== "LIVE" ? (
             <p className="mt-0.5 text-xs text-muted-foreground">{verified}</p>
           ) : null}
-          <div className="flex flex-wrap items-center gap-4">
+          <div className="mt-2.5 flex flex-wrap items-center gap-2">
             {result.organization_slug && result.unit_slug ? (
               <Link
                 href={`/vendors/${result.organization_slug}/${result.unit_slug}`}
                 onClick={(event) => event.stopPropagation()}
-                className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-primary underline underline-offset-2"
+                className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-semibold transition-colors hover:border-brand hover:text-brand"
               >
                 View page
                 <ExternalLink className="size-3.5" aria-hidden="true" />

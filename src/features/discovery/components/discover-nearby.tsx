@@ -14,16 +14,37 @@ import {
   NearbyLocationCard,
 } from "@/features/discovery/components/nearby-location-card";
 import {
-  FILTERS,
   HOTSPOT_EXPLANATION,
   groupHotspotResults,
-  queryFlagsFor,
   requiredAttribution,
-  type FilterId,
 } from "@/features/discovery/location-state";
 
 const RADIUS_OPTIONS = [1, 3, 5, 10] as const;
 type RadiusMiles = (typeof RADIUS_OPTIONS)[number];
+
+/**
+ * Multi-select state filters. Every chip toggles independently — tapping a
+ * selected chip unselects it. An EMPTY selection means "everything" (the
+ * All chip), so the customer can never strand themselves with zero states
+ * stuck on.
+ */
+type StateKey = "live" | "scheduled" | "recurring" | "hotspots";
+const STATE_FILTERS: { key: StateKey; label: string }[] = [
+  { key: "live", label: "Live now" },
+  { key: "scheduled", label: "Scheduled" },
+  { key: "recurring", label: "Usually here" },
+  { key: "hotspots", label: "Hotspots" },
+];
+
+function flagsFor(active: ReadonlySet<StateKey>) {
+  const all = active.size === 0;
+  return {
+    live: all || active.has("live"),
+    scheduled: all || active.has("scheduled"),
+    recurring: all || active.has("recurring"),
+    hotspots: all || active.has("hotspots"),
+  };
+}
 
 type SearchCenter = {
   lat: number;
@@ -33,11 +54,6 @@ type SearchCenter = {
 };
 
 type AreaSuggestion = { placeId: string; description: string };
-
-function flagsToQuery(filter: FilterId): string {
-  const f = queryFlagsFor(filter);
-  return `live=${f.live}&scheduled=${f.scheduled}&recurring=${f.recurring}&hotspots=${f.hotspots}`;
-}
 
 /**
  * Customer discovery across all four location states.
@@ -53,10 +69,25 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
   const [geoError, setGeoError] = React.useState<string | null>(null);
 
   const [radius, setRadius] = React.useState<RadiusMiles>(3);
-  const [filter, setFilter] = React.useState<FilterId>("all");
+  const [active, setActive] = React.useState<ReadonlySet<StateKey>>(new Set());
+  const flags = flagsFor(active);
+  const flagsQuery = `live=${flags.live}&scheduled=${flags.scheduled}&recurring=${flags.recurring}&hotspots=${flags.hotspots}`;
+  const hotspotsOnly = active.size === 1 && active.has("hotspots");
   const [results, setResults] = React.useState<NearbyVendorLocation[] | null>(
     null,
   );
+
+  function toggleState(key: StateKey) {
+    setActive((current) => {
+      const next = new Set(current);
+      if (next.has(key)) {
+        next.delete(key);
+      } else {
+        next.add(key);
+      }
+      return next;
+    });
+  }
   // A separate fetch used only when the main view is empty, so hotspots can be
   // offered as a fallback without ever mixing into the primary vendor results.
   const [fallback, setFallback] = React.useState<NearbyVendorLocation[]>([]);
@@ -66,7 +97,7 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
   // Loading is DERIVED (search key vs last completed key), never a flag toggled
   // inside the fetch effect — so the two can't fall out of sync.
   const searchKey = center
-    ? `${center.lat},${center.lng},${radius},${filter},${refreshNonce}`
+    ? `${center.lat},${center.lng},${radius},${flagsQuery},${refreshNonce}`
     : null;
   const [completedKey, setCompletedKey] = React.useState<string | null>(null);
   const loading = searchKey !== null && searchKey !== completedKey;
@@ -182,7 +213,7 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
     const controller = new AbortController();
     const base = `lat=${center.lat}&lng=${center.lng}&radius=${radius}`;
 
-    fetch(`/api/discover/nearby?${base}&${flagsToQuery(filter)}`, {
+    fetch(`/api/discover/nearby?${base}&${flagsQuery}`, {
       signal: controller.signal,
     })
       .then(async (response) => {
@@ -198,7 +229,7 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
 
         // Fallback: if the customer's chosen view has nothing, offer nearby
         // hotspots — but only when they weren't already asking for hotspots.
-        if (data.results.length === 0 && filter !== "hotspots") {
+        if (data.results.length === 0 && !hotspotsOnly) {
           try {
             const spotRes = await fetch(
               `/api/discover/nearby?${base}&live=false&scheduled=false&recurring=false&hotspots=true`,
@@ -224,7 +255,7 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
         setCompletedKey(searchKey);
       });
     return () => controller.abort();
-  }, [center, radius, filter, refreshNonce, searchKey]);
+  }, [center, radius, flagsQuery, hotspotsOnly, refreshNonce, searchKey]);
 
   function refresh() {
     if (center?.source === "device") {
@@ -263,13 +294,13 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
             htmlFor="area-search"
             className="mb-1 block text-sm text-muted-foreground"
           >
-            Or search a city or neighborhood
+            Or search a street, neighborhood, or city
           </label>
           <Input
             id="area-search"
             value={areaQuery}
             onChange={(event) => handleAreaQueryChange(event.target.value)}
-            placeholder="e.g. East Brunswick"
+            placeholder="e.g. Broadway, Astoria, Jersey City"
             autoComplete="off"
             disabled={!areaConfigured}
           />
@@ -335,21 +366,35 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
             </Button>
           </div>
 
-          {/* State filters — keyboard-reachable, each toggling one state set. */}
+          {/* State filters — true toggles. Tap to focus a state, tap again
+              to unselect it; none selected means everything shows. */}
           <div
             role="group"
             aria-label="Filter by location status"
             className="flex flex-wrap gap-1.5"
           >
-            {FILTERS.map((f) => (
+            <button
+              type="button"
+              onClick={() => setActive(new Set())}
+              aria-pressed={active.size === 0}
+              className={cn(
+                "cursor-pointer rounded-full border px-3 py-1 text-sm transition-colors",
+                active.size === 0
+                  ? "border-secondary bg-secondary font-medium text-secondary-foreground"
+                  : "border-border text-muted-foreground hover:bg-accent/60 hover:text-accent-foreground",
+              )}
+            >
+              All
+            </button>
+            {STATE_FILTERS.map((f) => (
               <button
-                key={f.id}
+                key={f.key}
                 type="button"
-                onClick={() => setFilter(f.id)}
-                aria-pressed={filter === f.id}
+                onClick={() => toggleState(f.key)}
+                aria-pressed={active.has(f.key)}
                 className={cn(
                   "cursor-pointer rounded-full border px-3 py-1 text-sm transition-colors",
-                  filter === f.id
+                  active.has(f.key)
                     ? "border-secondary bg-secondary font-medium text-secondary-foreground"
                     : "border-border text-muted-foreground hover:bg-accent/60 hover:text-accent-foreground",
                 )}
@@ -431,7 +476,7 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
               ) : (
                 <EmptyState
                   radius={radius}
-                  filter={filter}
+                  hotspotsOnly={hotspotsOnly}
                   fallback={fallback}
                   selectedId={selectedId}
                   onSelect={handleSelect}
@@ -506,18 +551,18 @@ function GroupedResultList({
  */
 function EmptyState({
   radius,
-  filter,
+  hotspotsOnly,
   fallback,
   selectedId,
   onSelect,
 }: {
   radius: number;
-  filter: FilterId;
+  hotspotsOnly: boolean;
   fallback: NearbyVendorLocation[];
   selectedId: string | null;
   onSelect: (resultId: string) => void;
 }) {
-  const noun = filter === "hotspots" ? "food-vendor hotspots" : "vendors";
+  const noun = hotspotsOnly ? "food-vendor hotspots" : "vendors";
 
   return (
     <div className="space-y-3">
@@ -530,7 +575,7 @@ function EmptyState({
         </p>
       </div>
 
-      {filter !== "hotspots" && fallback.length > 0 ? (
+      {!hotspotsOnly && fallback.length > 0 ? (
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">{HOTSPOT_EXPLANATION}</p>
           <GroupedResultList

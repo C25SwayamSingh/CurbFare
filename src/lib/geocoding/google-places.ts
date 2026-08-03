@@ -92,6 +92,64 @@ export async function autocompleteCities(
     .filter((s) => s.placeId && s.description);
 }
 
+/**
+ * Where CurbAgora actually operates today: a box covering all five NYC
+ * boroughs plus the Jersey City / Hoboken waterfront. Discovery-area
+ * suggestions are HARD-restricted to it — a customer typing "mcdou" should
+ * see MacDougal Street, never McDougall, Ontario.
+ */
+const DISCOVERY_BOUNDS = {
+  low: { latitude: 40.45, longitude: -74.35 },
+  high: { latitude: 41.0, longitude: -73.55 },
+} as const;
+
+/**
+ * Area suggestions for customer discovery: streets, neighborhoods, and
+ * localities inside the service region only. Streets matter — "Broadway"
+ * or "Bedford Ave" is how people actually name where they're standing.
+ */
+export async function autocompleteDiscoveryAreas(
+  query: string,
+): Promise<CitySuggestion[]> {
+  const apiKey = getGooglePlacesApiKey();
+  const response = await fetch(PLACES_AUTOCOMPLETE_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Goog-Api-Key": apiKey,
+    },
+    body: JSON.stringify({
+      input: query,
+      includedRegionCodes: ["US"],
+      includedPrimaryTypes: [
+        "route",
+        "street_address",
+        "locality",
+        "neighborhood",
+        "sublocality",
+      ],
+      locationRestriction: { rectangle: DISCOVERY_BOUNDS },
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Google Places autocomplete failed: ${response.status}`);
+  }
+
+  const data = (await response.json()) as {
+    suggestions?: {
+      placePrediction?: { placeId?: string; text?: { text?: string } };
+    }[];
+  };
+
+  return (data.suggestions ?? [])
+    .map((s) => ({
+      placeId: s.placePrediction?.placeId ?? "",
+      description: s.placePrediction?.text?.text ?? "",
+    }))
+    .filter((s) => s.placeId && s.description);
+}
+
 export type PlaceLocation = { latitude: number; longitude: number };
 
 /**

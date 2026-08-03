@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import {
-  autocompleteCities,
+  autocompleteDiscoveryAreas,
   isGooglePlacesConfigured,
   resolvePlaceLocation,
 } from "@/lib/geocoding/google-places";
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const suggestions = await autocompleteCities(query);
+    const suggestions = await autocompleteDiscoveryAreas(query);
     return NextResponse.json({ configured: true, suggestions });
   } catch {
     return NextResponse.json(
