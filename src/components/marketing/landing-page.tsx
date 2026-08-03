@@ -20,9 +20,16 @@ import {
 } from "lucide-react";
 
 import { APP_CONFIG } from "@/lib/app-config";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { HeroLoopVideo } from "@/components/marketing/hero-loop-video";
 import { CUISINE_CATEGORIES } from "@/features/vendors/schemas";
+
+/**
+ * The cuisine quick-pick row is parked for now (owner's call, Aug 2026).
+ * Flip this to bring it back; the section and its icon map stay wired.
+ */
+const SHOW_CUISINE_TABS = false;
 
 /**
  * One icon per cuisine quick-pick. Driven by CUISINE_CATEGORIES so the row
@@ -124,7 +131,12 @@ export function LandingPage({
             overlap its bottom edge. The teal block is also the fallback: no
             video file, slow network, or reduced motion all land back on it. */}
         <section className="px-4 pt-4 sm:px-6 sm:pt-6">
-          <div className="relative mx-auto w-full max-w-6xl overflow-hidden rounded-3xl bg-secondary px-6 pb-24 pt-12 text-secondary-foreground sm:px-12 sm:pb-28 sm:pt-16">
+          <div
+            className={cn(
+              "relative mx-auto w-full max-w-6xl overflow-hidden rounded-3xl bg-secondary px-6 pt-12 text-secondary-foreground sm:px-12 sm:pt-16",
+              SHOW_CUISINE_TABS ? "pb-24 sm:pb-28" : "pb-12 sm:pb-16",
+            )}
+          >
             {/* Block-style geometry: visible whenever the video isn't. */}
             <div
               aria-hidden="true"
@@ -183,30 +195,33 @@ export function LandingPage({
           </div>
         </section>
 
-        {/* Popping cuisine tabs, overlapping the hero block. */}
-        <section
-          aria-label="Browse by cuisine"
-          className="relative z-10 mx-auto -mt-12 w-full max-w-6xl px-4 sm:-mt-14 sm:px-6"
-        >
-          <div className="rounded-2xl border border-border bg-card p-3 shadow-lg">
-            <ul className="flex snap-x gap-2 overflow-x-auto pb-1">
-              {CUISINE_CATEGORIES.map((cuisine) => {
-                const Icon = CUISINE_ICONS[cuisine.value] ?? Truck;
-                return (
-                  <li key={cuisine.value} className="snap-start">
-                    <Link
-                      href="/discover"
-                      className="flex min-h-11 cursor-pointer items-center gap-2 whitespace-nowrap rounded-full border border-border bg-background px-4 py-2 text-sm font-medium transition-colors duration-200 hover:border-primary hover:bg-primary hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    >
-                      <Icon className="size-4" aria-hidden="true" />
-                      {cuisine.label}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        </section>
+        {/* Popping cuisine tabs, overlapping the hero block. Parked behind
+            SHOW_CUISINE_TABS until the row earns its spot back. */}
+        {SHOW_CUISINE_TABS ? (
+          <section
+            aria-label="Browse by cuisine"
+            className="relative z-10 mx-auto -mt-12 w-full max-w-6xl px-4 sm:-mt-14 sm:px-6"
+          >
+            <div className="rounded-2xl border border-border bg-card p-3 shadow-lg">
+              <ul className="flex snap-x gap-2 overflow-x-auto pb-1">
+                {CUISINE_CATEGORIES.map((cuisine) => {
+                  const Icon = CUISINE_ICONS[cuisine.value] ?? Truck;
+                  return (
+                    <li key={cuisine.value} className="snap-start">
+                      <Link
+                        href="/discover"
+                        className="flex min-h-11 cursor-pointer items-center gap-2 whitespace-nowrap rounded-full border border-border bg-background px-4 py-2 text-sm font-medium transition-colors duration-200 hover:border-primary hover:bg-primary hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      >
+                        <Icon className="size-4" aria-hidden="true" />
+                        {cuisine.label}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </section>
+        ) : null}
 
         {/* One panel for everything a customer needs: the four pin states
             as tappable chips, then the three steps as plain rows. One box,
@@ -370,7 +385,7 @@ export function LandingPage({
 
       <footer className="bg-secondary py-6 text-secondary-foreground">
         <p className="text-center text-sm text-secondary-foreground/80">
-          CurbAgora — street food, found.
+          CurbAgora. Street food, found.
         </p>
       </footer>
     </div>

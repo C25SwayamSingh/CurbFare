@@ -28,17 +28,18 @@ describe("LandingPage", () => {
     ).toHaveAttribute("href", "/vendors/list");
   });
 
-  it("renders a cuisine tab for every real category, linking to discovery", () => {
+  it("keeps the cuisine tab row parked (SHOW_CUISINE_TABS off) for now", () => {
     render(<LandingPage />);
 
     for (const cuisine of CUISINE_CATEGORIES) {
-      const tab = screen.getByRole("link", {
-        name: new RegExp(
-          cuisine.label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
-          "i",
-        ),
-      });
-      expect(tab).toHaveAttribute("href", "/discover");
+      expect(
+        screen.queryByRole("link", {
+          name: new RegExp(
+            cuisine.label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+            "i",
+          ),
+        }),
+      ).toBeNull();
     }
   });
 
