@@ -30,8 +30,8 @@ import {
 } from "@/features/loyalty/engine";
 import { benchmarkModelPhrase } from "@/features/loyalty/benchmarks";
 import { isLoyaltyConsultantConfigured } from "@/features/loyalty/consultant";
-import { LoyaltyAdvisorChat } from "@/features/loyalty/components/loyalty-advisor-chat";
 import { LoyaltyConsultation } from "@/features/loyalty/components/loyalty-consultation";
+import { LoyaltyQuickChange } from "@/features/loyalty/components/loyalty-quick-change";
 import { LoyaltyPauseControl } from "@/features/loyalty/components/loyalty-pause-control";
 import { LoyaltyStaffPanel } from "@/features/loyalty/components/loyalty-staff-panel";
 
@@ -276,23 +276,39 @@ export default async function VendorLoyaltyPage() {
             </div>
             <LoyaltyStaffPanel />
 
-            {advisorChatEnabled ? <LoyaltyAdvisorChat /> : null}
-
             {canDesign ? (
               <Card id="change-rewards" className="scroll-mt-4">
                 <CardHeader>
                   <CardTitle className="text-lg">Change your rewards</CardTitle>
                   <CardDescription>
-                    Add a reward, drop one, or change what they cost. Your
-                    customers keep every point they&apos;ve already earned.
+                    Copy a proven model in one tap, or open the full editor.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <LoyaltyConsultation
-                    organizationId={organizationId}
-                    hasActiveProgram
-                    aiEnabled={advisorChatEnabled}
-                  />
+                  {version.points_per_dollar ? (
+                    <LoyaltyQuickChange
+                      pointsPerDollar={version.points_per_dollar}
+                      catalog={(catalog ?? []).map((item) => ({
+                        pointsCost: item.points_cost,
+                        rewardKind: item.reward_kind,
+                        rewardName: item.reward_name,
+                        rewardValueCents: item.reward_value_cents,
+                        rewardEstCostCents: item.reward_est_cost_cents,
+                      }))}
+                    >
+                      <LoyaltyConsultation
+                        organizationId={organizationId}
+                        hasActiveProgram
+                        aiEnabled={advisorChatEnabled}
+                      />
+                    </LoyaltyQuickChange>
+                  ) : (
+                    <LoyaltyConsultation
+                      organizationId={organizationId}
+                      hasActiveProgram
+                      aiEnabled={advisorChatEnabled}
+                    />
+                  )}
                 </CardContent>
               </Card>
             ) : null}
@@ -304,7 +320,6 @@ export default async function VendorLoyaltyPage() {
               hasActiveProgram={false}
               aiEnabled={advisorChatEnabled}
             />
-            {advisorChatEnabled ? <LoyaltyAdvisorChat /> : null}
           </>
         ) : (
           <Alert>

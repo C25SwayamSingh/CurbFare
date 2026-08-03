@@ -15,6 +15,7 @@ import {
 import { pageTitle } from "@/lib/app-config";
 import { isMfaMandatoryRole, requireVendorDashboard } from "@/lib/auth/guards";
 import { createServerClient } from "@/lib/supabase/server";
+import { formatPoints, rewardDisplayLabel } from "@/features/loyalty/engine";
 import { VendorUnitsSection } from "@/features/vendors/components/vendor-units-section";
 import { TeamInvitePanel } from "@/features/organizations/components/team-invite-panel";
 
@@ -58,7 +59,7 @@ export default async function VendorDashboardPage() {
     // means rewards are genuinely live.
     supabase
       .from("loyalty_program_previews")
-      .select("points_per_dollar, catalog")
+      .select("points_per_dollar, catalog, earning_paused")
       .eq("organization_id", ctx.membership.organization_id)
       .maybeSingle(),
     // Co-members may read each other's display names (profiles_select_shared_org).
@@ -109,29 +110,14 @@ export default async function VendorDashboardPage() {
   return (
     <AuthenticatedAppShell>
       <div className="space-y-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">
-              {organization?.display_name ?? "Your organization"} Dashboard
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              You are {ctx.membership.role === "owner" ? "an" : "a"}{" "}
-              <strong>{ctx.membership.role}</strong> of this organization.
-            </p>
-          </div>
-          {/* The counter action, one tap from the top — staff live here.
-              Wider than a standard button on purpose: it's the screen's one
-              primary action and a touch target used mid-service. */}
-          <Button
-            asChild
-            size="lg"
-            className="h-12 px-8 text-base font-semibold shadow-md"
-          >
-            <Link href="/vendor/checkout">
-              <QrCode className="size-5" aria-hidden="true" />
-              Open checkout
-            </Link>
-          </Button>
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {organization?.display_name ?? "Your organization"} Dashboard
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            You are {ctx.membership.role === "owner" ? "an" : "a"}{" "}
+            <strong>{ctx.membership.role}</strong> of this organization.
+          </p>
         </div>
 
         {isLeadership && ctx.aal !== "aal2" ? (
@@ -152,76 +138,155 @@ export default async function VendorDashboardPage() {
           <Alert variant="success">
             <ShieldCheck aria-hidden="true" />
             <AlertDescription>
-              Two-factor authentication is verified for this session — helps
-              protect {ctx.membership.role === "owner" ? "owners" : "managers"}{" "}
-              managing this organization.
+              Two-factor authentication is verified for this session. It
+              protects the{" "}
+              {ctx.membership.role === "owner" ? "owners" : "managers"} managing
+              this organization.
             </AlertDescription>
           </Alert>
         ) : null}
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Organization</CardTitle>
-              <CardDescription>Your business details.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {organization ? (
-                <dl className="space-y-2 text-sm">
-                  <div>
-                    <dt className="text-muted-foreground">Display name</dt>
-                    <dd className="font-medium">{organization.display_name}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">Legal name</dt>
-                    <dd className="font-medium">{organization.legal_name}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">URL name</dt>
-                    <dd className="font-medium">{organization.slug}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">Status</dt>
-                    <dd className="font-medium capitalize">
-                      {organization.status}
-                    </dd>
-                  </div>
-                </dl>
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  Organization details are unavailable right now.
-                </p>
-              )}
-              {organization && ctx.membership.role === "owner" ? (
-                <Button asChild variant="outline" size="sm" className="mt-4">
-                  <Link href="/vendor/organization/edit">Edit</Link>
+        {/* Rewards console: the business's own mini-SaaS, and this screen's
+            flagship panel. Deep brand surface + display type so it can never
+            read as one card among many — the program IS the product here. */}
+        <section
+          aria-label="Rewards console"
+          className="relative overflow-hidden rounded-3xl bg-secondary text-secondary-foreground"
+        >
+          <div
+            aria-hidden="true"
+            className="absolute inset-y-0 left-0 w-1.5 bg-primary"
+          />
+          <div
+            aria-hidden="true"
+            className="absolute -right-20 -top-24 size-64 rounded-full bg-primary/15"
+          />
+          <div className="relative p-6 sm:p-8">
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
+              Rewards console
+            </p>
+            <div className="mt-2 flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+                  Loyalty &amp; rewards
+                </h2>
+                {loyaltyPreview ? (
+                  <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <span className="flex items-baseline gap-1.5">
+                      <span className="text-3xl font-bold tabular-nums text-primary">
+                        {loyaltyPreview.points_per_dollar}
+                      </span>
+                      <span className="text-sm text-secondary-foreground/80">
+                        pts per $1
+                      </span>
+                    </span>
+                    {loyaltyPreview.earning_paused ? (
+                      <span className="rounded-full bg-card/15 px-2.5 py-0.5 text-xs font-medium text-secondary-foreground/85">
+                        Earning paused
+                      </span>
+                    ) : (
+                      <span className="rounded-full bg-live/20 px-2.5 py-0.5 text-xs font-medium text-live">
+                        Earning live
+                      </span>
+                    )}
+                  </p>
+                ) : (
+                  <p className="mt-2 max-w-md text-sm text-secondary-foreground/85">
+                    No program yet. Design one in minutes. You approve every
+                    cost before anything goes live.
+                  </p>
+                )}
+              </div>
+              {/* Both counter actions live where the money lives. Checkout is
+                  the mid-service tap — oversized and unmistakably THE button;
+                  managing rewards is the owner's occasional visit, quieter
+                  underneath. */}
+              <div className="flex w-full flex-col gap-2.5 sm:w-auto sm:min-w-64">
+                <Button
+                  asChild
+                  size="lg"
+                  className="h-16 w-full px-8 text-lg font-bold shadow-lg ring-2 ring-primary-foreground/20 transition-transform hover:-translate-y-0.5"
+                >
+                  <Link href="/vendor/checkout">
+                    <QrCode className="size-6" aria-hidden="true" />
+                    Open checkout
+                  </Link>
                 </Button>
-              ) : null}
-            </CardContent>
-          </Card>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="h-11 w-full border-secondary-foreground/30 bg-transparent font-semibold text-secondary-foreground hover:border-primary hover:bg-transparent hover:text-primary"
+                >
+                  <Link href="/vendor/loyalty">
+                    <Gift className="size-4" aria-hidden="true" />
+                    {loyaltyPreview ? "Manage rewards" : "Set up rewards"}
+                  </Link>
+                </Button>
+              </div>
+            </div>
+            {loyaltyPreview && loyaltyPreview.catalog.length > 0 ? (
+              <ul className="mt-5 flex flex-wrap gap-2">
+                {loyaltyPreview.catalog.map((item) => (
+                  <li
+                    key={item.id}
+                    className="flex items-center gap-2 rounded-full bg-card/10 px-3 py-1.5 text-xs"
+                  >
+                    <span className="font-semibold tabular-nums text-primary">
+                      {formatPoints(item.points_cost)}
+                    </span>
+                    <span className="text-secondary-foreground/85">
+                      {rewardDisplayLabel(
+                        item.reward_kind,
+                        item.reward_name,
+                        item.reward_value_cents,
+                      )}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+        </section>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Gift className="size-5 text-brand" aria-hidden="true" />
-                Loyalty &amp; rewards
-              </CardTitle>
-              <CardDescription>
-                Customers earn points on what they spend and trade them for
-                rewards you choose. CurbAgora prices each reward and shows what
-                it costs you before anything goes live.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button asChild variant="outline">
-                <Link href="/vendor/loyalty">
-                  <Gift aria-hidden="true" />
-                  Rewards &amp; program
-                </Link>
+        <Card>
+          <CardHeader>
+            <CardTitle>Organization</CardTitle>
+            <CardDescription>Your business details.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {organization ? (
+              <dl className="space-y-2 text-sm">
+                <div>
+                  <dt className="text-muted-foreground">Display name</dt>
+                  <dd className="font-medium">{organization.display_name}</dd>
+                </div>
+                <div>
+                  <dt className="text-muted-foreground">Legal name</dt>
+                  <dd className="font-medium">{organization.legal_name}</dd>
+                </div>
+                <div>
+                  <dt className="text-muted-foreground">URL name</dt>
+                  <dd className="font-medium">{organization.slug}</dd>
+                </div>
+                <div>
+                  <dt className="text-muted-foreground">Status</dt>
+                  <dd className="font-medium capitalize">
+                    {organization.status}
+                  </dd>
+                </div>
+              </dl>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Organization details are unavailable right now.
+              </p>
+            )}
+            {organization && ctx.membership.role === "owner" ? (
+              <Button asChild variant="outline" size="sm" className="mt-4">
+                <Link href="/vendor/organization/edit">Edit</Link>
               </Button>
-            </CardContent>
-          </Card>
-        </div>
+            ) : null}
+          </CardContent>
+        </Card>
 
         {organization ? (
           <VendorUnitsSection
@@ -290,7 +355,7 @@ export default async function VendorDashboardPage() {
           <CardHeader>
             <CardTitle>Next up for your business</CardTitle>
             <CardDescription>
-              Menus and customer reviews are planned for upcoming phases — they
+              Menus and customer reviews are planned for upcoming phases. They
               are not available yet.
             </CardDescription>
           </CardHeader>

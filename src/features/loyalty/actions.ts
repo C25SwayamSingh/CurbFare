@@ -18,9 +18,18 @@ import {
   type CatalogItemConfig,
 } from "@/features/loyalty/engine";
 import {
-  askLoyaltyConsultant,
+  runLoyaltyAdvisorSession,
   type ConsultantContext,
 } from "@/features/loyalty/consultant";
+import {
+  advisorProposalSchema,
+  advisorTurnsSchema,
+  priceProposal,
+  promptsRemaining,
+  userPromptCount,
+  MAX_ADVISOR_PROMPTS,
+  type PricedProposal,
+} from "@/features/loyalty/advisor-agent";
 import {
   formatCheckoutPayload,
   isValidNumericCode,
@@ -46,7 +55,7 @@ function friendlyDbError(error: { code?: string; message?: string }): string {
     return "You don't have permission to do that.";
   }
   if (error.code === "23505") {
-    return "There's already an open code for this — use the newest one.";
+    return "There's already an open code for this. Use the newest one.";
   }
   return GENERIC_ERROR;
 }
@@ -229,9 +238,9 @@ export type ResolveResult =
 
 /** Counter-ready wording for each way an identification can come back empty. */
 const RESOLVE_FAILURE_MESSAGE: Record<string, string> = {
-  not_found: "That code wasn't recognized — ask for a fresh one.",
-  expired: "That code has expired — ask the customer to refresh it.",
-  consumed: "That code was already used — ask the customer for a fresh one.",
+  not_found: "That code wasn't recognized. Ask for a fresh one.",
+  expired: "That code has expired. Ask the customer to refresh it.",
+  consumed: "That code was already used. Ask the customer for a fresh one.",
   throttled:
     "Too many incorrect codes. Wait a few minutes, or scan the customer's QR instead.",
 };
@@ -341,7 +350,7 @@ export async function awardPointsAction(
     ok: true,
     pointsAwarded: result.points_awarded,
     pointBalance: result.point_balance,
-    message: `${formatCents(subtotalCents)} — ${formatPoints(result.points_awarded)} awarded. Balance: ${formatPoints(result.point_balance)}.`,
+    message: `${formatCents(subtotalCents)} · ${formatPoints(result.points_awarded)} awarded. Balance: ${formatPoints(result.point_balance)}.`,
   };
 }
 
@@ -502,43 +511,70 @@ export async function requestLoyaltyRedemption(
 }
 
 /* ------------------------------------------------------------------ */
-/* Optional AI Q&A                                                     */
+/* Optional AI advisor session                                         */
 /* ------------------------------------------------------------------ */
 
-export type ConsultantResult =
-  { ok: true; text: string } | { ok: false; message: string };
+export type AdvisorSessionResult =
+  | {
+      ok: true;
+      text: string;
+      proposal: PricedProposal | null;
+      promptsLeft: number;
+    }
+  | { ok: false; message: string };
 
 /**
- * Optional free-form Q&A with the (LLM-backed) Loyalty Advisor, grounded
- * strictly in this org's own program + deterministic stats. It has no
- * authority over any balance — see consultant.ts.
+ * One turn of the capped advisor conversation. Owner only — the session is
+ * about changing program economics, which is the owner's call. The model
+ * has no authority: any proposal it emits is re-validated and re-priced by
+ * the deterministic engine here, and applying it is a separate action.
  */
-export async function askLoyaltyAdvisorAction(
-  question: string,
-): Promise<ConsultantResult> {
-  const ctx = await requireVendorMember(
-    ["owner", "manager"],
-    "/vendor/loyalty",
-  );
-  const supabase = await createServerClient();
+export async function loyaltyAdvisorTurnAction(
+  rawTurns: unknown,
+): Promise<AdvisorSessionResult> {
+  const ctx = await requireVendorMember(["owner"], "/vendor/loyalty");
 
-  const [{ data: version }, { data: statsRows }] = await Promise.all([
-    supabase
-      .from("loyalty_program_versions")
-      .select("*")
-      .eq("organization_id", ctx.membership.organization_id)
-      .eq("status", "active")
-      .maybeSingle(),
-    supabase.rpc("loyalty_program_stats", {
-      p_organization_id: ctx.membership.organization_id,
-    }),
-  ]);
+  const parsed = advisorTurnsSchema.safeParse(rawTurns);
+  if (!parsed.success) {
+    return { ok: false, message: GENERIC_ERROR };
+  }
+  if (userPromptCount(parsed.data) > MAX_ADVISOR_PROMPTS) {
+    return {
+      ok: false,
+      message: `That's the ${MAX_ADVISOR_PROMPTS}-prompt limit for one session. Start a fresh session, or use the editor below.`,
+    };
+  }
+
+  const supabase = await createServerClient();
+  const [{ data: version }, { data: statsRows }, { data: catalog }] =
+    await Promise.all([
+      supabase
+        .from("loyalty_program_versions")
+        .select("*")
+        .eq("organization_id", ctx.membership.organization_id)
+        .eq("status", "active")
+        .maybeSingle(),
+      supabase.rpc("loyalty_program_stats", {
+        p_organization_id: ctx.membership.organization_id,
+      }),
+      supabase
+        .from("loyalty_reward_catalog_items")
+        .select("*")
+        .eq("organization_id", ctx.membership.organization_id)
+        .order("points_cost"),
+    ]);
 
   const stats = statsRows?.[0];
   const context: ConsultantContext = {
     activeProgram: version?.points_per_dollar
       ? { pointsPerDollar: version.points_per_dollar }
       : null,
+    catalog: (catalog ?? []).map((item) => ({
+      pointsCost: item.points_cost,
+      rewardKind: item.reward_kind,
+      rewardName: item.reward_name,
+      rewardValueCents: item.reward_value_cents,
+    })),
     stats: stats
       ? {
           members: stats.members,
@@ -550,9 +586,14 @@ export async function askLoyaltyAdvisorAction(
       : null,
   };
 
-  const reply = await askLoyaltyConsultant(question, context);
+  const reply = await runLoyaltyAdvisorSession(parsed.data, context);
   if (reply.ok) {
-    return { ok: true, text: reply.text };
+    return {
+      ok: true,
+      text: reply.text,
+      proposal: reply.proposal,
+      promptsLeft: promptsRemaining(parsed.data),
+    };
   }
   return {
     ok: false,
@@ -561,4 +602,52 @@ export async function askLoyaltyAdvisorAction(
         ? "The conversational advisor isn't enabled on this deployment."
         : "Couldn't reach the advisor just now. Please try again.",
   };
+}
+
+/**
+ * Owner applies an advisor proposal. The proposal is client-echoed state,
+ * so it gets the full treatment a hand-typed form would: schema parse,
+ * deterministic re-validation, and the same owner-only database function.
+ * The advisor never publishes — this button does, and only in the owner's
+ * hands.
+ */
+export async function applyAdvisorProposalAction(
+  rawProposal: unknown,
+): Promise<ActionState> {
+  const ctx = await requireVendorMember(["owner"], "/vendor/loyalty");
+
+  const parsed = advisorProposalSchema.safeParse(rawProposal);
+  if (!parsed.success) {
+    return errorState(GENERIC_ERROR);
+  }
+  const priced = priceProposal(parsed.data);
+  if (priced.blockedReasons.length > 0) {
+    return errorState(priced.blockedReasons.join(" "));
+  }
+
+  const supabase = await createServerClient();
+  const { error } = await supabase.rpc("loyalty_publish_program", {
+    p_organization_id: ctx.membership.organization_id,
+    p_points_per_dollar: parsed.data.pointsPerDollar,
+    p_catalog: parsed.data.rewards.map((i) => ({
+      points_cost: i.pointsCost,
+      reward_kind: i.rewardKind,
+      reward_name: i.rewardName,
+      reward_value_cents: i.rewardValueCents,
+      reward_est_cost_cents: i.rewardEstCostCents,
+    })) as never,
+    p_advisor_snapshot: {
+      source: "advisor_chat",
+      benchmark: priced.benchmark,
+      proposal: parsed.data,
+    } as never,
+  });
+  if (error) {
+    console.error("advisor proposal publish failed", { code: error.code });
+    return errorState(friendlyDbError(error));
+  }
+
+  revalidatePath("/vendor/loyalty");
+  revalidatePath("/vendor");
+  return successState("Applied. Your program is updated.");
 }
