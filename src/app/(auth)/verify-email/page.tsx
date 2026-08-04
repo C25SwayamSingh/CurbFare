@@ -34,7 +34,7 @@ export default async function VerifyEmailPage({
           ) : (
             "We sent a confirmation link to your email address."
           )}{" "}
-          Click it to verify your account, then sign in.
+          Click it, hit Verify, and you're in.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

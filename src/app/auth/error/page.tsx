@@ -20,13 +20,16 @@ export default async function AuthErrorPage({
   const params = await searchParams;
   const ctx = await getAuthContext();
   const recoveryFlow = params.flow === "recovery";
+  const signupFlow = params.flow === "signup";
   const recoverySessionReady = Boolean(ctx?.user && recoveryFlow);
 
   const title = recoverySessionReady
     ? "Reset link already opened"
     : recoveryFlow
       ? "This reset link isn\u2019t valid anymore"
-      : "This link isn\u2019t valid anymore";
+      : signupFlow
+        ? "This verification link isn\u2019t valid anymore"
+        : "This link isn\u2019t valid anymore";
 
   const description = recoverySessionReady ? (
     <>
@@ -37,6 +40,11 @@ export default async function AuthErrorPage({
     <>
       Reset links are single-use and expire for your security. If you clicked
       the same email link more than once, request a fresh link below.
+    </>
+  ) : signupFlow ? (
+    <>
+      Verification links are single-use and expire for your security. If you
+      already verified your email, you can sign in now.
     </>
   ) : (
     <>
@@ -61,9 +69,15 @@ export default async function AuthErrorPage({
           <Button asChild variant={ctx?.user ? "outline" : "default"}>
             <Link href="/auth/sign-out?next=/sign-in">Go to sign in</Link>
           </Button>
-          <Button asChild variant="outline">
-            <Link href="/forgot-password">Request a new reset link</Link>
-          </Button>
+          {signupFlow ? (
+            <Button asChild variant="outline">
+              <Link href="/sign-up">Create a new account</Link>
+            </Button>
+          ) : (
+            <Button asChild variant="outline">
+              <Link href="/forgot-password">Request a new reset link</Link>
+            </Button>
+          )}
         </CardContent>
       </Card>
     </main>

@@ -72,6 +72,38 @@ describe("confirmEmailToken", () => {
     });
   });
 
+  it("continues a signed-in user when a sign-up link was already consumed", async () => {
+    const supabase = createSupabaseMock({
+      verifyError: { message: "invalid" },
+      user: { id: "user-1" },
+    });
+
+    const result = await confirmEmailToken(supabase as never, {
+      tokenHash: "used-hash",
+      type: "signup",
+    });
+
+    expect(result).toEqual({ pathname: "/onboarding" });
+    expect(supabase.verifyOtp).toHaveBeenCalledTimes(1);
+  });
+
+  it("flags the sign-up flow on the error redirect so the page can offer sign-in", async () => {
+    const supabase = createSupabaseMock({
+      verifyError: { message: "invalid" },
+      user: null,
+    });
+
+    const result = await confirmEmailToken(supabase as never, {
+      tokenHash: "expired-hash",
+      type: "signup",
+    });
+
+    expect(result).toEqual({
+      pathname: "/auth/error",
+      flow: "signup",
+    });
+  });
+
   it("sanitizes open-redirect next params for non-recovery flows", async () => {
     const supabase = createSupabaseMock({ verifyError: null });
 

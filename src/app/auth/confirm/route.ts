@@ -34,8 +34,8 @@ async function handleConfirm(
 
 /**
  * Verifies email-link tokens (sign-up confirmation, password recovery,
- * email change). Recovery tokens from the interstitial page are submitted via
- * POST so automated GET prefetchers cannot consume them.
+ * email change). Recovery and sign-up tokens arrive via POST from their
+ * interstitial pages so automated GET prefetchers cannot consume them.
  */
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;

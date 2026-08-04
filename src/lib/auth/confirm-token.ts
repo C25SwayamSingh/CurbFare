@@ -17,7 +17,7 @@ export type ConfirmTokenInput = {
 
 export type ConfirmTokenResult = {
   pathname: string;
-  flow?: "recovery";
+  flow?: "recovery" | "signup";
 };
 
 /**
@@ -52,8 +52,20 @@ export async function confirmEmailToken(
     return { pathname: "/reset-password" };
   }
 
+  // A consumed sign-up link resubmitted from the browser that already
+  // verified: the session exists, so continue into the app instead of
+  // showing an error for a link that did its job.
+  if (user && type === "signup") {
+    return { pathname: next };
+  }
+
   return {
     pathname: "/auth/error",
-    flow: type === "recovery" ? "recovery" : undefined,
+    flow:
+      type === "recovery"
+        ? "recovery"
+        : type === "signup"
+          ? "signup"
+          : undefined,
   };
 }

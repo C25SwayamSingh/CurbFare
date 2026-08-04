@@ -20,6 +20,7 @@ additional_redirect_urls = [
   "http://localhost:3000/auth/callback",
   "http://localhost:3000/auth/confirm",
   "http://localhost:3000/auth/recovery",
+  "http://localhost:3000/auth/verify",
 ]
 jwt_expiry = 3600
 enable_refresh_token_rotation = true
@@ -39,6 +40,10 @@ email_sent = 1000
 [auth.email.template.recovery]
 subject = "Reset your password"
 content_path = "./supabase/templates/recovery.html"
+
+[auth.email.template.confirmation]
+subject = "Confirm your email"
+content_path = "./supabase/templates/confirmation.html"
 
 # TOTP multi-factor authentication (Phase 2 foundation)
 [auth.mfa.totp]
