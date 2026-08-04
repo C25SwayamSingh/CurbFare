@@ -201,7 +201,7 @@ describe("hotspots are never vendors", () => {
       name: /permitted vending zone/i,
     });
     const scope = within(card);
-    expect(scope.getByText(/vendor not confirmed/i)).toBeDefined();
+    expect(scope.getByText("Hotspot")).toBeDefined();
     // No invented business name, no "View page" link.
     expect(scope.queryByText("Maria's Taco Cart")).toBeNull();
     expect(scope.queryByText(/view page/i)).toBeNull();

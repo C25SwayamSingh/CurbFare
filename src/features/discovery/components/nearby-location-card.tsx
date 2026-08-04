@@ -128,10 +128,10 @@ export function HotspotGroupCard({
     >
       <div className="flex items-center gap-3">
         <div
-          className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-secondary/15 text-brand ring-1 ring-brand/20"
+          className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-secondary/35 via-secondary/15 to-brand/10 text-brand shadow-sm ring-1 ring-brand/25"
           aria-hidden="true"
         >
-          <MapPinned className="size-5" />
+          <MapPinned className="size-5 drop-shadow-sm" />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline justify-between gap-2">
@@ -142,11 +142,11 @@ export function HotspotGroupCard({
               {formatDistance(group.nearest.distance_miles)}
             </span>
           </div>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            {area ? `${area} · ` : ""}
-            {count > 1 ? `${count} curb spots · ` : ""}
-            Vendor not confirmed
-          </p>
+          {area || count > 1 ? (
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {area ?? `${count} curb spots`}
+            </p>
+          ) : null}
         </div>
       </div>
       <div className="mt-3 flex items-center justify-between gap-2">
