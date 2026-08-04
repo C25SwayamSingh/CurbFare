@@ -229,15 +229,15 @@ export function LandingPage({
                 row stays balanced at any width. */}
             <ul className="mt-3 grid gap-2 text-center sm:grid-cols-2 lg:grid-cols-4">
               {/* Live is the loud chip: the one state that means "go now". */}
-              <li className="flex flex-col items-center justify-center gap-0.5 rounded-2xl border border-transparent bg-primary px-3 py-2.5 text-primary-foreground shadow-sm">
-                <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider">
+              <li className="flex flex-col items-center justify-center gap-0.5 rounded-2xl border border-border bg-background px-3 py-2.5">
+                <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-primary">
                   <span
                     aria-hidden="true"
-                    className="size-2 rounded-full bg-primary-foreground motion-safe:animate-pulse"
+                    className="size-2 rounded-full bg-primary motion-safe:animate-pulse"
                   />
                   Live now
                 </span>
-                <span className="text-sm font-medium">
+                <span className="text-sm text-muted-foreground">
                   Confirmed minutes ago
                 </span>
               </li>
@@ -275,7 +275,7 @@ export function LandingPage({
             <h3 className="text-lg font-bold tracking-tight">For customers</h3>
             <ol className="mt-3 grid gap-3 sm:grid-cols-3">
               <li className="flex items-start gap-3">
-                <span className="text-2xl font-bold text-primary">1</span>
+                <span className="text-2xl font-bold text-brand">1</span>
                 <div>
                   <p className="font-semibold">Search your block</p>
                   <p className="text-sm text-muted-foreground">
@@ -284,7 +284,7 @@ export function LandingPage({
                 </div>
               </li>
               <li className="flex items-start gap-3">
-                <span className="text-2xl font-bold text-primary">2</span>
+                <span className="text-2xl font-bold text-brand">2</span>
                 <div>
                   <p className="font-semibold">See who&apos;s out</p>
                   <p className="text-sm text-muted-foreground">
@@ -293,7 +293,7 @@ export function LandingPage({
                 </div>
               </li>
               <li className="flex items-start gap-3">
-                <span className="text-2xl font-bold text-primary">3</span>
+                <span className="text-2xl font-bold text-brand">3</span>
                 <div>
                   <p className="font-semibold">Walk up and earn</p>
                   <p className="text-sm text-muted-foreground">
@@ -330,7 +330,10 @@ export function LandingPage({
             <ul className="mt-3 grid gap-3 sm:grid-cols-3">
               <li className="rounded-2xl bg-card/10 p-3">
                 <h3 className="flex items-center gap-2 font-semibold">
-                  <MapPin className="size-4 text-primary" aria-hidden="true" />
+                  <MapPin
+                    className="size-4 text-secondary-foreground/70"
+                    aria-hidden="true"
+                  />
                   Go live in one tap
                 </h3>
                 <p className="mt-1 text-sm text-secondary-foreground/80">
@@ -340,7 +343,7 @@ export function LandingPage({
               <li className="rounded-2xl bg-card/10 p-3">
                 <h3 className="flex items-center gap-2 font-semibold">
                   <CalendarClock
-                    className="size-4 text-primary"
+                    className="size-4 text-secondary-foreground/70"
                     aria-hidden="true"
                   />
                   Post your week
@@ -351,7 +354,10 @@ export function LandingPage({
               </li>
               <li className="rounded-2xl bg-card/10 p-3">
                 <h3 className="flex items-center gap-2 font-semibold">
-                  <Store className="size-4 text-primary" aria-hidden="true" />
+                  <Store
+                    className="size-4 text-secondary-foreground/70"
+                    aria-hidden="true"
+                  />
                   Points, not punch cards
                 </h3>
                 <p className="mt-1 text-sm text-secondary-foreground/80">
