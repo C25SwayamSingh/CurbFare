@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Truck } from "lucide-react";
 
 import { APP_CONFIG } from "@/lib/app-config";
 import { NavLinks } from "@/components/app/nav-links";
@@ -19,7 +20,14 @@ export function AppShell({
       {/* Deep-teal brand bar — the signature CurbAgora surface. */}
       <header className="bg-secondary text-secondary-foreground">
         <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
-          <Link href="/" className="text-lg font-semibold tracking-tight">
+          {/* The logo IS the home button, the way every major site does it:
+              icon + wordmark, pointer cursor, visible hover feedback. */}
+          <Link
+            href="/"
+            title={`${APP_CONFIG.name} home`}
+            className="flex items-center gap-2 text-lg font-semibold tracking-tight transition-opacity hover:opacity-75"
+          >
+            <Truck className="size-6 text-primary" aria-hidden="true" />
             {APP_CONFIG.name}
           </Link>
           <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-4">

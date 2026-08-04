@@ -28,18 +28,23 @@ function ModeButton({
   return (
     <Button
       type="submit"
-      variant={active ? "default" : "ghost"}
+      variant={active ? "default" : "outline"}
       size="sm"
       disabled={pending}
       aria-busy={pending}
-      className="h-8 gap-1.5 px-2.5"
+      aria-pressed={active}
+      className={
+        active
+          ? "h-9 gap-1.5 px-3"
+          : "h-9 gap-1.5 border-secondary-foreground/30 bg-transparent px-3 text-secondary-foreground hover:border-primary hover:bg-transparent hover:text-primary"
+      }
     >
       {pending ? (
         <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
       ) : (
         icon
       )}
-      <span className="hidden sm:inline">{label}</span>
+      {label}
     </Button>
   );
 }
@@ -60,7 +65,7 @@ export function ModeSwitch({
 
   return (
     <div
-      className="flex items-center gap-1 rounded-lg border border-secondary-foreground/25 p-0.5"
+      className="flex items-center gap-2"
       role="group"
       aria-label="Interface mode"
     >
