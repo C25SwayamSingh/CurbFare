@@ -2,12 +2,12 @@ import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const isGooglePlacesConfiguredMock = vi.hoisted(() => vi.fn());
-const autocompleteCitiesMock = vi.hoisted(() => vi.fn());
+const autocompleteAreasMock = vi.hoisted(() => vi.fn());
 const resolvePlaceLocationMock = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/geocoding/google-places", () => ({
   isGooglePlacesConfigured: isGooglePlacesConfiguredMock,
-  autocompleteCities: autocompleteCitiesMock,
+  autocompleteDiscoveryAreas: autocompleteAreasMock,
   resolvePlaceLocation: resolvePlaceLocationMock,
 }));
 
@@ -29,12 +29,12 @@ describe("GET /api/discover/area", () => {
     const response = await GET(request({ q: "Austin" }));
 
     expect(await response.json()).toEqual({ configured: false });
-    expect(autocompleteCitiesMock).not.toHaveBeenCalled();
+    expect(autocompleteAreasMock).not.toHaveBeenCalled();
   });
 
   it("returns suggestions for a query", async () => {
     isGooglePlacesConfiguredMock.mockReturnValue(true);
-    autocompleteCitiesMock.mockResolvedValue([
+    autocompleteAreasMock.mockResolvedValue([
       { placeId: "p1", description: "Austin, TX, USA" },
     ]);
 
@@ -76,6 +76,6 @@ describe("GET /api/discover/area", () => {
     const body = await response.json();
 
     expect(body.suggestions).toEqual([]);
-    expect(autocompleteCitiesMock).not.toHaveBeenCalled();
+    expect(autocompleteAreasMock).not.toHaveBeenCalled();
   });
 });
