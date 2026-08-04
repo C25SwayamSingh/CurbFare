@@ -176,7 +176,7 @@ export default async function VendorRewardsPage({
             </Link>
           </Button>
           <Button asChild variant="ghost" size="sm">
-            <Link href="/rewards">All my rewards</Link>
+            <Link href="/customer">All my rewards</Link>
           </Button>
         </div>
       </div>
