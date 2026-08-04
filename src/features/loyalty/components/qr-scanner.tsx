@@ -227,7 +227,7 @@ export function QrScanner({
         </Alert>
       ) : (
         <p className="text-sm text-muted-foreground">
-          CurbAgora uses this camera only to scan the customer&apos;s checkout
+          Curbfare uses this camera only to scan the customer&apos;s checkout
           QR. Images and video are not saved.
         </p>
       )}

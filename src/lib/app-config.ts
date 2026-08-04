@@ -2,14 +2,14 @@
  * Central application metadata — do not hardcode branding in components.
  */
 export const APP_CONFIG = {
-  name: "CurbAgora",
+  name: "Curbfare",
   shortDescription:
     "Discover mobile food vendors and help carts, trucks, and pop-ups reach customers.",
-  supportEmail: "support@example.com",
+  supportEmail: "vendors@curbfare.app",
   tagline: "Find mobile food vendors near you.",
 } as const;
 
-/** Page title helper: "Sign in — CurbAgora" */
+/** Page title helper: "Sign in — Curbfare" */
 export function pageTitle(page: string): string {
   return `${page} — ${APP_CONFIG.name}`;
 }

@@ -1,8 +1,8 @@
-# CurbAgora Design System — "Urban Sunset Marketplace"
+# Curbfare Design System — "Urban Sunset Marketplace"
 
 ## Brand intent
 
-CurbAgora should feel trustworthy, local, energetic, urban, and warm — a
+Curbfare should feel trustworthy, local, energetic, urban, and warm — a
 street market at sunset, not a corporate SaaS dashboard or a food-delivery
 clone. Density over emptiness, tactile controls, restrained decoration.
 

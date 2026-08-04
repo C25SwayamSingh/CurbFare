@@ -90,9 +90,9 @@ test.describe("auth pages", () => {
     await expect(page.getByText(/someone@example.com/)).toBeVisible();
   });
 
-  test("landing page shows CurbAgora branding", async ({ page }) => {
+  test("landing page shows Curbfare branding", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByText("CurbAgora").first()).toBeVisible();
+    await expect(page.getByText("Curbfare").first()).toBeVisible();
   });
 
   test("sign-in form uses password-manager autocomplete attributes", async ({

@@ -1,4 +1,4 @@
-# Decision: CurbAgora Location Intelligence
+# Decision: Curbfare Location Intelligence
 
 Status: **Accepted** (vendor-truth scope) · Date: 2026-07-24
 Vendor surface: unit dashboard → **Where you are** (`/vendor/unit/[id]/schedule`)

@@ -11,7 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export const metadata: Metadata = { title: "Verify your email — CurbAgora" };
+export const metadata: Metadata = { title: "Verify your email — Curbfare" };
 
 export default async function VerifyEmailPage({
   searchParams,
@@ -34,7 +34,7 @@ export default async function VerifyEmailPage({
           ) : (
             "We sent a confirmation link to your email address."
           )}{" "}
-          Click it, hit Verify, and you're in.
+          Click it, hit Verify, and you&apos;re in.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

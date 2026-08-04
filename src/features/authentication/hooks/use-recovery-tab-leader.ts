@@ -20,7 +20,7 @@ export function useRecoveryTabLeader(tokenHash: string | null): TabLeaderState {
     }
 
     let cancelled = false;
-    const lockName = `curbagora-recovery:${tokenHash}`;
+    const lockName = `curbfare-recovery:${tokenHash}`;
 
     if (!("locks" in navigator)) {
       queueMicrotask(() => {

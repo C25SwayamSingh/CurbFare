@@ -376,7 +376,7 @@ export function LandingPage({
 
       <footer className="bg-secondary py-6 text-secondary-foreground">
         <p className="text-center text-sm text-secondary-foreground/80">
-          CurbAgora. Street food, found.
+          Curbfare. Street food, found.
         </p>
       </footer>
     </div>

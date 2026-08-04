@@ -156,7 +156,7 @@ describe("createOrganizationAction", () => {
       error: {
         code: "P0001",
         message:
-          "That license number is already registered to a business on CurbAgora. If it is yours, reply to your application email.",
+          "That license number is already registered to a business on Curbfare. If it is yours, reply to your application email.",
       },
     });
     const state = await createOrganizationAction(idleState, form(validForm));

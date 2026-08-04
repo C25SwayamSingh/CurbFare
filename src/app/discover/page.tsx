@@ -15,7 +15,7 @@ export default function DiscoverPage() {
         href="/"
         className="text-sm text-muted-foreground hover:text-foreground"
       >
-        ← CurbAgora
+        ← Curbfare
       </Link>
       <h1 className="mt-4 text-2xl font-semibold tracking-tight">
         Find vendors near you

@@ -1,7 +1,7 @@
 /**
  * Shared vocabulary for checkout identification — imported by the customer's
  * QR renderer, the staff scanner, and the server actions, so all three agree
- * on exactly what a CurbAgora checkout code looks like.
+ * on exactly what a Curbfare checkout code looks like.
  *
  * Everything here is pure and isomorphic. Nothing in this file can identify a
  * person: the token is opaque and carries no customer data, by design.
@@ -14,7 +14,7 @@
  * version segment leaves room to change the token format later without
  * silently mis-reading old printed material.
  */
-export const CHECKOUT_PAYLOAD_PREFIX = "curbagora:c1:";
+export const CHECKOUT_PAYLOAD_PREFIX = "curbfare:c1:";
 
 /** 32 random bytes, base64url-encoded — 43 characters, no padding. */
 const TOKEN_PATTERN = /^[A-Za-z0-9_-]{43}$/;
@@ -26,7 +26,7 @@ export function formatCheckoutPayload(token: string): string {
 
 /**
  * Pull the token out of a scanned payload, or null if this QR is not a
- * CurbAgora checkout code. Returning null (rather than throwing) keeps the
+ * Curbfare checkout code. Returning null (rather than throwing) keeps the
  * scanner loop simple: it just keeps looking at frames until a real one
  * arrives.
  */

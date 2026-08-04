@@ -288,7 +288,7 @@ export function createMockSupabase(config: MockUserConfig) {
                   totp: {
                     qr_code: "data:image/svg+xml;base64,mock",
                     secret: "MOCKSECRET",
-                    uri: "otpauth://totp/CurbAgora:mock?secret=MOCKSECRET&issuer=CurbAgora",
+                    uri: "otpauth://totp/Curbfare:mock?secret=MOCKSECRET&issuer=Curbfare",
                   },
                 },
                 error: null,

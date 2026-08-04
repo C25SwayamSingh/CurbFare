@@ -58,7 +58,7 @@ export async function notifyVendorApplication(
       body: JSON.stringify({
         from:
           process.env.VENDOR_REVIEW_FROM_EMAIL ??
-          "CurbAgora <onboarding@resend.dev>",
+          "Curbfare <onboarding@resend.dev>",
         to: [to],
         subject: `New vendor application: ${application.displayName}`,
         text: lines.join("\n"),

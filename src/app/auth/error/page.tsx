@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { getAuthContext } from "@/lib/auth/guards";
 
-export const metadata = { title: "Auth link — CurbAgora" };
+export const metadata = { title: "Auth link — Curbfare" };
 
 export default async function AuthErrorPage({
   searchParams,

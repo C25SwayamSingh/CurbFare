@@ -15,7 +15,7 @@ import { MfaEnrollment } from "@/features/authentication/components/mfa-enrollme
 
 const SECRET = "SECRETXYZ";
 
-const URI = "otpauth://totp/CurbAgora:mock?secret=SECRETXYZ&issuer=CurbAgora";
+const URI = "otpauth://totp/Curbfare:mock?secret=SECRETXYZ&issuer=Curbfare";
 
 function successfulEnrollment() {
   return {

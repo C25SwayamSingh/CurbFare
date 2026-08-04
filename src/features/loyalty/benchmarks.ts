@@ -1,5 +1,5 @@
 /**
- * Published loyalty programs from major chains, and the return bands CurbAgora
+ * Published loyalty programs from major chains, and the return bands Curbfare
  * derives from them.
  *
  * These are reference points for an owner deciding what "normal" looks like —
@@ -100,7 +100,7 @@ export type ReturnBand = {
 /**
  * The observed chain range is roughly 3.3%–7.5%, clustered near 5%. These three
  * stances span that range rather than picking a single "right" answer, because
- * the right answer depends on margin and cost confidence — facts CurbAgora
+ * the right answer depends on margin and cost confidence — facts Curbfare
  * does not have and should not guess.
  */
 export const RETURN_BANDS: readonly ReturnBand[] = [

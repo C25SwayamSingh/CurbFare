@@ -41,7 +41,7 @@ export function AuthVerifyInterstitial() {
             <CardTitle>This verification link isn&apos;t valid</CardTitle>
             <CardDescription>
               The link is missing required details. Open the newest email from
-              CurbAgora, or sign in to your account.
+              Curbfare, or sign in to your account.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">

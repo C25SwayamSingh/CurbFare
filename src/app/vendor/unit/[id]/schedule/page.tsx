@@ -31,7 +31,7 @@ function isConfirmationCurrent(
 }
 
 /**
- * Everything CurbAgora believes about one unit's location, in one place.
+ * Everything Curbfare believes about one unit's location, in one place.
  *
  * Any active member may manage this — describing where the cart parks is
  * operational, the same judgement the live-session flow already makes. It is

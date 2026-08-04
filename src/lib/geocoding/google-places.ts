@@ -93,7 +93,7 @@ export async function autocompleteCities(
 }
 
 /**
- * Where CurbAgora actually operates today: a box covering all five NYC
+ * Where Curbfare actually operates today: a box covering all five NYC
  * boroughs plus the Jersey City / Hoboken waterfront. Discovery-area
  * suggestions are HARD-restricted to it — a customer typing "mcdou" should
  * see MacDougal Street, never McDougall, Ontario.

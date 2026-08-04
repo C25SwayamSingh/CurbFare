@@ -64,7 +64,7 @@ export async function fetchJson(
         headers: {
           // Civic APIs (and Overpass etiquette in particular) expect a
           // descriptive client identity; the default undici UA gets 403/406s.
-          "User-Agent": "CurbAgora-LocationImport/1.0 (open-data ingest)",
+          "User-Agent": "Curbfare-LocationImport/1.0 (open-data ingest)",
           Accept: "application/json",
           ...options.headers,
         },

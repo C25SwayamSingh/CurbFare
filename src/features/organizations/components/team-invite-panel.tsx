@@ -28,7 +28,7 @@ export type PendingInvitation = {
 /**
  * Invite by email, send the link yourself.
  *
- * CurbAgora deliberately does not send the mail: doing so would require a
+ * Curbfare deliberately does not send the mail: doing so would require a
  * service-role credential that bypasses every RLS policy, which is a large
  * secret to introduce so a two-person cart can add one person. The owner
  * already has a way to reach them.

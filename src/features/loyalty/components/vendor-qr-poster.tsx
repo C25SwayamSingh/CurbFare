@@ -48,7 +48,7 @@ export function VendorQrPoster({
   function downloadSvg() {
     download(
       new Blob([svgMarkup()], { type: "image/svg+xml" }),
-      `curbagora-${unitName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-qr.svg`,
+      `curbfare-${unitName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-qr.svg`,
     );
   }
 
@@ -70,7 +70,7 @@ export function VendorQrPoster({
         if (blob) {
           download(
             blob,
-            `curbagora-${unitName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-qr.png`,
+            `curbfare-${unitName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-qr.png`,
           );
         }
       }, "image/png");

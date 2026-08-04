@@ -1,4 +1,4 @@
-# Decision: CurbAgora Loyalty System
+# Decision: Curbfare Loyalty System
 
 Status: **Accepted** (MVP scope) · Date: 2026-07-18
 Owner surface: vendor dashboard → Loyalty · Customer surface: wallet at `/rewards`
@@ -21,7 +21,7 @@ Owner surface: vendor dashboard → Loyalty · Customer surface: wallet at `/rew
 
 ## 2. What verification exists today (and what that forces)
 
-CurbAgora has **no orders, payments, menus, POS links, or receipts**
+Curbfare has **no orders, payments, menus, POS links, or receipts**
 (verified in-repo). The only trustworthy purchase witness is the vendor's
 own authenticated staff at the counter. Therefore:
 
@@ -65,12 +65,12 @@ Defaults (platform bounds in parentheses):
 
 **Deferred and their unlock conditions:**
 
-- Automatic earning without staff → unblocks with CurbAgora ordering or a
+- Automatic earning without staff → unblocks with Curbfare ordering or a
   POS integration (§10).
 - Item/category rewards → unblocks when menus exist.
 - Bonus-point campaigns and slow-hour promotions → after ≥30 days of ledger
   data.
-- CurbAgora Credits (platform-funded) → **explicitly deferred.** One
+- Curbfare Credits (platform-funded) → **explicitly deferred.** One
   vendor's points are redeemable only with that vendor. No settlement
   system exists, so nothing may pretend one does.
 
@@ -168,7 +168,7 @@ note the promotions layer is post-MVP and optimize visit frequency now;
 budget too low for any config → recommend cheaper reward, never a worse
 program silently; no cost data → conservative configs + uncertainty
 labels; existing Square/Toast loyalty → recommend complement-don't-replace
-and say why (migration confusion), CurbAgora card focused on
+and say why (migration confusion), Curbfare card focused on
 discovery-driven new regulars.
 
 The optional LLM layer receives only: the vendor's consultation answers,
@@ -186,7 +186,7 @@ reversal UX polish, "regulars" aggregate view, LLM Q&A verified with a key,
 redemption over the same checkout identity (§10). Phase 2: bonus-point
 campaigns with caps, status tiers, platform benchmarks (only after enough
 vendors that no single vendor is identifiable). Phase 3: POS or
-CurbAgora-native ordering, removing the last manual step.
+Curbfare-native ordering, removing the last manual step.
 
 Track: enrollment rate, first→second visit conversion, median visits to
 first reward, completion rate, redemption latency, outstanding liability,
@@ -209,7 +209,7 @@ only, no uplift guarantees.
 
 ## 10. Checkout identification: two QRs, one 4-digit fallback
 
-CurbAgora uses two QR codes that look alike and do entirely different jobs.
+Curbfare uses two QR codes that look alike and do entirely different jobs.
 Conflating them is the mistake this section exists to prevent.
 
 ### Permanent vendor QR
@@ -234,7 +234,7 @@ neither — staff does, based on whichever is faster in the moment.
 | ------------- | --------------------------------------------------------- |
 | Lifetime      | 5 minutes                                                 |
 | Uses          | Exactly one                                               |
-| QR payload    | `curbagora:c1:<43-char base64url token>`                  |
+| QR payload    | `curbfare:c1:<43-char base64url token>`                   |
 | Token entropy | 256 bits (`randomBytes(32)`)                              |
 | Stored form   | SHA-256 digest only — the raw token is never written down |
 | 4-digit code  | Unique among _active_ sessions in one organization        |
@@ -308,7 +308,7 @@ balance. Not built in this phase.
 ### Future: POS integration and wallets
 
 The staff-entered subtotal is the honest ceiling of what this architecture
-can verify without integration. A POS integration (or CurbAgora-native
+can verify without integration. A POS integration (or Curbfare-native
 ordering) would replace the typed amount with a verified order total and
 remove the last manual step — at which point identification could happen
 once at order time rather than at the counter. Apple Wallet / Google Wallet

@@ -24,7 +24,7 @@ import {
   type ReviewRecord,
 } from "@/features/location-import/components/review-queue";
 
-export const metadata: Metadata = { title: "Imported locations — CurbAgora" };
+export const metadata: Metadata = { title: "Imported locations — Curbfare" };
 
 const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 

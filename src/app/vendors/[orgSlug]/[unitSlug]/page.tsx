@@ -104,7 +104,7 @@ export default async function VendorPublicPreviewPage({
         href="/"
         className="text-sm text-muted-foreground hover:text-foreground"
       >
-        ← CurbAgora
+        ← Curbfare
       </Link>
 
       {photoUrl ? (

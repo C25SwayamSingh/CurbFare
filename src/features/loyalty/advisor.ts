@@ -592,18 +592,18 @@ export function existingSystemGuidance(
       };
     case "square_or_pos":
       return {
-        title: "Using CurbAgora with your POS loyalty",
+        title: "Using Curbfare with your POS loyalty",
         summary:
-          "Your POS program keeps working at the register. CurbAgora's points card is strongest for customers who discover you here.",
+          "Your POS program keeps working at the register. Curbfare's points card is strongest for customers who discover you here.",
         steps: [
           "Decide which system earns on a given sale — one purchase should not earn in both.",
-          "Many vendors run CurbAgora as a complement for new regulars rather than replacing the POS.",
+          "Many vendors run Curbfare as a complement for new regulars rather than replacing the POS.",
           "Keep the rewards roughly comparable so neither card feels like the worse deal.",
         ],
       };
     case "other":
       return {
-        title: "Using CurbAgora with your current loyalty program",
+        title: "Using Curbfare with your current loyalty program",
         summary:
           "You can run both, but a single purchase should earn in one place only — otherwise you pay twice for the same visit.",
         steps: [

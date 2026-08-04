@@ -24,7 +24,7 @@ export const metadata: Metadata = { title: pageTitle("Home") };
 /**
  * The customer home IS the wallet: every cart they've earned with, their
  * points and progress at each, and the checkout code one tap away. No
- * vendor machinery appears here, ever. To a customer, CurbAgora is a
+ * vendor machinery appears here, ever. To a customer, Curbfare is a
  * rewards app with a map, and this page is the rewards part.
  */
 export default async function CustomerDashboardPage() {

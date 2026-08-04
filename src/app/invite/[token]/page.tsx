@@ -57,7 +57,7 @@ export default async function InvitePage({
         </CardHeader>
         <CardContent>
           <Button asChild variant="outline">
-            <Link href="/">Go to CurbAgora</Link>
+            <Link href="/">Go to Curbfare</Link>
           </Button>
         </CardContent>
       </Card>,
@@ -112,8 +112,8 @@ export default async function InvitePage({
             Join {org}
           </CardTitle>
           <CardDescription>
-            You&apos;ve been invited to help run {org} on CurbAgora —
-            you&apos;ll be able to {roleText}.
+            You&apos;ve been invited to help run {org} on Curbfare — you&apos;ll
+            be able to {roleText}.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">

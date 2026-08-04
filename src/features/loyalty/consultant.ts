@@ -49,7 +49,7 @@ function benchmarkFacts(): string {
   return `PUBLISHED CHAIN PROGRAMS (the only competitor figures you may cite):\n${chains}\n\nRETURN BANDS:\n${bands}`;
 }
 
-const SYSTEM_PROMPT = `You are the CurbAgora Loyalty Advisor, a plain-spoken \
+const SYSTEM_PROMPT = `You are the Curbfare Loyalty Advisor, a plain-spoken \
 consultant for independent food-cart, food-truck, and small-restaurant owners.
 
 How a session works:

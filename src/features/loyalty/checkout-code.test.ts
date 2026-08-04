@@ -21,7 +21,7 @@ describe("checkout payload", () => {
     expect(parseCheckoutPayload(formatCheckoutPayload(TOKEN))).toBe(TOKEN);
   });
 
-  it("rejects a QR that isn't a CurbAgora checkout code", () => {
+  it("rejects a QR that isn't a Curbfare checkout code", () => {
     expect(parseCheckoutPayload("https://example.com/menu")).toBeNull();
     expect(parseCheckoutPayload("WIFI:S:CartGuest;T:WPA;;")).toBeNull();
     expect(parseCheckoutPayload("")).toBeNull();

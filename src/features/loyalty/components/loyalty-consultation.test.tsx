@@ -392,7 +392,7 @@ describe("LoyaltyConsultation", () => {
       screen.queryByText(/Moving from paper punch cards/i),
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByText(/Using CurbAgora with your/i),
+      screen.queryByText(/Using Curbfare with your/i),
     ).not.toBeInTheDocument();
   });
 });

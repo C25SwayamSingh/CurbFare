@@ -742,7 +742,7 @@ function AdvisorIntro({ aiEnabled }: { aiEnabled: boolean }) {
  * Three separately-labelled boxes, deliberately not merged.
  *
  * An owner comparing their cart to McDonald's needs to know which number is
- * whose. Blending "what a chain does", "what CurbAgora suggests", and "what
+ * whose. Blending "what a chain does", "what Curbfare suggests", and "what
  * yours actually costs" into one figure is how a vendor ends up believing a
  * benchmark is a target, or that a suggestion is a measurement of their own
  * business.
@@ -780,7 +780,7 @@ function ReturnComparison({
 
       <div className="rounded-lg border border-secondary/50 bg-accent/30 p-3">
         <p className="text-xs font-medium uppercase tracking-wide text-brand">
-          What CurbAgora suggests
+          What Curbfare suggests
         </p>
         <p className="mt-1.5 text-lg font-semibold tabular-nums">
           {formatBps(band.lowBps)}–{formatBps(band.highBps)}

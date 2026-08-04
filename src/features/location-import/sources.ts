@@ -347,7 +347,7 @@ const NYC_PARKS_EATERIES: ImportSourceConfig = {
   enabled: false,
   normalizeRow(row) {
     // The directory also lists restaurants and snack bars; only mobile food
-    // belongs on CurbAgora's map.
+    // belongs on Curbfare's map.
     const type = (
       firstString(row, ["type_name", "type", "category"]) ?? ""
     ).toLowerCase();

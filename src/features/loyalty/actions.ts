@@ -263,7 +263,7 @@ export async function resolveCheckoutSessionAction(
     return { ok: false, message: "Enter the customer's 4-digit code." };
   }
   if (method === "qr" && !/^[A-Za-z0-9_-]{43}$/.test(trimmed)) {
-    return { ok: false, message: "That QR isn't a CurbAgora checkout code." };
+    return { ok: false, message: "That QR isn't a Curbfare checkout code." };
   }
 
   // The QR carries the raw token; the database only ever holds its digest.

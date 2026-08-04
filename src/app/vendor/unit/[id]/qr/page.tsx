@@ -106,7 +106,7 @@ export default async function VendorUnitQrPage({
                     cannot open the code above.
                   </>
                 )}{" "}
-                Once CurbAgora is deployed, this page will show the real
+                Once Curbfare is deployed, this page will show the real
                 printable code.
               </span>
             </AlertDescription>

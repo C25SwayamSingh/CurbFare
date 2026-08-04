@@ -9,7 +9,7 @@ email verification, password reset, dual-mode onboarding (customer + vendor
 on one account), interface mode switching, vendor organizations with
 role-based memberships (owner/manager/staff), a platform admin foundation,
 TOTP MFA, and database-level tenant isolation (RLS default-deny + versioned
-migrations). Branding is centralized in `src/lib/app-config.ts` (**CurbAgora**). **MFA (TOTP, aal2) is mandatory —
+migrations). Branding is centralized in `src/lib/app-config.ts` (**Curbfare**). **MFA (TOTP, aal2) is mandatory —
 not optional — for organization owners/managers and for platform admins**,
 enforced independently in the server guards, the sensitive server actions,
 and the database (see [Security Model](docs/SECURITY_MODEL.md)). Session

@@ -32,7 +32,7 @@ database.
   still require active `organization_members`
 - Simplified **Account** (initials avatar, read-only email, preferred mode, org
   summary) and **Security** (password change, MFA, sessions, sign out)
-- Branding centralized as **CurbAgora** in `src/lib/app-config.ts`
+- Branding centralized as **Curbfare** in `src/lib/app-config.ts`
 - Protected areas with server-side guards + RLS: `/onboarding`, `/account`,
   `/account/security`, `/customer`, `/vendor`, `/admin`, `/mfa-enroll`,
   `/mfa-challenge`
@@ -194,7 +194,7 @@ configuration are in place, is:
 
 ## Assumptions
 
-- Product name: **CurbAgora** (`src/lib/app-config.ts`)
+- Product name: **Curbfare** (`src/lib/app-config.ts`)
 - One account supports customer and vendor interfaces; vendor authorization is membership-based
 - Email delivery uses Supabase's built-in auth emails (local: Mailpit via CLI)
 - Platform admins are granted manually via migration/service role by design

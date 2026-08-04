@@ -60,7 +60,7 @@ function daysSince(iso: string): number {
 }
 
 /**
- * The vendor's view of everything CurbAgora believes about where they are.
+ * The vendor's view of everything Curbfare believes about where they are.
  *
  * Deliberately shows each entry as the sentence a customer reads, so the
  * vendor is checking the claim itself rather than a form's worth of fields

@@ -14,7 +14,7 @@ import { requireVendorForOrgCreation } from "@/lib/auth/guards";
 import { CreateOrganizationForm } from "@/features/organizations/components/create-organization-form";
 
 export const metadata: Metadata = {
-  title: "Create your organization — CurbAgora",
+  title: "Create your organization — Curbfare",
 };
 
 const VENDOR_ONBOARDING_STEPS = [
