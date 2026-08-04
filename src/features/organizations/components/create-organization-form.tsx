@@ -91,13 +91,72 @@ export function CreateOrganizationForm() {
         <FieldError id="slug-error" errors={state.fieldErrors?.slug} />
       </div>
 
-      <SubmitButton className="w-full sm:w-auto" pendingLabel="Creating…">
-        Create organization
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-2">
+          <Label htmlFor="licenseNumber">Vending license number</Label>
+          <Input
+            id="licenseNumber"
+            name="licenseNumber"
+            placeholder="As printed on your badge"
+            required
+            aria-describedby="licenseNumber-error licenseNumber-hint"
+            aria-invalid={Boolean(state.fieldErrors?.licenseNumber)}
+          />
+          <p id="licenseNumber-hint" className="text-xs text-muted-foreground">
+            Your mobile food vending license (the photo ID badge).
+          </p>
+          <FieldError
+            id="licenseNumber-error"
+            errors={state.fieldErrors?.licenseNumber}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="permitNumber">Cart permit number</Label>
+          <Input
+            id="permitNumber"
+            name="permitNumber"
+            placeholder="As printed on the decal"
+            required
+            aria-describedby="permitNumber-error permitNumber-hint"
+            aria-invalid={Boolean(state.fieldErrors?.permitNumber)}
+          />
+          <p id="permitNumber-hint" className="text-xs text-muted-foreground">
+            The permit decal on your cart or truck.
+          </p>
+          <FieldError
+            id="permitNumber-error"
+            errors={state.fieldErrors?.permitNumber}
+          />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="applicationNote">
+          Anything we should know? (optional)
+        </Label>
+        <Input
+          id="applicationNote"
+          name="applicationNote"
+          placeholder="e.g. We're the cart at 46th & 6th on weekdays"
+          aria-describedby="applicationNote-error"
+          aria-invalid={Boolean(state.fieldErrors?.applicationNote)}
+        />
+        <FieldError
+          id="applicationNote-error"
+          errors={state.fieldErrors?.applicationNote}
+        />
+      </div>
+
+      <SubmitButton className="w-full sm:w-auto" pendingLabel="Submitting…">
+        Submit application
       </SubmitButton>
 
       <p className="text-xs text-muted-foreground">
-        You&apos;ll become the owner of this organization. You can invite
-        managers and staff later from your dashboard.
+        We review every application by hand, usually within a day or two. While
+        it&apos;s pending you can set up your carts and rewards; nothing shows
+        to customers until you&apos;re approved. You&apos;ll be the owner and
+        can invite managers and staff later.
       </p>
     </form>
   );

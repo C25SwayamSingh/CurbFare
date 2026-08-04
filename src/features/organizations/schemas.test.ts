@@ -10,6 +10,8 @@ describe("createOrganizationSchema", () => {
     legalName: "Maria's Taco Cart LLC",
     displayName: "Maria's Taco Cart",
     slug: "marias-taco-cart",
+    licenseNumber: "MFV-12345",
+    permitNumber: "PC-67890",
   };
 
   it("accepts a valid organization", () => {

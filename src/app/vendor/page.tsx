@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Gift, QrCode, Shield, ShieldCheck, Users } from "lucide-react";
+import {
+  Gift,
+  Hourglass,
+  QrCode,
+  Shield,
+  ShieldCheck,
+  Users,
+} from "lucide-react";
 
 import { AuthenticatedAppShell } from "@/components/app/authenticated-app-shell";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -142,6 +149,24 @@ export default async function VendorDashboardPage() {
               protects the{" "}
               {ctx.membership.role === "owner" ? "owners" : "managers"} managing
               this organization.
+            </AlertDescription>
+          </Alert>
+        ) : null}
+
+        {organization?.status === "pending" ? (
+          <Alert>
+            <Hourglass aria-hidden="true" />
+            <AlertDescription>
+              Your application is under review. Set up your carts and rewards
+              now; customers will see you the moment you&apos;re approved.
+            </AlertDescription>
+          </Alert>
+        ) : organization?.status === "rejected" ? (
+          <Alert variant="destructive">
+            <AlertDescription>
+              Your application wasn&apos;t approved, so your business stays
+              hidden from customers. If you think this is a mistake, reply to
+              your application email.
             </AlertDescription>
           </Alert>
         ) : null}

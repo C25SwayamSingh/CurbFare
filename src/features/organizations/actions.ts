@@ -15,6 +15,7 @@ import {
   createOrganizationSchema,
   updateOrganizationSchema,
 } from "@/features/organizations/schemas";
+import { notifyVendorApplication } from "@/lib/notify/vendor-application";
 
 /**
  * Vendor onboarding: create the organization and its initial owner
@@ -44,6 +45,9 @@ export async function createOrganizationAction(
     legalName: formData.get("legalName"),
     displayName: formData.get("displayName"),
     slug: formData.get("slug"),
+    licenseNumber: formData.get("licenseNumber"),
+    permitNumber: formData.get("permitNumber"),
+    applicationNote: formData.get("applicationNote") ?? undefined,
   });
 
   if (!parsed.success) {
@@ -58,6 +62,9 @@ export async function createOrganizationAction(
     p_legal_name: parsed.data.legalName,
     p_display_name: parsed.data.displayName,
     p_slug: parsed.data.slug,
+    p_license_number: parsed.data.licenseNumber,
+    p_permit_number: parsed.data.permitNumber,
+    p_application_note: parsed.data.applicationNote,
   });
 
   if (error) {
@@ -66,9 +73,26 @@ export async function createOrganizationAction(
         slug: ["Choose a different URL name."],
       });
     }
+    // P0001 messages are authored, applicant-safe sentences (duplicate
+    // license, credential shape) — pass them through.
+    if (error.code === "P0001" && error.message) {
+      return errorState(error.message.replace(/^[^:]*:\s*/, ""));
+    }
     console.error("organization creation failed", { code: error.code });
     return errorState("Something went wrong. Please try again in a moment.");
   }
+
+  // Doorbell for the reviewer; the queue is the record. Never blocks the
+  // application (the notifier swallows its own failures).
+  await notifyVendorApplication({
+    displayName: parsed.data.displayName,
+    legalName: parsed.data.legalName,
+    slug: parsed.data.slug,
+    licenseNumber: parsed.data.licenseNumber,
+    permitNumber: parsed.data.permitNumber,
+    applicationNote: parsed.data.applicationNote,
+    applicantEmail: ctx.user.email ?? null,
+  });
 
   const { error: profileError } = await supabase
     .from("profiles")

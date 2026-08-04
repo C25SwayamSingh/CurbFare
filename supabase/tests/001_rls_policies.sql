@@ -124,7 +124,7 @@ select is((select count(*)::int from public.organization_members), 0,
 select is((select count(*)::int from public.platform_admins), 0,
   'anon reads no platform admins');
 select throws_ok(
-  $$ select public.create_organization_with_owner('Anon LLC', 'Anon', 'anon-org') $$,
+  $$ select public.create_organization_with_owner('Anon LLC', 'Anon', 'anon-org', 'MFV-T-100', 'PC-T-100') $$,
   '42501',
   null,
   'anon cannot call create_organization_with_owner'
@@ -143,7 +143,7 @@ select throws_ok(
 select test_as_user('00000000-0000-0000-0000-000000000001', 'aal1');
 
 select lives_ok(
-  $$ select public.create_organization_with_owner('Taco Cart LLC (AAL1)', 'Taco Cart AAL1', 'taco-cart-aal1') $$,
+  $$ select public.create_organization_with_owner('Taco Cart LLC (AAL1)', 'Taco Cart AAL1', 'taco-cart-aal1', 'MFV-T-101', 'PC-T-101') $$,
   'AAL1 owner can create an organization (MFA no longer required for creation)'
 );
 
@@ -157,7 +157,7 @@ delete from public.organizations where slug = 'taco-cart-aal1';
 select test_as_user('00000000-0000-0000-0000-000000000001', 'aal2');
 
 select lives_ok(
-  $$ select public.create_organization_with_owner('Taco Cart LLC', 'Taco Cart', 'taco-cart') $$,
+  $$ select public.create_organization_with_owner('Taco Cart LLC', 'Taco Cart', 'taco-cart', 'MFV-T-102', 'PC-T-102') $$,
   'AAL2 vendor can create an organization'
 );
 
@@ -177,14 +177,14 @@ select is(
 select test_as_user('00000000-0000-0000-0000-000000000003', 'aal2');
 
 select lives_ok(
-  $$ select public.create_organization_with_owner('Customer LLC', 'Customer Org', 'customer-org') $$,
+  $$ select public.create_organization_with_owner('Customer LLC', 'Customer Org', 'customer-org', 'MFV-T-103', 'PC-T-103') $$,
   'AAL2 customer account can create an organization when MFA-verified'
 );
 
 select test_as_user('00000000-0000-0000-0000-000000000001', 'aal2');
 
 select throws_ok(
-  $$ select public.create_organization_with_owner('Bad Slug LLC', 'Bad Slug', 'Bad Slug!!') $$,
+  $$ select public.create_organization_with_owner('Bad Slug LLC', 'Bad Slug', 'Bad Slug!!', 'MFV-T-104', 'PC-T-104') $$,
   '23514',
   null,
   'invalid slug is rejected server-side'
@@ -201,7 +201,7 @@ select throws_ok(
 -- Second org for cross-org tests (owned by user 4), also gated by MFA.
 select test_as_user('00000000-0000-0000-0000-000000000004', 'aal2');
 select lives_ok(
-  $$ select public.create_organization_with_owner('Burger Truck LLC', 'Burger Truck', 'burger-truck') $$,
+  $$ select public.create_organization_with_owner('Burger Truck LLC', 'Burger Truck', 'burger-truck', 'MFV-T-105', 'PC-T-105') $$,
   'second vendor (AAL2) creates their own organization'
 );
 
@@ -529,7 +529,7 @@ where id = '00000000-0000-0000-0000-000000000002';
 select test_as_user('00000000-0000-0000-0000-000000000002', 'aal2');
 
 select lives_ok(
-  $$ select public.create_organization_with_owner('Cust LLC', 'Cust', 'cust-org-2') $$,
+  $$ select public.create_organization_with_owner('Cust LLC', 'Cust', 'cust-org-2', 'MFV-T-106', 'PC-T-106') $$,
   'any MFA-verified user can create an organization (membership grants vendor access)'
 );
 

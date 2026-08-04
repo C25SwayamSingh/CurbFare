@@ -17,7 +17,8 @@ export type AccountType = "customer" | "vendor";
 /** Non-authoritative UI preference; does not grant vendor access. */
 export type PreferredMode = "customer" | "vendor";
 export type OnboardingStatus = "not_started" | "in_progress" | "complete";
-export type OrganizationStatus = "active" | "suspended" | "archived";
+export type OrganizationStatus =
+  "pending" | "active" | "suspended" | "archived" | "rejected";
 export type OrganizationRole = "owner" | "manager" | "staff";
 
 /** Where a piece of location knowledge came from. */
@@ -177,6 +178,14 @@ export type Database = {
           display_name: string;
           slug: string;
           status: OrganizationStatus;
+          license_number: string | null;
+          permit_number: string | null;
+          application_note: string | null;
+          /** Admin-only review reasoning. Never expose publicly. */
+          review_note: string | null;
+          reviewed_by: string | null;
+          reviewed_at: string | null;
+          applied_at: string;
           created_by: string;
           created_at: string;
           updated_at: string;
@@ -187,6 +196,13 @@ export type Database = {
           display_name: string;
           slug: string;
           status?: OrganizationStatus;
+          license_number?: string | null;
+          permit_number?: string | null;
+          application_note?: string | null;
+          review_note?: string | null;
+          reviewed_by?: string | null;
+          reviewed_at?: string | null;
+          applied_at?: string;
           created_by: string;
           created_at?: string;
           updated_at?: string;
@@ -897,8 +913,19 @@ export type Database = {
           p_legal_name: string;
           p_display_name: string;
           p_slug: string;
+          p_license_number: string;
+          p_permit_number: string;
+          p_application_note?: string | null;
         };
         Returns: Database["public"]["Tables"]["organizations"]["Row"];
+      };
+      vendor_application_approve: {
+        Args: { p_organization_id: string };
+        Returns: undefined;
+      };
+      vendor_application_reject: {
+        Args: { p_organization_id: string; p_note?: string | null };
+        Returns: undefined;
       };
       is_platform_admin: {
         Args: Record<string, never>;

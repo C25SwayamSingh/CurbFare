@@ -52,6 +52,8 @@ const validForm = {
   legalName: "Taco Cart LLC",
   displayName: "Taco Cart",
   slug: "taco-cart",
+  licenseNumber: "MFV-12345",
+  permitNumber: "PC-67890",
 };
 
 // Organization creation no longer requires MFA — these tests use an aal2
@@ -136,7 +138,33 @@ describe("createOrganizationAction", () => {
     expect(client.rpc).not.toHaveBeenCalled();
   });
 
-  it("calls the atomic DB function with only name/slug values", async () => {
+  it("rejects a malformed license number before the database", async () => {
+    const client = useSupabase({ user, profile: vendorProfile, ...aal2 });
+    const state = await createOrganizationAction(
+      idleState,
+      form({ ...validForm, licenseNumber: "!!" }),
+    );
+    expect(state.status).toBe("error");
+    expect(state.fieldErrors?.licenseNumber).toBeDefined();
+    expect(client.rpc).not.toHaveBeenCalled();
+  });
+
+  it("passes authored application errors (duplicate license) through", async () => {
+    const client = useSupabase({ user, profile: vendorProfile, ...aal2 });
+    client.rpc.mockResolvedValue({
+      data: null,
+      error: {
+        code: "P0001",
+        message:
+          "That license number is already registered to a business on CurbAgora. If it is yours, reply to your application email.",
+      },
+    });
+    const state = await createOrganizationAction(idleState, form(validForm));
+    expect(state.status).toBe("error");
+    expect(state.message).toMatch(/already registered/i);
+  });
+
+  it("calls the atomic DB function with only the application values", async () => {
     const client = useSupabase({ user, profile: vendorProfile, ...aal2 });
     await expect(
       createOrganizationAction(
@@ -156,6 +184,9 @@ describe("createOrganizationAction", () => {
       p_legal_name: "Taco Cart LLC",
       p_display_name: "Taco Cart",
       p_slug: "taco-cart",
+      p_license_number: "MFV-12345",
+      p_permit_number: "PC-67890",
+      p_application_note: null,
     });
   });
 
