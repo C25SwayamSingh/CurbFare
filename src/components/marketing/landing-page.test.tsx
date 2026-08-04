@@ -62,8 +62,7 @@ describe("LandingPage", () => {
     );
 
     expect(screen.getByText("Hi, Maria")).toBeInTheDocument();
-    // Same label as the signed-in shell nav: there is only one "Dashboard".
-    expect(screen.getByRole("link", { name: "Dashboard" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "My Dashboard" })).toHaveAttribute(
       "href",
       "/vendor",
     );
@@ -77,7 +76,7 @@ describe("LandingPage", () => {
       <LandingPage viewer={{ firstName: null, dashboardHref: "/customer" }} />,
     );
 
-    expect(screen.getByRole("link", { name: "Dashboard" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "My Dashboard" })).toHaveAttribute(
       "href",
       "/customer",
     );

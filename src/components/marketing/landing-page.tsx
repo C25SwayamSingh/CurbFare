@@ -101,10 +101,9 @@ export function LandingPage({
             </nav>
             {viewer ? (
               <>
-                {/* Same word as the signed-in shell's nav — one "Dashboard",
-                    one destination, no second dashboard to wonder about. */}
+                {/* One personal destination, named as theirs. */}
                 <Button asChild size="sm">
-                  <Link href={viewer.dashboardHref}>Dashboard</Link>
+                  <Link href={viewer.dashboardHref}>My Dashboard</Link>
                 </Button>
                 {viewer.firstName ? (
                   <span className="hidden text-sm text-secondary-foreground/85 sm:inline">
