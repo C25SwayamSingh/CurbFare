@@ -162,8 +162,11 @@ export async function requireVendorMember(
 ): Promise<VendorContext> {
   const ctx = await requireMfaSatisfied(nextPath);
 
+  // Membership is the wall. A customer wandering into a vendor URL goes
+  // back to their own home, never into vendor onboarding — becoming a
+  // vendor starts only from the explicit "List your business" path.
   if (ctx.memberships.length === 0) {
-    redirect("/onboarding/vendor");
+    redirect("/customer");
   }
 
   const membership = ctx.memberships.find(
@@ -212,10 +215,12 @@ export async function requireVendorSensitiveAction(
 }
 
 /**
- * Dashboard access requires only active membership — MFA is optional here
- * for every role, including owners/managers (matches staff). Sensitive
- * writes performed from the dashboard still go through
- * `requireVendorSensitiveAction`, which remains mandatory-MFA.
+ * The vendor section's front door. Membership is the wall — and membership
+ * itself is earned through the reviewed application flow, which is where
+ * fake vendors are stopped. MFA stays optional at this door (street
+ * vendors shouldn't need an authenticator app to see their own counter)
+ * and remains MANDATORY for sensitive money writes via
+ * `requireVendorSensitiveAction`.
  */
 export async function requireVendorDashboard(
   nextPath = "/vendor",

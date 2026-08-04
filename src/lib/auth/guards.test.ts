@@ -104,8 +104,8 @@ describe("customer (onboarded)", () => {
     expect(ctx.profile?.account_type).toBe("customer");
   });
 
-  it("cannot access vendor areas (redirected to vendor onboarding)", async () => {
-    await expectRedirect(requireVendorMember(), "/onboarding/vendor");
+  it("cannot access vendor areas (sent back to their own home)", async () => {
+    await expectRedirect(requireVendorMember(), "/customer");
   });
 
   it("cannot access admin (redirected home)", async () => {
@@ -165,9 +165,9 @@ describe("vendor roles", () => {
     await expectRedirect(requireVendorMember(["owner", "manager"]), "/vendor");
   });
 
-  it("vendor without an organization is sent to vendor onboarding", async () => {
+  it("vendor account without an organization is sent to the customer home", async () => {
     useSupabase({ user: baseUser, profile: vendorProfile, memberships: [] });
-    await expectRedirect(requireVendorMember(), "/onboarding/vendor");
+    await expectRedirect(requireVendorMember(), "/customer");
   });
 
   it("customer with forged preferred vendor mode still cannot pass vendor guard", async () => {
@@ -179,7 +179,7 @@ describe("vendor roles", () => {
       },
       memberships: [],
     });
-    await expectRedirect(requireVendorMember(["owner"]), "/onboarding/vendor");
+    await expectRedirect(requireVendorMember(["owner"]), "/customer");
   });
 });
 
@@ -257,8 +257,8 @@ describe("organization creation and dashboard access (MFA optional)", () => {
     });
   });
 
-  describe("requireVendorDashboard", () => {
-    it("owner without MFA can still reach the dashboard (MFA optional)", async () => {
+  describe("requireVendorDashboard (membership is the wall, MFA optional)", () => {
+    it("owner without MFA reaches the dashboard (verification gates membership instead)", async () => {
       useSupabase({
         user: baseUser,
         profile: vendorProfile,
@@ -268,7 +268,7 @@ describe("organization creation and dashboard access (MFA optional)", () => {
       expect(ctx.membership.role).toBe("owner");
     });
 
-    it("manager without MFA can still reach the dashboard (MFA optional)", async () => {
+    it("manager without MFA reaches the dashboard", async () => {
       useSupabase({
         user: baseUser,
         profile: vendorProfile,
@@ -278,7 +278,7 @@ describe("organization creation and dashboard access (MFA optional)", () => {
       expect(ctx.membership.role).toBe("manager");
     });
 
-    it("staff without MFA can still reach the dashboard (MFA optional)", async () => {
+    it("staff without MFA reach the dashboard (their surface is the counter)", async () => {
       useSupabase({
         user: baseUser,
         profile: vendorProfile,

@@ -90,7 +90,7 @@ describe("startLocationSessionAction", () => {
     useSupabase({ user, profile: vendorProfile, memberships: [] });
     await expect(
       startLocationSessionAction(idleState, form(validStartForm)),
-    ).rejects.toThrow("REDIRECT:/onboarding/vendor");
+    ).rejects.toThrow("REDIRECT:/customer");
   });
 
   it.each(["owner", "manager", "staff"] as const)(

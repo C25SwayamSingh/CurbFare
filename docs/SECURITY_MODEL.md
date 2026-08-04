@@ -195,8 +195,11 @@ challenge/verify APIs can ever set to `aal2`.
 Frontend redirects are a UX convenience only — every layer that _does_
 require MFA re-verifies independently so a bypass at one layer alone cannot
 grant access. This applies to sensitive management actions and platform
-admin, not to org creation or dashboard access (neither requires MFA at
-any layer):
+admin, not to org creation or dashboard access (both stay MFA-optional:
+fake-vendor risk is handled by the reviewed application flow that gates
+membership itself, not by an authenticator at the door). Non-members
+touching a vendor URL are sent to `/customer` — vendor onboarding starts
+only from the explicit listing flow:
 
 1. **Page guards** (`requireVendorSensitiveAction`, `requirePlatformAdmin`)
    redirect before rendering.

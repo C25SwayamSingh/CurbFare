@@ -24,12 +24,9 @@ export async function AuthenticatedAppShell({
     <AppShell
       nav={nav}
       modeSwitch={
-        ctx ? (
-          <ModeSwitch
-            effectiveMode={effectiveMode}
-            hasMembership={membership}
-          />
-        ) : null
+        // Members only: pure customers get zero vendor language in the
+        // chrome — to them this app has no "modes" at all.
+        ctx && membership ? <ModeSwitch effectiveMode={effectiveMode} /> : null
       }
     >
       {children}

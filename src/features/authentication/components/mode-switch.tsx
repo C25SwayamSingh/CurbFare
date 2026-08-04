@@ -44,12 +44,15 @@ function ModeButton({
   );
 }
 
+/**
+ * Members-only quick toggle between the customer and vendor interfaces.
+ * The parent shell renders it ONLY for accounts with a vendor membership;
+ * pure customers never see mode language or a vendor upsell in the chrome.
+ */
 export function ModeSwitch({
   effectiveMode,
-  hasMembership,
 }: {
   effectiveMode: PreferredMode;
-  hasMembership: boolean;
 }) {
   // Threaded through as a hidden field so the action can return here on
   // failure instead of jumping to an unrelated page (see setPreferredModeAction).
@@ -65,7 +68,7 @@ export function ModeSwitch({
         <input type="hidden" name="preferredMode" value="customer" />
         <input type="hidden" name="currentPath" value={pathname} />
         <ModeButton
-          active={effectiveMode === "customer" || !hasMembership}
+          active={effectiveMode === "customer"}
           icon={<UtensilsCrossed className="size-3.5" aria-hidden="true" />}
           label="Customer"
         />
@@ -74,9 +77,9 @@ export function ModeSwitch({
         <input type="hidden" name="preferredMode" value="vendor" />
         <input type="hidden" name="currentPath" value={pathname} />
         <ModeButton
-          active={effectiveMode === "vendor" && hasMembership}
+          active={effectiveMode === "vendor"}
           icon={<Store className="size-3.5" aria-hidden="true" />}
-          label={hasMembership ? "Vendor" : "Become a vendor"}
+          label="Vendor"
         />
       </form>
     </div>

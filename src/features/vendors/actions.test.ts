@@ -394,7 +394,7 @@ describe("updateVendorUnitAction", () => {
     expect(payload.id).toBeUndefined();
   });
 
-  it("sends staff/non-members to onboarding, never another org's data", async () => {
+  it("sends non-members back to the customer home, never another org's data", async () => {
     const client = useSupabase({
       user,
       profile: vendorProfile,
@@ -402,7 +402,7 @@ describe("updateVendorUnitAction", () => {
     });
     await expect(
       updateVendorUnitAction(idleState, form(formWithUnitId)),
-    ).rejects.toThrow("REDIRECT:/onboarding/vendor");
+    ).rejects.toThrow("REDIRECT:/customer");
     expect(client.vendorUnitUpdate).not.toHaveBeenCalled();
   });
 
