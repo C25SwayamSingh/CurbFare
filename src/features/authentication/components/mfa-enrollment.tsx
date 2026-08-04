@@ -80,10 +80,14 @@ export function MfaEnrollment({ nextPath }: { nextPath?: string } = {}) {
           {starting ? "Preparing…" : "Set up authenticator app"}
         </Button>
         <p className="text-sm text-muted-foreground">
-          Adds a 6-digit code from an app like Google Authenticator or 1Password
-          as a second step when you sign in — so a stolen password alone is not
-          enough to access your account.
+          Adds a 6-digit code as a second sign-in step, so a stolen password
+          alone can&apos;t open your account. Takes about two minutes.
         </p>
+        <ol className="list-decimal space-y-1 pl-5 text-sm text-muted-foreground">
+          <li>Get a free authenticator app (next step has the links).</li>
+          <li>Connect it with one tap, or scan a code.</li>
+          <li>Type the 6-digit code it shows. Done.</li>
+        </ol>
       </div>
     );
   }
@@ -92,10 +96,31 @@ export function MfaEnrollment({ nextPath }: { nextPath?: string } = {}) {
     <div className="space-y-4">
       <ol className="list-decimal space-y-2 pl-5 text-sm text-muted-foreground">
         <li>
-          Open the link in your authenticator app, or scan the QR code from
-          another device.
+          No authenticator app yet? Get Google Authenticator free from the{" "}
+          <a
+            href="https://apps.apple.com/app/google-authenticator/id388497605"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-brand underline underline-offset-2"
+          >
+            App Store
+          </a>{" "}
+          or{" "}
+          <a
+            href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-brand underline underline-offset-2"
+          >
+            Google Play
+          </a>
+          . Already have one (1Password and Authy work too)? Skip ahead.
         </li>
-        <li>Enter the 6-digit code it generates to finish setup.</li>
+        <li>
+          On this phone, tap the button below. On a computer, open the app on
+          your phone, tap its + button, and scan the QR code.
+        </li>
+        <li>Type the 6-digit code the app shows, then confirm.</li>
       </ol>
 
       <div className="flex flex-col gap-4">
