@@ -58,15 +58,13 @@ export function LoyaltyStaffPanel() {
     <div className="grid gap-4 sm:grid-cols-2">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
+          <CardTitle className="flex items-center gap-2 text-lg tracking-tight">
             <QrCode className="size-5 text-brand" aria-hidden="true" />
             Award points
           </CardTitle>
           <CardDescription>
-            Scan the customer&apos;s QR or enter their 4-digit code, then type
-            the eligible subtotal from your register. The server turns that
-            verified amount into points — customers can never enter it
-            themselves.
+            Scan their QR or 4-digit code, then enter the subtotal. Customers
+            can never enter amounts themselves.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -81,13 +79,12 @@ export function LoyaltyStaffPanel() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
+          <CardTitle className="flex items-center gap-2 text-lg tracking-tight">
             <Gift className="size-5 text-live" aria-hidden="true" />
             Redeem a reward
           </CardTitle>
           <CardDescription>
-            Enter the redemption code the customer shows once their card is
-            full, then hand over the reward.
+            Enter their redemption code, then hand over the reward.
           </CardDescription>
         </CardHeader>
         <CardContent>

@@ -107,7 +107,7 @@ export default async function VendorLoyaltyPage() {
               Vendor dashboard
             </Link>
           </Button>
-          <h1 className="text-2xl font-semibold tracking-tight">
+          <h1 className="font-display text-3xl font-bold tracking-tight">
             Loyalty &amp; rewards
           </h1>
           <p className="text-sm text-muted-foreground">
@@ -127,10 +127,10 @@ export default async function VendorLoyaltyPage() {
                     className="absolute right-4 top-4 size-4 text-muted-foreground/60"
                     aria-hidden="true"
                   />
-                  <p className="text-3xl font-bold tabular-nums text-brand">
+                  <p className="text-3xl font-bold tabular-nums tracking-tight text-brand sm:text-4xl">
                     {stats.members}
                   </p>
-                  <p className="mt-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                     Members
                   </p>
                 </div>
@@ -139,10 +139,10 @@ export default async function VendorLoyaltyPage() {
                     className="absolute right-4 top-4 size-4 text-muted-foreground/60"
                     aria-hidden="true"
                   />
-                  <p className="text-3xl font-bold tabular-nums text-brand">
+                  <p className="text-3xl font-bold tabular-nums tracking-tight text-brand sm:text-4xl">
                     {Number(stats.points_issued).toLocaleString("en-US")}
                   </p>
-                  <p className="mt-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                     Points issued
                   </p>
                 </div>
@@ -151,10 +151,10 @@ export default async function VendorLoyaltyPage() {
                     className="absolute right-4 top-4 size-4 text-muted-foreground/60"
                     aria-hidden="true"
                   />
-                  <p className="text-3xl font-bold tabular-nums text-brand">
+                  <p className="text-3xl font-bold tabular-nums tracking-tight text-brand sm:text-4xl">
                     {stats.rewards_redeemed}
                   </p>
-                  <p className="mt-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                     Rewards redeemed
                   </p>
                 </div>
@@ -163,10 +163,10 @@ export default async function VendorLoyaltyPage() {
                     className="absolute right-4 top-4 size-4 text-muted-foreground/60"
                     aria-hidden="true"
                   />
-                  <p className="text-3xl font-bold tabular-nums text-brand">
+                  <p className="text-3xl font-bold tabular-nums tracking-tight text-brand sm:text-4xl">
                     {formatCents(Number(stats.estimated_liability_cents))}
                   </p>
-                  <p className="mt-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                     Owed in rewards
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground/80">
@@ -179,7 +179,9 @@ export default async function VendorLoyaltyPage() {
             <Card>
               <CardHeader>
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <CardTitle className="text-lg">Live program</CardTitle>
+                  <CardTitle className="text-lg tracking-tight">
+                    Live program
+                  </CardTitle>
                   <div className="flex gap-2">
                     {program?.earning_paused ? (
                       <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
@@ -203,10 +205,10 @@ export default async function VendorLoyaltyPage() {
               <CardContent className="space-y-5">
                 <div>
                   <p className="flex flex-wrap items-baseline gap-x-2">
-                    <span className="text-3xl font-bold tabular-nums text-brand">
+                    <span className="text-3xl font-bold tabular-nums tracking-tight text-brand sm:text-4xl">
                       {version.points_per_dollar}
                     </span>
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-sm font-medium text-muted-foreground">
                       points per $1 · confirmed by staff at the counter
                     </span>
                   </p>
@@ -219,7 +221,7 @@ export default async function VendorLoyaltyPage() {
 
                 <div>
                   <div className="flex items-center justify-between">
-                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                       Reward menu
                     </p>
                     {canDesign ? (
@@ -237,14 +239,14 @@ export default async function VendorLoyaltyPage() {
                         key={item.id}
                         className="flex items-center justify-between gap-3 px-3 py-2.5"
                       >
-                        <span className="text-sm">
+                        <span className="text-sm font-medium">
                           {rewardDisplayLabel(
                             item.reward_kind,
                             item.reward_name,
                             item.reward_value_cents,
                           )}
                           {item.reward_kind === "FREE_ITEM" ? (
-                            <span className="text-muted-foreground">
+                            <span className="font-normal text-muted-foreground">
                               {" "}
                               · {formatCents(item.reward_value_cents)} value
                             </span>
@@ -268,10 +270,11 @@ export default async function VendorLoyaltyPage() {
             </Card>
 
             <div>
-              <h2 className="text-lg font-semibold">At the counter</h2>
+              <h2 className="text-lg font-semibold tracking-tight">
+                At the counter
+              </h2>
               <p className="text-sm text-muted-foreground">
-                Confirm a customer&apos;s code after their purchase. Any staff
-                member can do this.
+                Any staff member can confirm a code after purchase.
               </p>
             </div>
             <LoyaltyStaffPanel />
@@ -279,7 +282,9 @@ export default async function VendorLoyaltyPage() {
             {canDesign ? (
               <Card id="change-rewards" className="scroll-mt-4">
                 <CardHeader>
-                  <CardTitle className="text-lg">Change your rewards</CardTitle>
+                  <CardTitle className="text-lg tracking-tight">
+                    Change your rewards
+                  </CardTitle>
                   <CardDescription>
                     Copy a proven model in one tap, or open the full editor.
                   </CardDescription>

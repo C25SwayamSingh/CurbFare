@@ -29,18 +29,17 @@ function ModeButton({
     <Button
       type="submit"
       variant={active ? "default" : "outline"}
-      size="sm"
       disabled={pending}
       aria-busy={pending}
       aria-pressed={active}
       className={
         active
-          ? "h-9 gap-1.5 px-3"
-          : "h-9 gap-1.5 border-secondary-foreground/30 bg-transparent px-3 text-secondary-foreground hover:border-primary hover:bg-transparent hover:text-primary"
+          ? "h-11 gap-2 px-4 text-sm font-semibold"
+          : "h-11 gap-2 border-secondary-foreground/30 bg-transparent px-4 text-sm font-semibold text-secondary-foreground hover:border-primary hover:bg-transparent hover:text-primary"
       }
     >
       {pending ? (
-        <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
+        <Loader2 className="size-4 animate-spin" aria-hidden="true" />
       ) : (
         icon
       )}
@@ -74,7 +73,7 @@ export function ModeSwitch({
         <input type="hidden" name="currentPath" value={pathname} />
         <ModeButton
           active={effectiveMode === "customer"}
-          icon={<UtensilsCrossed className="size-3.5" aria-hidden="true" />}
+          icon={<UtensilsCrossed className="size-4" aria-hidden="true" />}
           label="Customer"
         />
       </form>
@@ -83,7 +82,7 @@ export function ModeSwitch({
         <input type="hidden" name="currentPath" value={pathname} />
         <ModeButton
           active={effectiveMode === "vendor"}
-          icon={<Store className="size-3.5" aria-hidden="true" />}
+          icon={<Store className="size-4" aria-hidden="true" />}
           label="Vendor"
         />
       </form>

@@ -38,9 +38,10 @@ export function VendorUnitCard({
   canManageLocation: boolean;
   locationSession: VendorLocationSession | null;
   /**
-   * The organization's live program, if any. Per-organization rather than
-   * per-unit, so every unit shows the same figures — the card repeats them
-   * because this is where a vendor looks, not because they differ.
+   * The organization's live program, if any. The card only needs to know
+   * whether one exists: with a program it shows the two in-service taps
+   * (checkout, printable code); without one it points at setup. The figures
+   * themselves live in the Rewards console above the unit list.
    */
   loyalty?: { pointsPerDollar: number; rewardCount: number } | null;
 }) {
@@ -95,61 +96,63 @@ export function VendorUnitCard({
         ) : null}
 
         {/*
-          Rewards sit on the unit, because that is where the vendor is standing
-          when they need them: the printed code belongs to this cart, and the
-          checkout screen is what they open to serve its queue. Sending them
-          back to a separate dashboard section to find either one is a detour
-          during a rush.
+          Scheduling lives with the live control: today's spot above, the
+          recurring week right under it. Any active member may manage this —
+          saying where the cart parks is operational, the same judgement the
+          Go Live control already makes.
+        */}
+        <Button asChild variant="outline" size="sm">
+          <Link href={`/vendor/unit/${unit.id}/schedule`}>
+            <CalendarClock aria-hidden="true" />
+            Where you&apos;ll be
+          </Link>
+        </Button>
+
+        {/*
+          Only the two in-service taps. Program facts and the rewards editor
+          live in the Rewards console above this list; repeating them here
+          buried the buttons a vendor reaches for mid-rush.
         */}
         <div className="rounded-lg border border-border p-3">
           <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-brand">
             <Gift className="size-3.5" aria-hidden="true" />
             Rewards
           </p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {loyalty
-              ? `Earning ${loyalty.pointsPerDollar} points per $1 · ${loyalty.rewardCount} reward${loyalty.rewardCount === 1 ? "" : "s"}.`
-              : "No rewards program yet — set one up to start earning."}
-          </p>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {loyalty ? (
+          {loyalty ? (
+            <div className="mt-2 flex flex-wrap gap-2">
               <Button asChild size="sm">
                 <Link href="/vendor/checkout">
                   <QrCode aria-hidden="true" />
                   Checkout
                 </Link>
               </Button>
-            ) : null}
-            {canManage ? (
-              <Button asChild variant="outline" size="sm">
-                <Link href={`/vendor/unit/${unit.id}/qr`}>
-                  <QrCode aria-hidden="true" />
-                  Printable code
-                </Link>
-              </Button>
-            ) : null}
-            {canManage ? (
-              <Button asChild variant="outline" size="sm">
-                <Link href="/vendor/loyalty">
-                  <Gift aria-hidden="true" />
-                  {loyalty ? "Change rewards" : "Set up rewards"}
-                </Link>
-              </Button>
-            ) : null}
-          </div>
+              {canManage ? (
+                <Button asChild variant="outline" size="sm">
+                  <Link href={`/vendor/unit/${unit.id}/qr`}>
+                    <QrCode aria-hidden="true" />
+                    Printable code
+                  </Link>
+                </Button>
+              ) : null}
+            </div>
+          ) : (
+            <>
+              <p className="mt-1 text-xs text-muted-foreground">
+                No rewards program yet. Set one up to start earning.
+              </p>
+              {canManage ? (
+                <Button asChild variant="outline" size="sm" className="mt-2">
+                  <Link href="/vendor/loyalty">
+                    <Gift aria-hidden="true" />
+                    Set up rewards
+                  </Link>
+                </Button>
+              ) : null}
+            </>
+          )}
         </div>
 
         <div className="flex flex-wrap gap-2">
-          {/*
-            Any active member may manage this — saying where the cart parks is
-            operational, the same judgement the Go Live control already makes.
-          */}
-          <Button asChild variant="outline" size="sm">
-            <Link href={`/vendor/unit/${unit.id}/schedule`}>
-              <CalendarClock aria-hidden="true" />
-              Where you are
-            </Link>
-          </Button>
           {canManage ? (
             <Button asChild variant="outline" size="sm">
               <Link href={`/vendor/unit/${unit.id}/edit`}>Edit</Link>

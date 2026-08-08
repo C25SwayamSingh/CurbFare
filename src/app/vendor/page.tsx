@@ -23,6 +23,7 @@ import { pageTitle } from "@/lib/app-config";
 import { isMfaMandatoryRole, requireVendorDashboard } from "@/lib/auth/guards";
 import { createServerClient } from "@/lib/supabase/server";
 import { formatPoints, rewardDisplayLabel } from "@/features/loyalty/engine";
+import { LoyaltyStaffPanel } from "@/features/loyalty/components/loyalty-staff-panel";
 import { VendorUnitsSection } from "@/features/vendors/components/vendor-units-section";
 import { TeamInvitePanel } from "@/features/organizations/components/team-invite-panel";
 
@@ -118,7 +119,7 @@ export default async function VendorDashboardPage() {
     <AuthenticatedAppShell>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
+          <h1 className="font-display text-2xl font-semibold tracking-tight">
             {organization?.display_name ?? "Your organization"} Dashboard
           </h1>
           <p className="text-sm text-muted-foreground">
@@ -192,7 +193,7 @@ export default async function VendorDashboardPage() {
             </p>
             <div className="mt-2 flex flex-wrap items-end justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+                <h2 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
                   Loyalty &amp; rewards
                 </h2>
                 {loyaltyPreview ? (
@@ -272,6 +273,23 @@ export default async function VendorDashboardPage() {
             ) : null}
           </div>
         </section>
+
+        {/*
+          The same counter tools the Manage rewards page carries, deliberately
+          in both places: staff working from the dashboard should not need to
+          find a second page mid-service to award points or confirm a reward.
+        */}
+        {loyaltyPreview ? (
+          <section aria-label="At the counter" className="space-y-3">
+            <div>
+              <h2 className="text-lg font-semibold">At the counter</h2>
+              <p className="text-sm text-muted-foreground">
+                Any staff member can confirm a code after purchase.
+              </p>
+            </div>
+            <LoyaltyStaffPanel />
+          </section>
+        ) : null}
 
         <Card>
           <CardHeader>
