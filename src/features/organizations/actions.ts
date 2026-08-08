@@ -8,6 +8,7 @@ import { requireAuth, requireVendorSensitiveAction } from "@/lib/auth/guards";
 import { createServerClient } from "@/lib/supabase/server";
 import {
   errorState,
+  keepValues,
   successState,
   type ActionState,
 } from "@/features/authentication/action-state";
@@ -50,10 +51,21 @@ export async function createOrganizationAction(
     applicationNote: formData.get("applicationNote") ?? undefined,
   });
 
+  // A rejected application must not cost the vendor everything they typed.
+  const submitted = keepValues(formData, [
+    "displayName",
+    "legalName",
+    "slug",
+    "licenseNumber",
+    "permitNumber",
+    "applicationNote",
+  ]);
+
   if (!parsed.success) {
     return errorState(
       "Please fix the highlighted fields.",
       z.flattenError(parsed.error).fieldErrors,
+      submitted,
     );
   }
 
@@ -69,17 +81,27 @@ export async function createOrganizationAction(
 
   if (error) {
     if (error.code === "23505") {
-      return errorState("That URL name is already taken.", {
-        slug: ["Choose a different URL name."],
-      });
+      return errorState(
+        "That page link is already taken.",
+        { slug: ["Adjust the link name below, then resubmit."] },
+        submitted,
+      );
     }
     // P0001 messages are authored, applicant-safe sentences (duplicate
     // license, credential shape) — pass them through.
     if (error.code === "P0001" && error.message) {
-      return errorState(error.message.replace(/^[^:]*:\s*/, ""));
+      return errorState(
+        error.message.replace(/^[^:]*:\s*/, ""),
+        undefined,
+        submitted,
+      );
     }
     console.error("organization creation failed", { code: error.code });
-    return errorState("Something went wrong. Please try again in a moment.");
+    return errorState(
+      "Something went wrong. Please try again in a moment.",
+      undefined,
+      submitted,
+    );
   }
 
   // Doorbell for the reviewer; the queue is the record. Never blocks the
