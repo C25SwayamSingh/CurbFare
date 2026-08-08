@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FormQuestion } from "@/components/ui/form-question";
 import { Select } from "@/components/ui/select";
 import { idleState } from "@/features/authentication/action-state";
 import { FieldError } from "@/features/authentication/components/field-error";
@@ -433,7 +434,7 @@ export function LoyaltyConsultation({
         </CardHeader>
         <CardContent>
           <form onSubmit={handleConsult} className="space-y-8" noValidate>
-            <Question
+            <FormQuestion
               n={1}
               title="What can customers get?"
               hint="One to four rewards. We price each one in points from its value and your cost — you never pick the point numbers."
@@ -577,9 +578,9 @@ export function LoyaltyConsultation({
                   </Button>
                 ) : null}
               </fieldset>
-            </Question>
+            </FormQuestion>
 
-            <Question
+            <FormQuestion
               n={2}
               title="How generous should it feel?"
               hint="What a customer gets back at the first reward. You can switch models again after you see the results."
@@ -592,9 +593,9 @@ export function LoyaltyConsultation({
                 onCustomChange={setCustomReturn}
                 error={fieldErrors.customReturn}
               />
-            </Question>
+            </FormQuestion>
 
-            <Question
+            <FormQuestion
               n={3}
               title="What's the goal?"
               hint="Changes which program shape ranks first, never the prices."
@@ -616,9 +617,9 @@ export function LoyaltyConsultation({
                   Get regulars trying one item, feature Reward 1
                 </option>
               </Select>
-            </Question>
+            </FormQuestion>
 
-            <Question
+            <FormQuestion
               n={4}
               title="A couple of numbers about your cart"
               hint="Rough is fine. Say so and we use a clearly labeled estimate instead of pretending."
@@ -654,7 +655,7 @@ export function LoyaltyConsultation({
                   </Select>
                 </div>
               </div>
-            </Question>
+            </FormQuestion>
 
             {/*
               Everything below is optional. Four more selects in the main flow
@@ -1008,50 +1009,6 @@ function ReturnComparison({
 }
 
 /**
- * One numbered question in the intake form.
- *
- * The questions used to be the same size, weight, and colour as every hint and
- * field label around them, so nothing announced itself as the thing being
- * asked. A numbered display heading gives each one a clear start, and the
- * generous spacing between blocks is what stops the form reading as a wall.
- */
-function Question({
-  n,
-  title,
-  hint,
-  children,
-}: {
-  n: number;
-  title: string;
-  hint?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="space-y-3">
-      <div className="flex gap-3">
-        <span
-          className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-secondary/20 text-sm font-bold tabular-nums text-brand"
-          aria-hidden="true"
-        >
-          {n}
-        </span>
-        <div className="min-w-0">
-          <h3 className="font-display text-lg font-semibold tracking-tight">
-            {title}
-          </h3>
-          {hint ? (
-            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-              {hint}
-            </p>
-          ) : null}
-        </div>
-      </div>
-      <div className="sm:pl-10">{children}</div>
-    </section>
-  );
-}
-
-/**
  * The generosity spectrum as tappable chips, shared by the intake form and the
  * post-results dial so "switch models" is the same control in both places.
  * Buttons rather than radios: each chip carries a title and a detail line, and
@@ -1193,7 +1150,7 @@ function MoneyField({
           aria-describedby={`${id}-error`}
         />
       ) : (
-        <p className="rounded-md border border-dashed border-border px-3 py-2 text-xs text-muted-foreground">
+        <p className="flex min-h-10 items-center rounded-md border border-dashed border-border px-3 py-2 text-xs leading-snug text-muted-foreground">
           {mode === "estimate" ? estimateNote : `Skipped. ${estimateNote}`}
         </p>
       )}
@@ -1236,7 +1193,7 @@ function CountField(props: {
           aria-describedby={`${id}-error`}
         />
       ) : (
-        <p className="rounded-md border border-dashed border-border px-3 py-2 text-xs text-muted-foreground">
+        <p className="flex min-h-10 items-center rounded-md border border-dashed border-border px-3 py-2 text-xs leading-snug text-muted-foreground">
           {props.estimateNote}
         </p>
       )}

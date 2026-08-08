@@ -87,8 +87,8 @@ function comparisonFor(
 }
 
 const COMPARISON_LABELS: Record<ModelComparison, string> = {
-  richer: "Rewards come faster than today",
-  leaner: "Costs you less than today",
+  richer: "Customers reach rewards faster than today",
+  leaner: "You'd hand out less than today",
   current: "Your current model",
 };
 

@@ -1,17 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import {
-  ArrowLeft,
-  Coins,
-  Gift,
-  PauseCircle,
-  Users,
-  Wallet,
-} from "lucide-react";
+import { Coins, Gift, PauseCircle, Users, Wallet } from "lucide-react";
 
 import { AuthenticatedAppShell } from "@/components/app/authenticated-app-shell";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import { BackButton } from "@/components/ui/back-button";
 import {
   Card,
   CardContent,
@@ -78,13 +70,20 @@ export default async function VendorLoyaltyPage() {
 
   const stats = statsRows?.[0];
   const hasActiveProgram = Boolean(version);
+  // Catalog rows persist for every version ever published (history, and
+  // redemption receipts reference them), so filter to the live version here.
+  // Without this the reward menu showed archived rewards beside current ones
+  // — including a 600-point relic priced back when $1 earned 10 points.
+  const activeCatalog = (catalog ?? []).filter(
+    (item) => item.program_version_id === version?.id,
+  );
   const advisorChatEnabled = canDesign && isLoyaltyConsultantConfigured();
 
   // The named benchmark for the live program: which chain's model these
   // numbers are (or sit between). Computed from the entry tier — the first
   // reward a customer reaches — matching the engine's headline convention.
   // `catalog` arrives ordered by points_cost, so the entry tier is row one.
-  const entryTier = catalog?.[0];
+  const entryTier = activeCatalog[0];
   const benchmarkLine =
     version?.points_per_dollar && entryTier
       ? benchmarkModelPhrase(
@@ -101,12 +100,7 @@ export default async function VendorLoyaltyPage() {
     <AuthenticatedAppShell>
       <div className="space-y-6">
         <div>
-          <Button asChild variant="ghost" size="sm" className="mb-2 -ml-2">
-            <Link href="/vendor">
-              <ArrowLeft aria-hidden="true" />
-              Vendor dashboard
-            </Link>
-          </Button>
+          <BackButton fallback="/vendor" className="mb-2 -ml-2" />
           <h1 className="font-display text-3xl font-bold tracking-tight">
             Loyalty &amp; rewards
           </h1>
@@ -234,7 +228,7 @@ export default async function VendorLoyaltyPage() {
                     ) : null}
                   </div>
                   <ul className="mt-2 divide-y divide-border/60 rounded-xl border border-border/60">
-                    {(catalog ?? []).map((item) => (
+                    {activeCatalog.map((item) => (
                       <li
                         key={item.id}
                         className="flex items-center justify-between gap-3 px-3 py-2.5"
@@ -293,7 +287,7 @@ export default async function VendorLoyaltyPage() {
                   {version.points_per_dollar ? (
                     <LoyaltyQuickChange
                       pointsPerDollar={version.points_per_dollar}
-                      catalog={(catalog ?? []).map((item) => ({
+                      catalog={activeCatalog.map((item) => ({
                         pointsCost: item.points_cost,
                         rewardKind: item.reward_kind,
                         rewardName: item.reward_name,

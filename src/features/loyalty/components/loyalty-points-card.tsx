@@ -74,6 +74,16 @@ export function LoyaltyPointsCard({ card }: { card: PointsCardData }) {
   const affordable = card.catalog.filter(
     (c) => c.points_cost <= card.pointBalance,
   );
+  // The reward returning the most dollar value per point. Only worth
+  // labelling when there is a real choice to make.
+  const bestValueId =
+    card.catalog.length > 1
+      ? [...card.catalog].sort(
+          (a, b) =>
+            b.reward_value_cents / b.points_cost -
+            a.reward_value_cents / a.points_cost,
+        )[0].id
+      : null;
 
   async function redeem(item: LoyaltyCatalogPreviewItem) {
     setError(null);
@@ -200,17 +210,39 @@ export function LoyaltyPointsCard({ card }: { card: PointsCardData }) {
           <ul className="mt-1 space-y-2">
             {card.catalog.map((item) => {
               const canAfford = item.points_cost <= card.pointBalance;
+              const spendCents =
+                card.pointsPerDollar > 0
+                  ? Math.ceil((item.points_cost * 100) / card.pointsPerDollar)
+                  : 0;
               return (
                 <li
                   key={item.id}
-                  className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border px-3 py-2"
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border px-3 py-2.5"
                 >
-                  <span className="text-sm">
-                    {rewardLabel(item)}
-                    <span className="ml-2 text-xs text-muted-foreground">
-                      {formatPoints(item.points_cost)}
-                    </span>
-                  </span>
+                  <div className="min-w-0">
+                    <p className="flex flex-wrap items-center gap-2 text-sm font-medium">
+                      {rewardLabel(item)}
+                      <span className="font-normal text-muted-foreground">
+                        {formatPoints(item.points_cost)}
+                      </span>
+                      {bestValueId === item.id ? (
+                        <span className="rounded-full bg-success/15 px-2 py-0.5 text-[11px] font-semibold text-success">
+                          Best value
+                        </span>
+                      ) : null}
+                    </p>
+                    {/* What you'd actually get, in dollars — so choosing
+                        between a free item and money off is a comparison,
+                        not a guess. */}
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {item.reward_kind === "FREE_ITEM"
+                        ? `Worth ${formatCents(item.reward_value_cents)}`
+                        : `${formatCents(item.reward_value_cents)} off your whole order`}
+                      {spendCents > 0
+                        ? ` · earned by about ${formatCents(spendCents)} of visits`
+                        : ""}
+                    </p>
+                  </div>
                   {canAfford ? (
                     <Button
                       size="sm"

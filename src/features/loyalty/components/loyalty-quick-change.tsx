@@ -9,6 +9,7 @@ import { applyAdvisorProposalAction } from "@/features/loyalty/actions";
 import { formatPoints } from "@/features/loyalty/engine";
 import {
   buildChainPresets,
+  entryReturnBps,
   recommendFor,
   type ChainModelPreset,
   type Concern,
@@ -189,6 +190,10 @@ export function LoyaltyQuickChange({
     [pointsPerDollar, catalog],
   );
   const recommended = concern ? recommendFor(concern, presets) : null;
+  const todayBps = React.useMemo(
+    () => entryReturnBps(pointsPerDollar, catalog),
+    [pointsPerDollar, catalog],
+  );
 
   return (
     <div className="space-y-4">
@@ -215,6 +220,16 @@ export function LoyaltyQuickChange({
           </button>
         ))}
       </div>
+
+      {todayBps !== null ? (
+        <p className="text-sm text-muted-foreground">
+          Today your first reward gives customers about{" "}
+          <strong className="font-semibold text-foreground">
+            {pct(todayBps)} back
+          </strong>
+          . Each model below moves that number.
+        </p>
+      ) : null}
 
       <div className="grid gap-3 sm:grid-cols-3">
         {presets.map((preset) => (

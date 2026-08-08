@@ -569,12 +569,16 @@ export async function loyaltyAdvisorTurnAction(
     activeProgram: version?.points_per_dollar
       ? { pointsPerDollar: version.points_per_dollar }
       : null,
-    catalog: (catalog ?? []).map((item) => ({
-      pointsCost: item.points_cost,
-      rewardKind: item.reward_kind,
-      rewardName: item.reward_name,
-      rewardValueCents: item.reward_value_cents,
-    })),
+    // Same version scoping as the dashboard: only the live version's rewards
+    // are the program; archived rows are history.
+    catalog: (catalog ?? [])
+      .filter((item) => item.program_version_id === version?.id)
+      .map((item) => ({
+        pointsCost: item.points_cost,
+        rewardKind: item.reward_kind,
+        rewardName: item.reward_name,
+        rewardValueCents: item.reward_value_cents,
+      })),
     stats: stats
       ? {
           members: stats.members,
