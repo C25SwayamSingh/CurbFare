@@ -118,7 +118,7 @@ describe("MfaEnrollment — copy strings", () => {
 
     expect(
       screen.getByText(
-        /account recovery options are managed from security settings/i,
+        /recovery options live in security settings after setup/i,
       ),
     ).toBeInTheDocument();
     expect(

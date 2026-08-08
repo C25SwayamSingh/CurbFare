@@ -36,7 +36,7 @@ test.describe("auth pages", () => {
   test("sign-up form renders accessible fields", async ({ page }) => {
     await page.goto("/sign-up");
 
-    await expect(page.getByLabel(/display name/i)).toBeVisible();
+    await expect(page.getByLabel(/your name/i)).toBeVisible();
     await expect(page.getByLabel(/email/i)).toBeVisible();
     await expect(page.getByLabel(/^password$/i)).toBeVisible();
     await expect(
@@ -47,7 +47,7 @@ test.describe("auth pages", () => {
   test("sign-up shows server-side validation errors", async ({ page }) => {
     await page.goto("/sign-up");
 
-    await page.getByLabel(/display name/i).fill("Maria");
+    await page.getByLabel(/your name/i).fill("Maria");
     await page.getByLabel(/email/i).fill("not-an-email");
     await page.getByLabel(/^password$/i).fill("short");
     await page.getByRole("button", { name: /create account/i }).click();

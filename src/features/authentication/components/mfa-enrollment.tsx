@@ -133,7 +133,7 @@ export function MfaEnrollment({ nextPath }: { nextPath?: string } = {}) {
               </a>
             </Button>
             <p className="mt-1 text-xs text-muted-foreground">
-              Fills in the account name and key automatically — nothing to type.
+              Fills in the account name and key automatically. Nothing to type.
             </p>
           </div>
         ) : null}
@@ -227,8 +227,8 @@ export function MfaEnrollment({ nextPath }: { nextPath?: string } = {}) {
       </form>
 
       <p className="text-xs text-muted-foreground">
-        Account recovery options are managed from Security settings after setup
-        — you won&apos;t need to save this key.
+        Recovery options live in Security settings after setup. You won&apos;t
+        need to save this key.
       </p>
     </div>
   );

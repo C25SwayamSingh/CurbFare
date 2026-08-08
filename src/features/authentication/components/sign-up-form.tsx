@@ -26,15 +26,19 @@ export function SignUpForm() {
       ) : null}
 
       <div className="space-y-2">
-        <Label htmlFor="displayName">Display name</Label>
+        <Label htmlFor="displayName">Your name</Label>
         <Input
           id="displayName"
           name="displayName"
+          defaultValue={state.values?.displayName ?? ""}
           autoComplete="name"
           required
           aria-describedby="displayName-error"
           aria-invalid={Boolean(state.fieldErrors?.displayName)}
         />
+        <p className="text-xs text-muted-foreground">
+          How we&apos;ll greet you around Curbfare. Nicknames work too!
+        </p>
         <FieldError
           id="displayName-error"
           errors={state.fieldErrors?.displayName}
@@ -47,6 +51,7 @@ export function SignUpForm() {
           id="email"
           name="email"
           type="email"
+          defaultValue={state.values?.email ?? ""}
           autoComplete="username"
           required
           aria-describedby="email-error"

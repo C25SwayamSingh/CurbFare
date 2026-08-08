@@ -21,8 +21,8 @@ export const signUpSchema = z.object({
   displayName: z
     .string()
     .trim()
-    .min(1, "Display name is required")
-    .max(120, "Display name is too long"),
+    .min(1, "Tell us what to call you")
+    .max(120, "That name is too long"),
   email: emailSchema,
   password: passwordSchema,
 });
@@ -50,8 +50,8 @@ export const profileSchema = z.object({
   displayName: z
     .string()
     .trim()
-    .min(1, "Display name is required")
-    .max(120, "Display name is too long"),
+    .min(1, "Tell us what to call you")
+    .max(120, "That name is too long"),
 });
 
 /** Onboarding path selection — sets preferred UI mode only, not authorization. */

@@ -47,8 +47,8 @@ export default async function MfaEnrollPage({
       <CardHeader>
         <CardTitle>Set up two-factor authentication</CardTitle>
         <CardDescription>
-          This step is required before you can continue — organization owners
-          and managers must protect their account with an authenticator app.
+          This step is required before you can continue. Organization owners and
+          managers must protect their account with an authenticator app.
         </CardDescription>
       </CardHeader>
       <CardContent>

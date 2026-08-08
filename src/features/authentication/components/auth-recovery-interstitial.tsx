@@ -89,7 +89,7 @@ export function AuthRecoveryInterstitial() {
           <CardTitle>Continue password reset</CardTitle>
           <CardDescription>
             Click once below to open the password form. Reset links are
-            single-use — don&apos;t refresh this page after continuing.
+            single-use, so don&apos;t refresh this page after continuing.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-3">

@@ -34,7 +34,7 @@ export function ProfileForm({
       ) : null}
 
       <div className="space-y-2">
-        <Label htmlFor="displayName">Display name</Label>
+        <Label htmlFor="displayName">Your name</Label>
         <Input
           id="displayName"
           name="displayName"
@@ -44,6 +44,9 @@ export function ProfileForm({
           aria-describedby="displayName-error"
           aria-invalid={Boolean(state.fieldErrors?.displayName)}
         />
+        <p className="text-xs text-muted-foreground">
+          How we greet you around Curbfare, and what your team sees.
+        </p>
         <FieldError
           id="displayName-error"
           errors={state.fieldErrors?.displayName}

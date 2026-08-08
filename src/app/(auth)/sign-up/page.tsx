@@ -24,8 +24,8 @@ export default async function SignUpPage() {
       <CardHeader>
         <CardTitle>Create your account</CardTitle>
         <CardDescription>
-          Order-of-magnitude better street food discovery — or more customers
-          for your cart, truck, or stand.
+          Find the best street food near you, or bring more customers to your
+          cart.
         </CardDescription>
       </CardHeader>
       <CardContent>

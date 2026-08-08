@@ -47,6 +47,7 @@ export function SignInForm({
         <Input
           id="email"
           name="email"
+          defaultValue={state.values?.email ?? ""}
           type="email"
           autoComplete="username"
           required

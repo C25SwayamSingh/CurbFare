@@ -13,6 +13,7 @@ import {
 import { createServerClient } from "@/lib/supabase/server";
 import {
   errorState,
+  keepValues,
   successState,
   type ActionState,
 } from "@/features/authentication/action-state";
@@ -49,10 +50,14 @@ export async function signUpAction(
     password: formData.get("password"),
   });
 
+  // Everything except the password survives a rejected submit.
+  const submitted = keepValues(formData, ["displayName", "email"]);
+
   if (!parsed.success) {
     return errorState(
       "Please fix the highlighted fields.",
       z.flattenError(parsed.error).fieldErrors,
+      submitted,
     );
   }
 
@@ -68,19 +73,25 @@ export async function signUpAction(
 
   if (error) {
     if (error.code === "weak_password") {
-      return errorState("Please choose a stronger password.", {
-        password: [error.message],
-      });
+      return errorState(
+        "Please choose a stronger password.",
+        { password: [error.message] },
+        submitted,
+      );
     }
     if (error.code === "user_already_exists" || error.status === 422) {
-      return errorState("This email is already in use.", {
-        email: [
-          "This email is already in use. Sign in instead, or use a different email.",
-        ],
-      });
+      return errorState(
+        "This email is already in use.",
+        {
+          email: [
+            "This email is already in use. Sign in instead, or use a different email.",
+          ],
+        },
+        submitted,
+      );
     }
     console.error("sign-up failed", { code: error.code });
-    return errorState(GENERIC_AUTH_ERROR);
+    return errorState(GENERIC_AUTH_ERROR, undefined, submitted);
   }
 
   redirect(`/verify-email?email=${encodeURIComponent(parsed.data.email)}`);
@@ -96,10 +107,13 @@ export async function signInAction(
     password: formData.get("password"),
   });
 
+  const submitted = keepValues(formData, ["email"]);
+
   if (!parsed.success) {
     return errorState(
       "Please fix the highlighted fields.",
       z.flattenError(parsed.error).fieldErrors,
+      submitted,
     );
   }
 
@@ -117,10 +131,12 @@ export async function signInAction(
   if (error) {
     if (error.code === "email_not_confirmed") {
       return errorState(
-        "Please verify your email first — check your inbox for the confirmation link.",
+        "Please verify your email first. Check your inbox for the confirmation link.",
+        undefined,
+        submitted,
       );
     }
-    return errorState("Incorrect email or password.");
+    return errorState("Incorrect email or password.", undefined, submitted);
   }
 
   // If the user has a verified MFA factor, the password alone only grants

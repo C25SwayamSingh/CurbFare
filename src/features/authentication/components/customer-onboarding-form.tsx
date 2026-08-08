@@ -31,7 +31,7 @@ export function CustomerOnboardingForm({
       ) : null}
 
       <div className="space-y-2">
-        <Label htmlFor="displayName">Display name</Label>
+        <Label htmlFor="displayName">Your name</Label>
         <Input
           id="displayName"
           name="displayName"
@@ -41,6 +41,9 @@ export function CustomerOnboardingForm({
           aria-describedby="displayName-error"
           aria-invalid={Boolean(state.fieldErrors?.displayName)}
         />
+        <p className="text-xs text-muted-foreground">
+          How we&apos;ll greet you around Curbfare. Nicknames work too!
+        </p>
         <FieldError
           id="displayName-error"
           errors={state.fieldErrors?.displayName}
