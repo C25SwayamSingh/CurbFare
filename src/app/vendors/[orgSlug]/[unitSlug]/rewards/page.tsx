@@ -58,7 +58,9 @@ export default async function VendorRewardsPage({
     return (
       <AuthenticatedAppShell>
         <div className="mx-auto max-w-md space-y-4">
-          <h1 className="text-2xl font-semibold tracking-tight">{unit.name}</h1>
+          <h1 className="font-display text-2xl font-semibold tracking-tight">
+            {unit.name}
+          </h1>
           <p className="text-sm text-muted-foreground">
             This vendor doesn&apos;t have a rewards program yet.
           </p>
@@ -116,7 +118,7 @@ export default async function VendorRewardsPage({
         ) : null}
 
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
+          <h1 className="font-display text-2xl font-semibold tracking-tight">
             {loyalty.organization_name}
           </h1>
           <p className="text-sm text-muted-foreground">

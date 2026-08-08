@@ -63,7 +63,7 @@ export default async function VendorUnitQrPage({
     <AuthenticatedAppShell>
       <div className="mx-auto max-w-lg space-y-5">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
+          <h1 className="font-display text-2xl font-semibold tracking-tight">
             Rewards QR code
           </h1>
           <p className="text-sm text-muted-foreground">

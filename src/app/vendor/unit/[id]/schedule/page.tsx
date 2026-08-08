@@ -113,7 +113,7 @@ export default async function VendorUnitSchedulePage({
               Vendor dashboard
             </Link>
           </Button>
-          <h1 className="text-2xl font-semibold tracking-tight">
+          <h1 className="font-display text-2xl font-semibold tracking-tight">
             Where you are
           </h1>
           <p className="text-sm text-muted-foreground">

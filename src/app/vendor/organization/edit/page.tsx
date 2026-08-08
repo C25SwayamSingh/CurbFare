@@ -24,7 +24,7 @@ export default async function EditOrganizationPage() {
   if (!organization) {
     return (
       <main className="mx-auto flex min-h-full w-full max-w-lg flex-col items-center justify-center px-4 py-16 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight">
+        <h1 className="font-display text-2xl font-semibold tracking-tight">
           Organization not found
         </h1>
         <Link

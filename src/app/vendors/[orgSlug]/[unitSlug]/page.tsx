@@ -79,7 +79,7 @@ export default async function VendorPublicPreviewPage({
   if (!unit) {
     return (
       <main className="mx-auto flex min-h-full w-full max-w-2xl flex-col items-center justify-center px-4 py-16 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight">
+        <h1 className="font-display text-2xl font-semibold tracking-tight">
           Vendor not found
         </h1>
         <p className="mt-2 text-muted-foreground">
@@ -123,7 +123,9 @@ export default async function VendorPublicPreviewPage({
       <div className="mt-6 flex items-start gap-4">
         <InitialsAvatar displayName={unit.name} className="size-16 text-lg" />
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{unit.name}</h1>
+          <h1 className="font-display text-2xl font-semibold tracking-tight">
+            {unit.name}
+          </h1>
           <p className="text-muted-foreground">
             <Store
               className="inline size-4 align-text-bottom"

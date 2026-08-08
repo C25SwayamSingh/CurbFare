@@ -33,7 +33,7 @@ export default async function AdminPage() {
     <AppShell nav={[{ href: "/account/security", label: "Security" }]}>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
+          <h1 className="font-display text-2xl font-semibold tracking-tight">
             Platform administration
           </h1>
           <p className="text-sm text-muted-foreground">

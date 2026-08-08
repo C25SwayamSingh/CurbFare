@@ -37,6 +37,19 @@
   --brand-foreground: #f6f1e7;
   --live: #874106; /* burnt sunset — AA (≥4.5) as text even on raw sand */
   --success: #3e6b4f; /* deep sage green */
+
+  /*
+   * Third-party chain identity colors, used ONLY on the benchmark preset
+   * cards so an owner recognises the model at a glance. These are the chains'
+   * own brand colors, deliberately outside the Curbfare palette — never reuse
+   * them for Curbfare's own surfaces or actions.
+   */
+  --chain-starbucks: #00704a;
+  --chain-starbucks-ink: #ffffff;
+  --chain-subway: #007a33;
+  --chain-subway-ink: #ffffff;
+  --chain-mcdonalds: #c8102e;
+  --chain-mcdonalds-ink: #ffc72c;
 }
 
 @theme inline {
@@ -63,8 +76,15 @@
   --color-brand-foreground: var(--brand-foreground);
   --color-live: var(--live);
   --color-success: var(--success);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-chain-starbucks: var(--chain-starbucks);
+  --color-chain-starbucks-ink: var(--chain-starbucks-ink);
+  --color-chain-subway: var(--chain-subway);
+  --color-chain-subway-ink: var(--chain-subway-ink);
+  --color-chain-mcdonalds: var(--chain-mcdonalds);
+  --color-chain-mcdonalds-ink: var(--chain-mcdonalds-ink);
+  --font-sans: var(--font-jakarta-sans);
+  --font-display: var(--font-fraunces);
+  --font-mono: var(--font-plex-mono);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

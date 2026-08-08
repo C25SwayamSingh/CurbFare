@@ -45,7 +45,9 @@ export default async function SecurityPage({
     <AuthenticatedAppShell extraNav={[{ href: "/account", label: "Account" }]}>
       <div className="mx-auto max-w-xl space-y-6">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Security</h1>
+          <h1 className="font-display text-2xl font-semibold tracking-tight">
+            Security
+          </h1>
           <p className="text-sm text-muted-foreground">
             Password, two-factor authentication, and session control.
           </p>

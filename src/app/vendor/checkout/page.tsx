@@ -45,7 +45,7 @@ export default async function VendorCheckoutPage() {
     <AuthenticatedAppShell>
       <div className="mx-auto max-w-md space-y-5">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
+          <h1 className="font-display text-2xl font-semibold tracking-tight">
             Identify customer
           </h1>
           {pointsPerDollar ? (
