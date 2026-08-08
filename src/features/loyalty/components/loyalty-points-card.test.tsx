@@ -45,25 +45,14 @@ function makeCard(overrides: Partial<PointsCardData> = {}): PointsCardData {
 }
 
 describe("LoyaltyPointsCard — choosing between rewards", () => {
-  it("states each reward's dollar worth so options can be compared", () => {
+  it("states each reward's worth in a few words, never spend-to-earn math", () => {
     render(<LoyaltyPointsCard card={makeCard()} />);
 
-    expect(screen.getByText(/Worth \$3\.50/)).toBeInTheDocument();
-    expect(
-      screen.getByText(/\$3\.00 off your whole order/),
-    ).toBeInTheDocument();
-  });
-
-  it("translates each points cost into real spending", () => {
-    render(<LoyaltyPointsCard card={makeCard()} />);
-
-    // 250 pts at 10 pts/$1 is $25 of visits; 500 pts is $50.
-    expect(
-      screen.getByText(/earned by about \$25\.00 of visits/),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/earned by about \$50\.00 of visits/),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Worth $3.50")).toBeInTheDocument();
+    expect(screen.getByText("Off your whole order")).toBeInTheDocument();
+    // Inviting the customer to compute "$50 of visits for $3 off" kills
+    // the habit loop; that framing must never come back.
+    expect(screen.queryByText(/of visits/)).not.toBeInTheDocument();
   });
 
   it("marks the reward returning the most value per point", () => {

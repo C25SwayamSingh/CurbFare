@@ -24,6 +24,10 @@ import {
   rewardDisplayLabel,
 } from "@/features/loyalty/engine";
 import {
+  bestValueItemId,
+  rewardWorthLine,
+} from "@/features/loyalty/reward-display";
+import {
   formatCountdown,
   useCountdown,
 } from "@/features/loyalty/use-countdown";
@@ -74,16 +78,7 @@ export function LoyaltyPointsCard({ card }: { card: PointsCardData }) {
   const affordable = card.catalog.filter(
     (c) => c.points_cost <= card.pointBalance,
   );
-  // The reward returning the most dollar value per point. Only worth
-  // labelling when there is a real choice to make.
-  const bestValueId =
-    card.catalog.length > 1
-      ? [...card.catalog].sort(
-          (a, b) =>
-            b.reward_value_cents / b.points_cost -
-            a.reward_value_cents / a.points_cost,
-        )[0].id
-      : null;
+  const bestValueId = bestValueItemId(card.catalog);
 
   async function redeem(item: LoyaltyCatalogPreviewItem) {
     setError(null);
@@ -210,10 +205,6 @@ export function LoyaltyPointsCard({ card }: { card: PointsCardData }) {
           <ul className="mt-1 space-y-2">
             {card.catalog.map((item) => {
               const canAfford = item.points_cost <= card.pointBalance;
-              const spendCents =
-                card.pointsPerDollar > 0
-                  ? Math.ceil((item.points_cost * 100) / card.pointsPerDollar)
-                  : 0;
               return (
                 <li
                   key={item.id}
@@ -231,16 +222,11 @@ export function LoyaltyPointsCard({ card }: { card: PointsCardData }) {
                         </span>
                       ) : null}
                     </p>
-                    {/* What you'd actually get, in dollars — so choosing
-                        between a free item and money off is a comparison,
-                        not a guess. */}
+                    {/* What you'd get, in a few words. Deliberately no
+                        spend-to-earn math here: a customer invited to compute
+                        "\$50 for \$3 off" stops earning. Worth and scope only. */}
                     <p className="mt-0.5 text-xs text-muted-foreground">
-                      {item.reward_kind === "FREE_ITEM"
-                        ? `Worth ${formatCents(item.reward_value_cents)}`
-                        : `${formatCents(item.reward_value_cents)} off your whole order`}
-                      {spendCents > 0
-                        ? ` · earned by about ${formatCents(spendCents)} of visits`
-                        : ""}
+                      {rewardWorthLine(item)}
                     </p>
                   </div>
                   {canAfford ? (

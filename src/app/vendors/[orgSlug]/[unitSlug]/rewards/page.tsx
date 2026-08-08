@@ -12,6 +12,10 @@ import { requireAuth } from "@/lib/auth/guards";
 import { createServerClient } from "@/lib/supabase/server";
 import { CheckoutCodeCard } from "@/features/loyalty/components/checkout-code-card";
 import { formatPoints, rewardDisplayLabel } from "@/features/loyalty/engine";
+import {
+  bestValueItemId,
+  rewardWorthLine,
+} from "@/features/loyalty/reward-display";
 import type { LoyaltyCatalogPreviewItem } from "@/lib/supabase/database.types";
 
 export const metadata: Metadata = { title: pageTitle("Checkout code") };
@@ -149,18 +153,28 @@ export default async function VendorRewardsPage({
             {catalog.map((item) => (
               <li
                 key={item.id}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border px-3 py-2 text-sm"
+                className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border px-3 py-2.5"
               >
-                <span>
-                  {rewardDisplayLabel(
-                    item.reward_kind,
-                    item.reward_name,
-                    item.reward_value_cents,
-                  )}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {formatPoints(item.points_cost)}
-                </span>
+                <div className="min-w-0">
+                  <p className="flex flex-wrap items-center gap-2 text-sm font-medium">
+                    {rewardDisplayLabel(
+                      item.reward_kind,
+                      item.reward_name,
+                      item.reward_value_cents,
+                    )}
+                    <span className="font-normal text-muted-foreground">
+                      {formatPoints(item.points_cost)}
+                    </span>
+                    {bestValueItemId(catalog) === item.id ? (
+                      <span className="rounded-full bg-success/15 px-2 py-0.5 text-[11px] font-semibold text-success">
+                        Best value
+                      </span>
+                    ) : null}
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {rewardWorthLine(item)}
+                  </p>
+                </div>
               </li>
             ))}
           </ul>
