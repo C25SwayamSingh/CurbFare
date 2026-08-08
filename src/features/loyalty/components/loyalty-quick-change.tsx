@@ -31,6 +31,24 @@ function pct(bps: number): string {
   return `${(bps / 100).toFixed(1).replace(/\.0$/, "")}%`;
 }
 
+/**
+ * Each chain's own identity colours for its card band, so an owner recognises
+ * the model before reading a word. Tokens rather than hexes — defined in
+ * globals.css and scoped to these cards, never reused for Curbfare surfaces.
+ */
+function chainStyle(company: string): string {
+  if (company.startsWith("Starbucks")) {
+    return "bg-chain-starbucks text-chain-starbucks-ink";
+  }
+  if (company.startsWith("Subway")) {
+    return "bg-chain-subway text-chain-subway-ink";
+  }
+  if (company.startsWith("McDonald")) {
+    return "bg-chain-mcdonalds text-chain-mcdonalds-ink";
+  }
+  return "bg-secondary text-secondary-foreground";
+}
+
 function PresetCard({
   preset,
   recommended,
@@ -67,8 +85,15 @@ function PresetCard({
         recommended ? "border-primary ring-1 ring-primary/40" : "border-border",
       )}
     >
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-xs font-bold uppercase tracking-wider text-brand">
+      {/* The chain's own colours, so an owner recognises the model before
+          reading a word. Curbfare's palette resumes below the band. */}
+      <div
+        className={cn(
+          "-mx-4 -mt-4 mb-3 flex items-center justify-between gap-2 rounded-t-2xl px-4 py-2.5",
+          chainStyle(preset.chain.company),
+        )}
+      >
+        <p className="text-xs font-bold uppercase tracking-wider">
           {preset.chain.company} model
         </p>
         {recommended ? (
@@ -77,7 +102,7 @@ function PresetCard({
           </span>
         ) : null}
       </div>
-      <p className="mt-1 flex items-baseline gap-1.5">
+      <p className="flex items-baseline gap-1.5">
         <span className="text-2xl font-bold tabular-nums text-brand">
           {pct(preset.chain.returnBps)}
         </span>

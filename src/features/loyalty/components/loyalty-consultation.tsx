@@ -44,6 +44,7 @@ import {
   type ConsultationAnswers,
   type ExistingSystem,
   type ExistingSystemGuidance,
+  type GenerositySelection,
   type LoyaltyGoal,
   type LoyaltyRecommendation,
   type VisitCadence,
@@ -65,6 +66,60 @@ import {
 
 const ESTIMATE_TYPICAL_ORDER_CENTS = 1200;
 const ESTIMATE_REGULARS_PER_MONTH = 30;
+
+/**
+ * The generosity spectrum, offered by name. Chain percentages are read from
+ * the benchmark dataset so a chip can never drift from the cards that cite it.
+ */
+type GenerosityChoice =
+  "advisor" | "starbucks" | "subway" | "mcdonalds" | "custom";
+
+const GENEROSITY_COMPANY: Record<
+  Exclude<GenerosityChoice, "advisor" | "custom">,
+  string
+> = {
+  starbucks: "Starbucks (Green)",
+  subway: "Subway",
+  mcdonalds: "McDonald's",
+};
+
+function chainDetail(company: string): string {
+  const chain = CHAIN_BENCHMARKS.find((b) => b.company === company);
+  return chain ? `${formatBps(chain.returnBps)} back` : "";
+}
+
+const GENEROSITY_CHIPS: {
+  id: GenerosityChoice;
+  title: string;
+  detail: string;
+}[] = [
+  { id: "advisor", title: "Advisor picks", detail: "reachable first reward" },
+  {
+    id: "starbucks",
+    title: "Starbucks model",
+    detail: chainDetail(GENEROSITY_COMPANY.starbucks),
+  },
+  {
+    id: "subway",
+    title: "Subway model",
+    detail: chainDetail(GENEROSITY_COMPANY.subway),
+  },
+  {
+    id: "mcdonalds",
+    title: "McDonald's model",
+    detail: chainDetail(GENEROSITY_COMPANY.mcdonalds),
+  },
+  { id: "custom", title: "My own number", detail: "type a percent" },
+];
+
+/** Strict percent between 1 and 12 (one decimal ok), returned in bps. */
+function parsePercentStrict(value: string): number | null {
+  const trimmed = value.trim().replace(/%$/, "");
+  if (!/^\d{1,2}(\.\d{1,2})?$/.test(trimmed)) return null;
+  const pct = Number.parseFloat(trimmed);
+  if (pct < 1 || pct > 12) return null;
+  return Math.round(pct * 100);
+}
 
 type RewardDraft = {
   key: string;
@@ -106,6 +161,8 @@ type FormState = {
   typicalOrder: string;
   cadence: VisitCadence;
   goal: LoyaltyGoal;
+  generosity: GenerosityChoice;
+  customReturn: string;
   rewards: RewardDraft[];
   budgetMode: InputMode;
   budget: string;
@@ -119,6 +176,8 @@ const INITIAL_FORM: FormState = {
   typicalOrder: "",
   cadence: "weekly",
   goal: "repeat_visits",
+  generosity: "advisor",
+  customReturn: "",
   rewards: [newReward()],
   budgetMode: "skip",
   budget: "",
@@ -134,6 +193,8 @@ function fingerprint(f: FormState): string {
     f.typicalOrder.trim(),
     f.cadence,
     f.goal,
+    f.generosity,
+    f.generosity === "custom" ? f.customReturn.trim() : "",
     f.rewards.map((r) => [
       r.kind,
       r.name.trim(),
@@ -192,37 +253,48 @@ export function LoyaltyConsultation({
     }));
   }
 
-  function handleConsult(event: React.FormEvent) {
-    event.preventDefault();
+  function computeNow(f: FormState, opts: { scroll: boolean }) {
     setStatus("working");
     const errors: Record<string, string | undefined> = {};
 
     const order = resolveMoneyField(
-      form.typicalOrderMode,
-      form.typicalOrder,
+      f.typicalOrderMode,
+      f.typicalOrder,
       ESTIMATE_TYPICAL_ORDER_CENTS,
       "Typical order total",
     );
     if (!order.ok) errors.typicalOrder = order.message;
 
     const budget = resolveMoneyField(
-      form.budgetMode,
-      form.budget,
+      f.budgetMode,
+      f.budget,
       null,
       "Monthly reward budget",
     );
     if (!budget.ok) errors.budget = budget.message;
 
     const regulars = resolveCountField(
-      form.regularsMode,
-      form.regulars,
+      f.regularsMode,
+      f.regulars,
       ESTIMATE_REGULARS_PER_MONTH,
       "Regulars per month",
     );
     if (!regulars.ok) errors.regulars = regulars.message;
 
+    let generosity: GenerositySelection | undefined;
+    if (f.generosity === "custom") {
+      const bps = parsePercentStrict(f.customReturn);
+      if (bps === null) {
+        errors.customReturn = "Enter a percent from 1 to 12, like 6 or 6.5.";
+      } else {
+        generosity = { kind: "custom", targetBps: bps };
+      }
+    } else if (f.generosity !== "advisor") {
+      generosity = { kind: "chain", company: GENEROSITY_COMPANY[f.generosity] };
+    }
+
     const rewards: RewardSpec[] = [];
-    form.rewards.forEach((r, i) => {
+    f.rewards.forEach((r, i) => {
       const value = parseMoneyStrict(r.value);
       // Only a free item needs naming; a discount's name is its amount.
       if (r.kind === "FREE_ITEM" && !r.name.trim()) {
@@ -273,9 +345,9 @@ export function LoyaltyConsultation({
         value: order.ok ? order.cents : null,
         source: order.ok ? order.source : "skipped",
       },
-      cadence: form.cadence,
-      cadenceSource: form.cadence === "unsure" ? "estimated" : "provided",
-      goal: form.goal,
+      cadence: f.cadence,
+      cadenceSource: f.cadence === "unsure" ? "estimated" : "provided",
+      goal: f.goal,
       rewards,
       monthlyBudgetCents: {
         value: budget.ok ? budget.cents : null,
@@ -285,22 +357,63 @@ export function LoyaltyConsultation({
         value: regulars.ok ? regulars.count : ESTIMATE_REGULARS_PER_MONTH,
         source: regulars.ok ? regulars.source : "estimated",
       },
-      existingSystem: form.existingSystem,
+      existingSystem: f.existingSystem,
+      generosity,
     };
 
     setComputed({
       result: recommendPrograms(answers),
-      guidance: existingSystemGuidance(form.existingSystem),
-      fingerprint: fingerprint(form),
+      guidance: existingSystemGuidance(f.existingSystem),
+      fingerprint: fingerprint(f),
     });
     setStatus("idle");
-    window.requestAnimationFrame(() => {
-      resultsRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
+    if (opts.scroll) {
+      window.requestAnimationFrame(() => {
+        resultsRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+        resultsRef.current?.focus({ preventScroll: true });
       });
-      resultsRef.current?.focus({ preventScroll: true });
-    });
+    }
+  }
+
+  function handleConsult(event: React.FormEvent) {
+    event.preventDefault();
+    computeNow(form, { scroll: true });
+  }
+
+  /**
+   * The dial: switching models after results exist reprices immediately, so
+   * the owner compares live numbers instead of a stale banner. Typing a custom
+   * percent recomputes on every valid value.
+   */
+  function chooseGenerosity(choice: GenerosityChoice) {
+    const next = { ...form, generosity: choice };
+    setForm(next);
+    if (computed && choice !== "custom") {
+      computeNow(next, { scroll: false });
+    }
+  }
+
+  function setCustomReturn(value: string) {
+    const next = {
+      ...form,
+      generosity: "custom" as GenerosityChoice,
+      customReturn: value,
+    };
+    setForm(next);
+    const bps = parsePercentStrict(value);
+    setFieldErrors((prev) => ({
+      ...prev,
+      customReturn:
+        bps === null && value.trim() !== ""
+          ? "Enter a percent from 1 to 12, like 6 or 6.5."
+          : undefined,
+    }));
+    if (computed && bps !== null) {
+      computeNow(next, { scroll: false });
+    }
   }
 
   return (
@@ -319,244 +432,291 @@ export function LoyaltyConsultation({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleConsult} className="space-y-5" noValidate>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <MoneyField
-                id="typicalOrder"
-                label="Typical order total"
-                hint="What a regular spends on one visit."
-                mode={form.typicalOrderMode}
-                onModeChange={(m) => set("typicalOrderMode", m)}
-                value={form.typicalOrder}
-                onValueChange={(v) => set("typicalOrder", v)}
-                error={fieldErrors.typicalOrder}
-                estimateNote={`Uses ${formatCents(ESTIMATE_TYPICAL_ORDER_CENTS)} as a starting point.`}
-              />
+          <form onSubmit={handleConsult} className="space-y-8" noValidate>
+            <Question
+              n={1}
+              title="What can customers get?"
+              hint="One to four rewards. We price each one in points from its value and your cost — you never pick the point numbers."
+            >
+              <fieldset className="space-y-4">
+                <legend className="sr-only">
+                  Rewards customers can spend points on
+                </legend>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="cadence">
-                  How often does a regular come back?
-                </Label>
-                <Select
-                  id="cadence"
-                  value={form.cadence}
-                  onChange={(e) =>
-                    set("cadence", e.target.value as VisitCadence)
-                  }
-                >
-                  {(Object.keys(VISIT_CADENCE_LABEL) as VisitCadence[]).map(
-                    (c) => (
-                      <option key={c} value={c}>
-                        {VISIT_CADENCE_LABEL[c]}
-                      </option>
-                    ),
-                  )}
-                </Select>
-                <p className="text-xs text-muted-foreground">
-                  Measured per week; monthly figures convert at 4.33 weeks.
-                </p>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="goal">What are you trying to encourage?</Label>
-                <Select
-                  id="goal"
-                  value={form.goal}
-                  onChange={(e) => set("goal", e.target.value as LoyaltyGoal)}
-                >
-                  <option value="repeat_visits">More repeat visits</option>
-                  <option value="bigger_orders">Bigger orders</option>
-                  <option value="new_item">Trying a specific item</option>
-                </Select>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="existingSystem">
-                  Do you already run a loyalty program?
-                </Label>
-                <Select
-                  id="existingSystem"
-                  value={form.existingSystem}
-                  onChange={(e) =>
-                    set("existingSystem", e.target.value as ExistingSystem)
-                  }
-                >
-                  <option value="none">No, this would be the first</option>
-                  <option value="paper">Paper punch cards</option>
-                  <option value="square_or_pos">
-                    Square / Toast / Clover loyalty
-                  </option>
-                  <option value="other">Something else</option>
-                </Select>
-              </div>
-            </div>
-
-            <fieldset className="space-y-4 rounded-lg border border-border p-4">
-              <legend className="px-1 text-sm font-medium">
-                Rewards customers can spend points on
-              </legend>
-              <p className="text-xs text-muted-foreground">
-                List one to four. The advisor prices each in points from its
-                value and your cost — you never pick the point numbers yourself.
-              </p>
-
-              {form.rewards.map((r, i) => (
-                <div
-                  key={r.key}
-                  className="space-y-3 rounded-md border border-border/60 p-3"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm font-medium">Reward {i + 1}</p>
-                    {form.rewards.length > 1 ? (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          set(
-                            "rewards",
-                            form.rewards.filter((x) => x.key !== r.key),
-                          )
-                        }
-                      >
-                        <Trash2 aria-hidden="true" />
-                        Remove
-                      </Button>
-                    ) : null}
-                  </div>
-
-                  <div className="grid gap-3 sm:grid-cols-3">
-                    <div className="space-y-1.5">
-                      <Label htmlFor={`kind-${r.key}`}>Type</Label>
-                      <Select
-                        id={`kind-${r.key}`}
-                        value={r.kind}
-                        onChange={(e) =>
-                          setReward(r.key, {
-                            kind: e.target.value as RewardKind,
-                          })
-                        }
-                      >
-                        <option value="FREE_ITEM">A free menu item</option>
-                        <option value="FIXED_DISCOUNT">
-                          A fixed amount off
-                        </option>
-                      </Select>
+                {form.rewards.map((r, i) => (
+                  <div
+                    key={r.key}
+                    className="space-y-3 rounded-md border border-border/60 p-3"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-sm font-medium">Reward {i + 1}</p>
+                      {form.rewards.length > 1 ? (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            set(
+                              "rewards",
+                              form.rewards.filter((x) => x.key !== r.key),
+                            )
+                          }
+                        >
+                          <Trash2 aria-hidden="true" />
+                          Remove
+                        </Button>
+                      ) : null}
                     </div>
-                    {/*
+
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      <div className="space-y-1.5">
+                        <Label htmlFor={`kind-${r.key}`}>Type</Label>
+                        <Select
+                          id={`kind-${r.key}`}
+                          value={r.kind}
+                          onChange={(e) =>
+                            setReward(r.key, {
+                              kind: e.target.value as RewardKind,
+                            })
+                          }
+                        >
+                          <option value="FREE_ITEM">A free menu item</option>
+                          <option value="FIXED_DISCOUNT">
+                            A fixed amount off
+                          </option>
+                        </Select>
+                      </div>
+                      {/*
                       A discount needs no name field. "$3 off" is the amount
                       restated, so asking for both invited an owner to type one
                       figure in words and a different one in numbers — and the
                       words were never used. Free items genuinely need a name.
                     */}
-                    {r.kind === "FREE_ITEM" ? (
+                      {r.kind === "FREE_ITEM" ? (
+                        <div className="space-y-1.5">
+                          <Label htmlFor={`name-${r.key}`}>Which item?</Label>
+                          <Input
+                            id={`name-${r.key}`}
+                            placeholder="Horchata"
+                            value={r.name}
+                            onChange={(e) =>
+                              setReward(r.key, { name: e.target.value })
+                            }
+                            aria-describedby={`reward-${r.key}-name-error`}
+                          />
+                          <FieldError
+                            id={`reward-${r.key}-name-error`}
+                            errors={
+                              fieldErrors[`reward-${r.key}-name`]
+                                ? [fieldErrors[`reward-${r.key}-name`]!]
+                                : undefined
+                            }
+                          />
+                        </div>
+                      ) : null}
                       <div className="space-y-1.5">
-                        <Label htmlFor={`name-${r.key}`}>Which item?</Label>
+                        <Label htmlFor={`value-${r.key}`}>
+                          {r.kind === "FREE_ITEM"
+                            ? "Menu price"
+                            : "How much off?"}
+                        </Label>
                         <Input
-                          id={`name-${r.key}`}
-                          placeholder="Horchata"
-                          value={r.name}
+                          id={`value-${r.key}`}
+                          inputMode="decimal"
+                          placeholder={r.kind === "FREE_ITEM" ? "3.50" : "3"}
+                          value={r.value}
                           onChange={(e) =>
-                            setReward(r.key, { name: e.target.value })
+                            setReward(r.key, { value: e.target.value })
                           }
-                          aria-describedby={`reward-${r.key}-name-error`}
+                          aria-describedby={`reward-${r.key}-value-error`}
                         />
                         <FieldError
-                          id={`reward-${r.key}-name-error`}
+                          id={`reward-${r.key}-value-error`}
                           errors={
-                            fieldErrors[`reward-${r.key}-name`]
-                              ? [fieldErrors[`reward-${r.key}-name`]!]
+                            fieldErrors[`reward-${r.key}-value`]
+                              ? [fieldErrors[`reward-${r.key}-value`]!]
                               : undefined
                           }
                         />
                       </div>
-                    ) : null}
-                    <div className="space-y-1.5">
-                      <Label htmlFor={`value-${r.key}`}>
-                        {r.kind === "FREE_ITEM"
-                          ? "Menu price"
-                          : "How much off?"}
-                      </Label>
-                      <Input
-                        id={`value-${r.key}`}
-                        inputMode="decimal"
-                        placeholder={r.kind === "FREE_ITEM" ? "3.50" : "3"}
-                        value={r.value}
-                        onChange={(e) =>
-                          setReward(r.key, { value: e.target.value })
-                        }
-                        aria-describedby={`reward-${r.key}-value-error`}
-                      />
-                      <FieldError
-                        id={`reward-${r.key}-value-error`}
-                        errors={
-                          fieldErrors[`reward-${r.key}-value`]
-                            ? [fieldErrors[`reward-${r.key}-value`]!]
-                            : undefined
-                        }
-                      />
                     </div>
+
+                    {r.kind === "FREE_ITEM" ? (
+                      <MoneyField
+                        id={`cost-${r.key}`}
+                        label="What it costs you to make"
+                        hint="Ingredients and cup — not the menu price."
+                        mode={r.costMode}
+                        onModeChange={(m) => setReward(r.key, { costMode: m })}
+                        value={r.cost}
+                        onValueChange={(v) => setReward(r.key, { cost: v })}
+                        error={fieldErrors[`reward-${r.key}-cost`]}
+                        estimateNote="Uses 30% of the menu price, clearly labeled as an estimate."
+                      />
+                    ) : (
+                      <p className="text-xs text-muted-foreground">
+                        A discount costs you its full face value — there&apos;s
+                        no cost field because the amount off <em>is</em> the
+                        cost.
+                      </p>
+                    )}
                   </div>
+                ))}
 
-                  {r.kind === "FREE_ITEM" ? (
-                    <MoneyField
-                      id={`cost-${r.key}`}
-                      label="What it costs you to make"
-                      hint="Ingredients and cup — not the menu price."
-                      mode={r.costMode}
-                      onModeChange={(m) => setReward(r.key, { costMode: m })}
-                      value={r.cost}
-                      onValueChange={(v) => setReward(r.key, { cost: v })}
-                      error={fieldErrors[`reward-${r.key}-cost`]}
-                      estimateNote="Uses 30% of the menu price, clearly labeled as an estimate."
-                    />
-                  ) : (
-                    <p className="text-xs text-muted-foreground">
-                      A discount costs you its full face value — there&apos;s no
-                      cost field because the amount off <em>is</em> the cost.
-                    </p>
-                  )}
+                {form.rewards.length < 4 ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      set("rewards", [...form.rewards, newReward()])
+                    }
+                  >
+                    <Plus aria-hidden="true" />
+                    Add another reward
+                  </Button>
+                ) : null}
+              </fieldset>
+            </Question>
+
+            <Question
+              n={2}
+              title="How generous should it feel?"
+              hint="What a customer gets back at the first reward. You can switch models again after you see the results."
+            >
+              <GenerosityPicker
+                idPrefix="form"
+                value={form.generosity}
+                customReturn={form.customReturn}
+                onChoose={chooseGenerosity}
+                onCustomChange={setCustomReturn}
+                error={fieldErrors.customReturn}
+              />
+            </Question>
+
+            <Question
+              n={3}
+              title="What's the goal?"
+              hint="Changes which program shape ranks first, never the prices."
+            >
+              <Select
+                id="goal"
+                aria-label="What's the goal?"
+                className="max-w-md"
+                value={form.goal}
+                onChange={(e) => set("goal", e.target.value as LoyaltyGoal)}
+              >
+                <option value="repeat_visits">
+                  More repeat visits, keep it simple
+                </option>
+                <option value="bigger_orders">
+                  Bigger orders, give them a tier to reach for
+                </option>
+                <option value="new_item">
+                  Get regulars trying one item, feature Reward 1
+                </option>
+              </Select>
+            </Question>
+
+            <Question
+              n={4}
+              title="A couple of numbers about your cart"
+              hint="Rough is fine. Say so and we use a clearly labeled estimate instead of pretending."
+            >
+              <div className="grid gap-5 sm:grid-cols-2">
+                <MoneyField
+                  id="typicalOrder"
+                  label="Typical order total"
+                  hint="What a regular spends on one visit."
+                  mode={form.typicalOrderMode}
+                  onModeChange={(m) => set("typicalOrderMode", m)}
+                  value={form.typicalOrder}
+                  onValueChange={(v) => set("typicalOrder", v)}
+                  error={fieldErrors.typicalOrder}
+                  estimateNote={`Uses ${formatCents(ESTIMATE_TYPICAL_ORDER_CENTS)} as a starting point.`}
+                />
+                <div className="space-y-2">
+                  <Label htmlFor="cadence">How often do they come back?</Label>
+                  <Select
+                    id="cadence"
+                    value={form.cadence}
+                    onChange={(e) =>
+                      set("cadence", e.target.value as VisitCadence)
+                    }
+                  >
+                    {(Object.keys(VISIT_CADENCE_LABEL) as VisitCadence[]).map(
+                      (c) => (
+                        <option key={c} value={c}>
+                          {VISIT_CADENCE_LABEL[c]}
+                        </option>
+                      ),
+                    )}
+                  </Select>
                 </div>
-              ))}
+              </div>
+            </Question>
 
-              {form.rewards.length < 4 ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => set("rewards", [...form.rewards, newReward()])}
-                >
-                  <Plus aria-hidden="true" />
-                  Add another reward
-                </Button>
-              ) : null}
-            </fieldset>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <MoneyField
-                id="budget"
-                label="Monthly reward budget"
-                hint="Across all your customers put together — not per person. The total you could hand out in food or discounts in a month."
-                mode={form.budgetMode}
-                onModeChange={(m) => set("budgetMode", m)}
-                value={form.budget}
-                onValueChange={(v) => set("budget", v)}
-                error={fieldErrors.budget}
-                estimateNote="Skipping means budget fit is not checked."
-                allowEstimate={false}
-              />
-              <CountField
-                id="regulars"
-                label="Regular customers per month"
-                hint="Roughly how many different repeat customers you see."
-                mode={form.regularsMode}
-                onModeChange={(m) => set("regularsMode", m)}
-                value={form.regulars}
-                onValueChange={(v) => set("regulars", v)}
-                error={fieldErrors.regulars}
-                estimateNote={`Uses ${ESTIMATE_REGULARS_PER_MONTH} regulars/month as a starting point.`}
-              />
-            </div>
+            {/*
+              Everything below is optional. Four more selects in the main flow
+              read as an interrogation; folded away, an owner reaches the
+              button in four questions and still has these when they want them.
+            */}
+            <details className="group rounded-xl border border-border/70 px-4 py-3">
+              <summary className="cursor-pointer list-none text-sm font-semibold text-brand marker:content-none">
+                <span className="group-open:hidden">
+                  + Add budget limits and your current program (optional)
+                </span>
+                <span className="hidden group-open:inline">
+                  − Hide optional details
+                </span>
+              </summary>
+              <div className="mt-5 space-y-5">
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <MoneyField
+                    id="budget"
+                    label="Monthly reward budget"
+                    hint="Across all customers together, not per person."
+                    mode={form.budgetMode}
+                    onModeChange={(m) => set("budgetMode", m)}
+                    value={form.budget}
+                    onValueChange={(v) => set("budget", v)}
+                    error={fieldErrors.budget}
+                    estimateNote="Skipping means budget fit is not checked."
+                    allowEstimate={false}
+                  />
+                  <CountField
+                    id="regulars"
+                    label="Regulars per month"
+                    hint="Roughly how many repeat customers you see."
+                    mode={form.regularsMode}
+                    onModeChange={(m) => set("regularsMode", m)}
+                    value={form.regulars}
+                    onValueChange={(v) => set("regulars", v)}
+                    error={fieldErrors.regulars}
+                    estimateNote={`Uses ${ESTIMATE_REGULARS_PER_MONTH} regulars/month as a starting point.`}
+                  />
+                </div>
+                <div className="max-w-md space-y-2">
+                  <Label htmlFor="existingSystem">
+                    Do you already run a loyalty program?
+                  </Label>
+                  <Select
+                    id="existingSystem"
+                    value={form.existingSystem}
+                    onChange={(e) =>
+                      set("existingSystem", e.target.value as ExistingSystem)
+                    }
+                  >
+                    <option value="none">No, this would be the first</option>
+                    <option value="paper">Paper punch cards</option>
+                    <option value="square_or_pos">
+                      Square / Toast / Clover loyalty
+                    </option>
+                    <option value="other">Something else</option>
+                  </Select>
+                </div>
+              </div>
+            </details>
 
             {status === "error" ? (
               <Alert variant="destructive">
@@ -567,7 +727,12 @@ export function LoyaltyConsultation({
               </Alert>
             ) : null}
 
-            <Button type="submit" disabled={status === "working"}>
+            <Button
+              type="submit"
+              size="lg"
+              className="h-12 w-full text-base font-semibold sm:w-auto sm:px-8"
+              disabled={status === "working"}
+            >
               {status === "working" ? (
                 <Loader2 className="animate-spin" aria-hidden="true" />
               ) : isStale ? (
@@ -612,6 +777,35 @@ export function LoyaltyConsultation({
 
           {computed.guidance ? (
             <ExistingSystemCard guidance={computed.guidance} />
+          ) : null}
+
+          {computed.result.recommendations.length > 0 ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Generosity dial</CardTitle>
+                <CardDescription>
+                  One tap to run a different model, or type your own percent.
+                  Every card below reprices instantly; your rewards stay the
+                  same, only the pace to reach them changes.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <p className="text-sm">
+                  {benchmarkModelPhrase(
+                    computed.result.recommendations[0].economics.entry
+                      .perceivedRateBps,
+                  )}
+                </p>
+                <GenerosityPicker
+                  idPrefix="results"
+                  value={form.generosity}
+                  customReturn={form.customReturn}
+                  onChoose={chooseGenerosity}
+                  onCustomChange={setCustomReturn}
+                  error={fieldErrors.customReturn}
+                />
+              </CardContent>
+            </Card>
           ) : null}
 
           <div>
@@ -809,6 +1003,116 @@ function ReturnComparison({
           )}
         </p>
       </div>
+    </div>
+  );
+}
+
+/**
+ * One numbered question in the intake form.
+ *
+ * The questions used to be the same size, weight, and colour as every hint and
+ * field label around them, so nothing announced itself as the thing being
+ * asked. A numbered display heading gives each one a clear start, and the
+ * generous spacing between blocks is what stops the form reading as a wall.
+ */
+function Question({
+  n,
+  title,
+  hint,
+  children,
+}: {
+  n: number;
+  title: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="space-y-3">
+      <div className="flex gap-3">
+        <span
+          className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-secondary/20 text-sm font-bold tabular-nums text-brand"
+          aria-hidden="true"
+        >
+          {n}
+        </span>
+        <div className="min-w-0">
+          <h3 className="font-display text-lg font-semibold tracking-tight">
+            {title}
+          </h3>
+          {hint ? (
+            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+              {hint}
+            </p>
+          ) : null}
+        </div>
+      </div>
+      <div className="sm:pl-10">{children}</div>
+    </section>
+  );
+}
+
+/**
+ * The generosity spectrum as tappable chips, shared by the intake form and the
+ * post-results dial so "switch models" is the same control in both places.
+ * Buttons rather than radios: each chip carries a title and a detail line, and
+ * selection reprices instantly once results exist.
+ */
+function GenerosityPicker({
+  idPrefix,
+  value,
+  customReturn,
+  onChoose,
+  onCustomChange,
+  error,
+}: {
+  idPrefix: string;
+  value: GenerosityChoice;
+  customReturn: string;
+  onChoose: (choice: GenerosityChoice) => void;
+  onCustomChange: (value: string) => void;
+  error?: string;
+}) {
+  return (
+    <div className="space-y-2">
+      <div className="flex flex-wrap gap-2">
+        {GENEROSITY_CHIPS.map((chip) => (
+          <button
+            key={chip.id}
+            type="button"
+            aria-pressed={value === chip.id}
+            onClick={() => onChoose(chip.id)}
+            className={
+              value === chip.id
+                ? "rounded-lg border border-secondary bg-accent/40 px-3 py-1.5 text-left ring-1 ring-secondary"
+                : "rounded-lg border border-border px-3 py-1.5 text-left transition-colors hover:border-brand/50"
+            }
+          >
+            <span className="block text-sm font-medium">{chip.title}</span>
+            <span className="block text-xs text-muted-foreground">
+              {chip.detail}
+            </span>
+          </button>
+        ))}
+      </div>
+      {value === "custom" ? (
+        <div className="max-w-[16rem] space-y-1.5">
+          <Label htmlFor={`${idPrefix}-custom-return`}>
+            Percent back to the customer
+          </Label>
+          <Input
+            id={`${idPrefix}-custom-return`}
+            inputMode="decimal"
+            placeholder="6"
+            value={customReturn}
+            onChange={(e) => onCustomChange(e.target.value)}
+            aria-describedby={`${idPrefix}-custom-return-error`}
+          />
+          <FieldError
+            id={`${idPrefix}-custom-return-error`}
+            errors={error ? [error] : undefined}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }

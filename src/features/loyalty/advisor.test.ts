@@ -289,6 +289,80 @@ describe("transparency", () => {
   });
 });
 
+describe("generosity", () => {
+  it("prices leaner when a leaner chain model is chosen", () => {
+    const advisor = recommendPrograms(baseAnswers).recommendations[0];
+    const subway = recommendPrograms({
+      ...baseAnswers,
+      generosity: { kind: "chain", company: "Subway" },
+    }).recommendations[0];
+    expect(subway.economics.entry.spendToEarnCents).toBeGreaterThan(
+      advisor.economics.entry.spendToEarnCents,
+    );
+    expect(subway.economics.entry.perceivedRateBps).toBeLessThan(
+      advisor.economics.entry.perceivedRateBps,
+    );
+  });
+
+  it("treats a custom percent exactly like the chain it matches", () => {
+    const subway = recommendPrograms({
+      ...baseAnswers,
+      generosity: { kind: "chain", company: "Subway" },
+    }).recommendations[0];
+    const custom = recommendPrograms({
+      ...baseAnswers,
+      generosity: { kind: "custom", targetBps: 500 },
+    }).recommendations[0];
+    expect(custom.tiers[0].pointsCost).toBe(subway.tiers[0].pointsCost);
+  });
+
+  it("names the chosen model in the input summary", () => {
+    const { inputSummary } = recommendPrograms({
+      ...baseAnswers,
+      generosity: { kind: "chain", company: "Subway" },
+    });
+    const row = inputSummary.find((r) => r.label === "Generosity target");
+    expect(row?.value).toMatch(/Subway model/);
+    expect(row?.source).toBe("your figure");
+  });
+
+  it("labels the default target as the advisor's own", () => {
+    const row = recommendPrograms(baseAnswers).inputSummary.find(
+      (r) => r.label === "Generosity target",
+    );
+    expect(row?.value).toMatch(/advisor default/i);
+  });
+});
+
+describe("the goal shapes the ranking, never the prices", () => {
+  it("features the first-listed item as the single program for a featured-item goal", () => {
+    const recs = recommendPrograms({
+      ...baseAnswers,
+      goal: "new_item",
+      rewards: [taco, horchata], // taco named first, horchata cheaper
+    }).recommendations;
+    const single = recs.find((r) => r.shape === "single");
+    expect(single?.tiers[0].reward.name).toBe("Taco");
+  });
+
+  it("ranks the ladder first for a bigger-orders goal", () => {
+    const recs = recommendPrograms({
+      ...baseAnswers,
+      goal: "bigger_orders",
+      rewards: [horchata, plate],
+    }).recommendations;
+    expect(recs[0].shape).toBe("ladder");
+  });
+
+  it("keeps points prices identical across goals", () => {
+    const priceOf = (goal: ConsultationAnswers["goal"]) =>
+      recommendPrograms({ ...baseAnswers, goal, rewards: [horchata, plate] })
+        .recommendations.find((r) => r.shape === "ladder")!
+        .tiers.map((t) => t.pointsCost);
+    expect(priceOf("repeat_visits")).toEqual(priceOf("bigger_orders"));
+  });
+});
+
 describe("existingSystemGuidance", () => {
   it("returns null when there is no current system", () => {
     expect(existingSystemGuidance("none")).toBeNull();

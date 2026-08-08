@@ -39,8 +39,40 @@ import {
   type ValueSource,
 } from "@/features/loyalty/engine";
 
+import { CHAIN_BENCHMARKS } from "@/features/loyalty/benchmarks";
+
 export type LoyaltyGoal = "repeat_visits" | "bigger_orders" | "new_item";
 export type ExistingSystem = "none" | "paper" | "square_or_pos" | "other";
+
+/**
+ * How generous the program should feel, chosen by the owner. "advisor" keeps
+ * the platform default; "chain" targets a published chain's return so the
+ * owner can literally run the Subway or McDonald's model; "custom" is their
+ * own number. The engine treats all three identically: a target perceived
+ * return that pricing aims at, bounded by the same cost ceiling either way.
+ */
+export type GenerositySelection =
+  | { kind: "advisor" }
+  | { kind: "chain"; company: string }
+  | { kind: "custom"; targetBps: number };
+
+/** Custom targets are clamped to a range where the arithmetic stays sane. */
+export const GENEROSITY_MIN_BPS = 100; // 1%
+export const GENEROSITY_MAX_BPS = 1200; // 12%
+
+export function generosityTargetBps(
+  g: GenerositySelection | undefined,
+): number {
+  if (!g || g.kind === "advisor") return DEFAULT_TARGET_PERCEIVED_BPS;
+  if (g.kind === "custom") {
+    return Math.min(
+      GENEROSITY_MAX_BPS,
+      Math.max(GENEROSITY_MIN_BPS, g.targetBps),
+    );
+  }
+  const chain = CHAIN_BENCHMARKS.find((c) => c.company === g.company);
+  return chain ? chain.returnBps : DEFAULT_TARGET_PERCEIVED_BPS;
+}
 
 /**
  * The single points scale: 100 points per $1, the McDonald's-style currency.
@@ -51,11 +83,12 @@ export type ExistingSystem = "none" | "paper" | "square_or_pos" | "other";
 export const DEFAULT_POINTS_PER_DOLLAR = 100;
 
 /**
- * Target customer-perceived reward rate when pricing a reward (basis points).
+ * Default target customer-perceived reward rate when pricing (basis points).
  * Sits in the 5–10% band the chains use for entry rewards: lower than this and
- * the first reward drifts out of reach; higher and the vendor overpays.
+ * the first reward drifts out of reach; higher and the vendor overpays. The
+ * owner can override it through GenerositySelection.
  */
-const TARGET_PERCEIVED_BPS = 800; // 8%
+export const DEFAULT_TARGET_PERCEIVED_BPS = 800; // 8%
 /** Vendor cost is kept at or below this when pricing (basis points). */
 const PRICING_COST_CEILING_BPS = POINTS_BOUNDS.warnCostRateBps; // 5%
 /**
@@ -94,6 +127,8 @@ export type ConsultationAnswers = {
   monthlyBudgetCents: Tracked<number | null>;
   regularsPerMonth: Tracked<number>;
   existingSystem: ExistingSystem;
+  /** Omitted means the advisor default. */
+  generosity?: GenerositySelection;
 };
 
 export type RecommendationTier = {
@@ -166,13 +201,14 @@ function roundPoints(points: number, pointsPerDollar: number): number {
 function priceReward(
   reward: RewardSpec,
   pointsPerDollar: number,
+  targetPerceivedBps: number,
 ):
   | { ok: true; priced: PricedReward }
   | { ok: false; excluded: ExcludedCandidate } {
   const e0 = rewardEconomics(reward);
   // Spend so perceived value ≈ target: spend = value / targetRate.
   const spendForPerceived = Math.floor(
-    (e0.customerValueCents * 10000) / TARGET_PERCEIVED_BPS,
+    (e0.customerValueCents * 10000) / targetPerceivedBps,
   );
   // Spend so vendor cost ≤ ceiling: spend = cost / ceilingRate.
   const spendForCostFloor = Math.floor(
@@ -193,7 +229,7 @@ function priceReward(
         label: reward.name,
         severity: "block",
         reason: `Pricing “${reward.name}” at a sustainable rate would need about ${formatCents(economics.spendToEarnCents)} of spend — beyond what any reward tier should require.`,
-        calculation: `Customer-perceived target ${formatBps(TARGET_PERCEIVED_BPS)} on a ${formatCents(e0.customerValueCents)} reward needs ${formatCents(spendForPerceived)}; keeping vendor cost ≤ ${formatBps(PRICING_COST_CEILING_BPS)} needs ${formatCents(spendForCostFloor)}. The binding figure is ${formatCents(spendTarget)}.`,
+        calculation: `Customer-perceived target ${formatBps(targetPerceivedBps)} on a ${formatCents(e0.customerValueCents)} reward needs ${formatCents(spendForPerceived)}; keeping vendor cost ≤ ${formatBps(PRICING_COST_CEILING_BPS)} needs ${formatCents(spendForCostFloor)}. The binding figure is ${formatCents(spendTarget)}.`,
         remedy:
           "Offer a lower-value reward, or split it into a cheaper entry reward plus this one as a premium tier.",
       },
@@ -210,6 +246,7 @@ function scoreProgram(
   economics: PointsProgramEconomics,
   shape: LoyaltyRecommendation["shape"],
   answers: ConsultationAnswers,
+  featuresNamedItem: boolean,
 ): { score: number; budgetFits: boolean | null; breakdown: string[] } {
   let score = 100;
   const breakdown: string[] = ["Base 100"];
@@ -271,6 +308,26 @@ function scoreProgram(
   } else {
     score += 3;
     breakdown.push("+3 a full catalog offers the most choice");
+  }
+
+  // The stated goal changes which shape ranks first, never the prices.
+  if (answers.goal === "repeat_visits" && shape === "single") {
+    score += 4;
+    breakdown.push(
+      "+4 matches your repeat-visits goal: one clear habit loop at the counter",
+    );
+  }
+  if (answers.goal === "bigger_orders" && shape !== "single") {
+    score += 6;
+    breakdown.push(
+      "+6 matches your bigger-orders goal: a premium tier gives large orders a target",
+    );
+  }
+  if (answers.goal === "new_item" && featuresNamedItem) {
+    score += 6;
+    breakdown.push(
+      "+6 matches your featured-item goal: the item you named is the first reward",
+    );
   }
 
   return { score, budgetFits, breakdown };
@@ -342,10 +399,14 @@ function makeRecommendation(
       ],
     };
   }
+  const featuresNamedItem =
+    Boolean(answers.rewards[0]?.name) &&
+    priced[0]?.reward.name === answers.rewards[0]?.name;
   const { score, budgetFits, breakdown } = scoreProgram(
     economics,
     shape,
     answers,
+    featuresNamedItem,
   );
 
   const excluded: ExcludedCandidate[] = [];
@@ -467,6 +528,7 @@ function shapeTitle(
 
 export function recommendPrograms(answers: ConsultationAnswers): AdvisorResult {
   const pointsPerDollar = DEFAULT_POINTS_PER_DOLLAR;
+  const targetPerceivedBps = generosityTargetBps(answers.generosity);
   const rewards: RewardSpec[] =
     answers.rewards.length > 0
       ? answers.rewards
@@ -482,7 +544,7 @@ export function recommendPrograms(answers: ConsultationAnswers): AdvisorResult {
   const excluded: ExcludedCandidate[] = [];
   const priced: PricedReward[] = [];
   for (const reward of rewards.slice(0, 4)) {
-    const result = priceReward(reward, pointsPerDollar);
+    const result = priceReward(reward, pointsPerDollar, targetPerceivedBps);
     if (result.ok) priced.push(result.priced);
     else excluded.push(result.excluded);
   }
@@ -490,10 +552,18 @@ export function recommendPrograms(answers: ConsultationAnswers): AdvisorResult {
 
   const recommendations: LoyaltyRecommendation[] = [];
   if (priced.length > 0) {
+    // Featuring an item means it IS the single-shape reward, even when a
+    // cheaper one exists; the entry-reach cap then honestly rejects it if it
+    // prices too far away.
+    const featured =
+      answers.goal === "new_item"
+        ? (priced.find((p) => p.reward.name === answers.rewards[0]?.name) ??
+          priced[0])
+        : priced[0];
     const shapes: {
       shape: LoyaltyRecommendation["shape"];
       items: PricedReward[];
-    }[] = [{ shape: "single", items: [priced[0]] }];
+    }[] = [{ shape: "single", items: [featured] }];
     if (priced.length >= 2) {
       shapes.push({
         shape: "ladder",
@@ -524,16 +594,45 @@ export function recommendPrograms(answers: ConsultationAnswers): AdvisorResult {
   };
 }
 
+function generositySummary(g: GenerositySelection | undefined): {
+  value: string;
+  source: string;
+} {
+  const target = generosityTargetBps(g);
+  if (!g || g.kind === "advisor") {
+    return {
+      value: `about ${formatBps(target)} back at the first reward (advisor default)`,
+      source: sourceLabel("estimated"),
+    };
+  }
+  if (g.kind === "chain") {
+    return {
+      value: `${formatBps(target)} back, the ${g.company} model`,
+      source: sourceLabel("provided"),
+    };
+  }
+  return {
+    value: `${formatBps(target)} back, your own number`,
+    source: sourceLabel("provided"),
+  };
+}
+
 function inputSummary(
   answers: ConsultationAnswers,
   pointsPerDollar: number,
 ): AdvisorResult["inputSummary"] {
   const order = answers.typicalOrderCents;
+  const generosity = generositySummary(answers.generosity);
   return [
     {
       label: "Points per dollar",
       value: `${pointsPerDollar} points for every $1 spent`,
       source: sourceLabel("estimated"),
+    },
+    {
+      label: "Generosity target",
+      value: generosity.value,
+      source: generosity.source,
     },
     {
       label: "Typical order total",

@@ -276,6 +276,94 @@ describe("LoyaltyConsultation", () => {
   });
 
   /* -------------------------------------------------------------- */
+  /* Generosity dial                                                 */
+  /* -------------------------------------------------------------- */
+
+  describe("generosity dial", () => {
+    it("offers the chain models in the form, and again beside the results", async () => {
+      const user = userEvent.setup();
+      render(
+        <LoyaltyConsultation organizationId={ORG} hasActiveProgram={false} />,
+      );
+      expect(
+        screen.getAllByRole("button", { name: /Subway model/i }),
+      ).toHaveLength(1);
+
+      await fillValidForm(user);
+      await user.click(
+        screen.getByRole("button", { name: /Get recommendations/i }),
+      );
+
+      expect(screen.getByText(/Generosity dial/i)).toBeInTheDocument();
+      expect(
+        screen.getAllByRole("button", { name: /McDonald's model/i }),
+      ).toHaveLength(2);
+    });
+
+    it("switches models after results and reprices without going stale", async () => {
+      const user = userEvent.setup();
+      render(
+        <LoyaltyConsultation organizationId={ORG} hasActiveProgram={false} />,
+      );
+      await fillValidForm(user);
+      await user.click(
+        screen.getByRole("button", { name: /Get recommendations/i }),
+      );
+      // Advisor default prices the $3.50 horchata at $45 of spend.
+      expect(screen.getAllByText(/\$45\.00/).length).toBeGreaterThan(0);
+
+      // One tap on the results-side dial: Subway's 5% stretches it to $70.
+      await user.click(
+        screen.getAllByRole("button", { name: /Subway model/i })[1],
+      );
+      expect(
+        screen.queryByText(/These results are out of date/i),
+      ).not.toBeInTheDocument();
+      expect(screen.getAllByText(/\$70\.00/).length).toBeGreaterThan(0);
+      expect(
+        screen.getAllByRole("button", { name: /Approve & publish/i }).length,
+      ).toBeGreaterThan(0);
+    });
+
+    it("accepts a specific percent typed by the owner", async () => {
+      const user = userEvent.setup();
+      render(
+        <LoyaltyConsultation organizationId={ORG} hasActiveProgram={false} />,
+      );
+      await fillValidForm(user);
+      await user.click(
+        screen.getByRole("button", { name: /Get recommendations/i }),
+      );
+
+      await user.click(
+        screen.getAllByRole("button", { name: /My own number/i })[1],
+      );
+      await user.type(
+        screen.getAllByLabelText(/Percent back to the customer/i)[1],
+        "5",
+      );
+
+      expect(
+        screen.queryByText(/These results are out of date/i),
+      ).not.toBeInTheDocument();
+      expect(screen.getAllByText(/\$70\.00/).length).toBeGreaterThan(0);
+    });
+
+    it("rejects a percent outside 1 to 12 with a field-level explanation", async () => {
+      const user = userEvent.setup();
+      render(
+        <LoyaltyConsultation organizationId={ORG} hasActiveProgram={false} />,
+      );
+      await user.click(screen.getByRole("button", { name: /My own number/i }));
+      await user.type(
+        screen.getByLabelText(/Percent back to the customer/i),
+        "40",
+      );
+      expect(screen.getAllByText(/from 1 to 12/i).length).toBeGreaterThan(0);
+    });
+  });
+
+  /* -------------------------------------------------------------- */
   /* Reward kinds                                                    */
   /* -------------------------------------------------------------- */
 
