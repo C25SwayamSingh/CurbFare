@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Eye } from "lucide-react";
+import { Eye } from "lucide-react";
 
 import { AuthenticatedAppShell } from "@/components/app/authenticated-app-shell";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
 import { pageTitle } from "@/lib/app-config";
 import { requireAuth } from "@/lib/auth/guards";
@@ -64,12 +65,7 @@ export default async function VendorRewardsPage({
           <p className="text-sm text-muted-foreground">
             This vendor doesn&apos;t have a rewards program yet.
           </p>
-          <Button asChild variant="outline">
-            <Link href={profileHref}>
-              <ArrowLeft aria-hidden="true" />
-              Back to {unit.name}
-            </Link>
-          </Button>
+          <BackButton fallback={profileHref} variant="outline" size="default" />
         </div>
       </AuthenticatedAppShell>
     );
@@ -171,12 +167,7 @@ export default async function VendorRewardsPage({
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <Button asChild variant="outline" size="sm">
-            <Link href={profileHref}>
-              <ArrowLeft aria-hidden="true" />
-              Back to {unit.name}
-            </Link>
-          </Button>
+          <BackButton fallback={profileHref} variant="outline" />
           <Button asChild variant="ghost" size="sm">
             <Link href="/customer">All my rewards</Link>
           </Button>

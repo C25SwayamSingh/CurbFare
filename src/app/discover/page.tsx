@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { pageTitle } from "@/lib/app-config";
+import { BackButton } from "@/components/ui/back-button";
 import { DiscoverNearby } from "@/features/discovery/components/discover-nearby";
 
 export const metadata: Metadata = {
@@ -11,12 +11,7 @@ export const metadata: Metadata = {
 export default function DiscoverPage() {
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-8 sm:py-12">
-      <Link
-        href="/"
-        className="text-sm text-muted-foreground hover:text-foreground"
-      >
-        ← Curbfare
-      </Link>
+      <BackButton fallback="/" className="-ml-3 text-muted-foreground" />
       <h1 className="mt-4 text-2xl font-semibold tracking-tight">
         Find vendors near you
       </h1>

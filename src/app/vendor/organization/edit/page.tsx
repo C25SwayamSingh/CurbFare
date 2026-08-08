@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { pageTitle } from "@/lib/app-config";
+import { BackButton } from "@/components/ui/back-button";
 import { requireVendorSensitiveAction } from "@/lib/auth/guards";
 import { createServerClient } from "@/lib/supabase/server";
 import { EditOrganizationForm } from "@/features/organizations/components/edit-organization-form";
@@ -39,12 +40,7 @@ export default async function EditOrganizationPage() {
 
   return (
     <main className="mx-auto w-full max-w-lg px-4 py-10 sm:py-16">
-      <Link
-        href="/vendor"
-        className="text-sm text-muted-foreground hover:text-foreground"
-      >
-        ← Back to dashboard
-      </Link>
+      <BackButton fallback="/vendor" className="-ml-3 text-muted-foreground" />
       <h1 className="mt-4 text-2xl font-semibold tracking-tight">
         Edit business details
       </h1>

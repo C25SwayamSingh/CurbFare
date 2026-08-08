@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 
 import { AuthenticatedAppShell } from "@/components/app/authenticated-app-shell";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import { BackButton } from "@/components/ui/back-button";
 import { pageTitle } from "@/lib/app-config";
 import { requireVendorMember } from "@/lib/auth/guards";
 import { createServerClient } from "@/lib/supabase/server";
@@ -80,12 +78,7 @@ export default async function VendorCheckoutPage() {
           deliberate act reached from there; routing the only exit through it
           made every trip back a two-step detour.
         */}
-        <Button asChild variant="ghost" size="sm">
-          <Link href="/vendor">
-            <ArrowLeft aria-hidden="true" />
-            Vendor dashboard
-          </Link>
-        </Button>
+        <BackButton fallback="/vendor" />
       </div>
     </AuthenticatedAppShell>
   );

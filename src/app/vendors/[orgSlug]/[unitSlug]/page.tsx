@@ -6,6 +6,7 @@ import { ExternalLink, Mail, MapPin, Phone, Store } from "lucide-react";
 import { InitialsAvatar } from "@/components/app/initials-avatar";
 import { LoyaltyJoinCard } from "@/features/loyalty/components/loyalty-join-card";
 import { vendorPhotoPublicUrl } from "@/features/vendors/photo";
+import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
 import { pageTitle } from "@/lib/app-config";
 import { createServerClient } from "@/lib/supabase/server";
@@ -100,12 +101,7 @@ export default async function VendorPublicPreviewPage({
 
   return (
     <main className="mx-auto w-full max-w-2xl px-4 py-10 sm:py-16">
-      <Link
-        href="/"
-        className="text-sm text-muted-foreground hover:text-foreground"
-      >
-        ← Curbfare
-      </Link>
+      <BackButton fallback="/" className="-ml-3 text-muted-foreground" />
 
       {photoUrl ? (
         <div className="relative mt-6 aspect-[2/1] w-full overflow-hidden rounded-xl border border-border">

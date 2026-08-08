@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Info, TriangleAlert } from "lucide-react";
+import { Info, TriangleAlert } from "lucide-react";
 
 import { AuthenticatedAppShell } from "@/components/app/authenticated-app-shell";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -123,12 +124,7 @@ export default async function VendorUnitQrPage({
         </Alert>
 
         <div className="flex flex-wrap gap-2">
-          <Button asChild variant="outline" size="sm">
-            <Link href="/vendor">
-              <ArrowLeft aria-hidden="true" />
-              Back to dashboard
-            </Link>
-          </Button>
+          <BackButton fallback="/vendor" variant="outline" />
           <Button asChild variant="ghost" size="sm">
             <Link href="/vendor/checkout">Open checkout</Link>
           </Button>

@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
 
 import { AuthenticatedAppShell } from "@/components/app/authenticated-app-shell";
-import { Button } from "@/components/ui/button";
+import { BackButton } from "@/components/ui/back-button";
 import { pageTitle } from "@/lib/app-config";
 import { requireVendorMember } from "@/lib/auth/guards";
 import { createServerClient } from "@/lib/supabase/server";
@@ -107,12 +105,7 @@ export default async function VendorUnitSchedulePage({
     <AuthenticatedAppShell>
       <div className="mx-auto max-w-2xl space-y-5">
         <div>
-          <Button asChild variant="ghost" size="sm" className="mb-2 -ml-2">
-            <Link href="/vendor">
-              <ArrowLeft aria-hidden="true" />
-              Vendor dashboard
-            </Link>
-          </Button>
+          <BackButton fallback="/vendor" className="mb-2 -ml-2" />
           <h1 className="font-display text-2xl font-semibold tracking-tight">
             Where you are
           </h1>
