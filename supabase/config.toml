@@ -49,3 +49,28 @@ content_path = "./supabase/templates/confirmation.html"
 [auth.mfa.totp]
 enroll_enabled = true
 verify_enabled = true
+
+# ---------------------------------------------------------------------------
+# Production overrides, applied by `supabase config push` for the linked
+# project. Local values above stay untouched for `supabase start`.
+# ---------------------------------------------------------------------------
+[remotes.production]
+project_id = "qklfsvrcltrbdnmsdpwn"
+
+[remotes.production.auth]
+site_url = "https://curbfare.app"
+additional_redirect_urls = [
+  "https://curbfare.app/auth/callback",
+  "https://curbfare.app/auth/confirm",
+  "https://curbfare.app/auth/recovery",
+  "https://curbfare.app/auth/verify",
+]
+
+[remotes.production.auth.email]
+# Real users, real pacing: one resend per minute instead of the local 1s.
+max_frequency = "1m"
+
+[remotes.production.auth.rate_limit]
+# The local 1000/hour is a testing convenience; production stays modest
+# until Resend SMTP is wired in (see docs/DEPLOYMENT.md).
+email_sent = 30

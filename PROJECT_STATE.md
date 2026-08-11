@@ -201,14 +201,14 @@ Accumulated launch blockers. Check every item before the first real deploy.
       "reset email received in Mailpit" copy, `/api/dev/mailpit/recovery`)
       are gated on it. The API route is additionally dead when
       `NODE_ENV=production`, but the env var must still be right.
-- [ ] Verify curbfare.app in Resend (DNS records into Cloudflare), then
+- [x] Verify curbfare.app in Resend (DNS records into Cloudflare), then
       switch `VENDOR_REVIEW_FROM_EMAIL` to an @curbfare.app sender and
       `VENDOR_REVIEW_NOTIFY_EMAIL` to vendors@curbfare.app. Until then the
       sandbox only delivers to the Resend signup Gmail.
-- [ ] Configure hosted Supabase auth email templates (confirmation +
+- [x] Configure hosted Supabase auth email templates (confirmation +
       recovery) to match `supabase/templates/` — local config.toml does not
       apply to the hosted project.
-- [ ] Add production URLs to hosted Supabase auth redirect allow-list
+- [x] Add production URLs to hosted Supabase auth redirect allow-list
       (`/auth/confirm`, `/auth/recovery`, `/auth/verify`, `/auth/callback`).
 - [ ] USPTO search for "Curbfare" before spending on branding.
 - [ ] Rename the GitHub repo from CurbAgora if it should match the brand.
