@@ -20,6 +20,7 @@ import {
 import {
   onboardingPathSchema,
   changePasswordSchema,
+  forgotPasswordSchema,
   mfaCodeSchema,
   preferredModeSchema,
   profileSchema,
@@ -154,6 +155,50 @@ export async function signOutAction(): Promise<void> {
   const supabase = await createServerClient();
   await supabase.auth.signOut();
   redirect("/");
+}
+
+/**
+ * Resend the sign-up confirmation email. The safety net for the launch
+ * scenario that matters most: a real vendor whose first email landed in
+ * spam or expired. Without this their only recovery was signing up again.
+ */
+export async function resendConfirmationEmailAction(
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const parsed = forgotPasswordSchema.safeParse({
+    email: formData.get("email"),
+  });
+  if (!parsed.success) {
+    return errorState(
+      "Enter the email you signed up with.",
+      z.flattenError(parsed.error).fieldErrors,
+    );
+  }
+
+  const supabase = await createServerClient();
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email: parsed.data.email,
+    options: {
+      emailRedirectTo: `${getAppUrl()}/auth/confirm?next=/onboarding`,
+    },
+  });
+
+  if (error) {
+    if (error.code === "over_email_send_rate_limit") {
+      return errorState(
+        "An email just went out to that address. Give it a minute, then try again.",
+      );
+    }
+    console.error("resend confirmation failed", { code: error.code });
+    return errorState("We couldn't send it just now. Try again in a minute.");
+  }
+  // Supabase silently no-ops resends for already-confirmed accounts rather
+  // than reveal account state, so the copy has to be true either way.
+  return successState(
+    "If that address still needs verifying, a fresh link is on its way. Already verified? Just sign in.",
+  );
 }
 
 /** Sign out every other session for this user (device revocation). */

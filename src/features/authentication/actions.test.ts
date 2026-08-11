@@ -24,6 +24,7 @@ import {
   enrollMfaAction,
   setPreferredModeAction,
   signInAction,
+  resendConfirmationEmailAction,
   signUpAction,
   updateProfileAction,
   verifyMfaEnrollmentAction,
@@ -48,6 +49,47 @@ const user = { id: "user-1", email: "user@example.com" };
 
 beforeEach(() => {
   vi.clearAllMocks();
+});
+
+describe("resendConfirmationEmailAction", () => {
+  it("resends the sign-up email through Supabase", async () => {
+    const client = useSupabase({ user: null });
+    const state = await resendConfirmationEmailAction(
+      idleState,
+      form({ email: "maria@example.com" }),
+    );
+
+    expect(state.status).toBe("success");
+    expect(client.auth.resend).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "signup", email: "maria@example.com" }),
+    );
+  });
+
+  it("rejects a malformed email without calling Supabase", async () => {
+    const client = useSupabase({ user: null });
+    const state = await resendConfirmationEmailAction(
+      idleState,
+      form({ email: "not-an-email" }),
+    );
+
+    expect(state.status).toBe("error");
+    expect(client.auth.resend).not.toHaveBeenCalled();
+  });
+
+  it("explains the send rate limit in plain words", async () => {
+    const client = useSupabase({ user: null });
+    client.auth.resend.mockResolvedValueOnce({
+      data: {},
+      error: { code: "over_email_send_rate_limit", message: "rate limited" },
+    });
+    const state = await resendConfirmationEmailAction(
+      idleState,
+      form({ email: "maria@example.com" }),
+    );
+
+    expect(state.status).toBe("error");
+    expect(state.message).toMatch(/give it a minute/i);
+  });
 });
 
 describe("signUpAction", () => {

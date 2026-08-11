@@ -3,6 +3,7 @@ import Link from "next/link";
 import { MailCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { ResendConfirmation } from "@/features/authentication/components/resend-confirmation";
 import {
   Card,
   CardContent,
@@ -39,10 +40,11 @@ export default async function VerifyEmailPage({
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-sm text-muted-foreground">
-          Didn&apos;t get it? Check your spam folder, or try signing up again in
-          a few minutes. The link expires after a short time for your security.
+          Didn&apos;t get it? Check your spam folder, or send yourself a fresh
+          link below.
         </p>
-        <Button asChild variant="outline">
+        <ResendConfirmation email={email} />
+        <Button asChild variant="ghost" size="sm">
           <Link href="/sign-in">Go to sign in</Link>
         </Button>
       </CardContent>

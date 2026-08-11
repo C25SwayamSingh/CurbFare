@@ -254,6 +254,10 @@ export function createMockSupabase(config: MockUserConfig) {
           error: MockError;
         }> => ({ data: { user, session: {} }, error: null }),
       ),
+      resend: vi.fn(async (): Promise<{ data: unknown; error: MockError }> => ({
+        data: {},
+        error: null,
+      })),
       resetPasswordForEmail: vi.fn(
         async (): Promise<{ data: unknown; error: MockError }> => ({
           data: {},

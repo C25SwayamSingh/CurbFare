@@ -225,11 +225,13 @@ export function LandingPage({
 
             {/* Equal-width, non-interactive legend — these teach the four
                 states; the one click in this panel is the button below.
-                Every cell is the same two lines (label, then detail) so the
-                row stays balanced at any width. */}
-            <ul className="mt-3 grid gap-2 text-center sm:grid-cols-2 lg:grid-cols-4">
+                Content is left-aligned on purpose: the cells are identical
+                boxes, but centred text of varying length made them read as
+                different sizes. Anchored to one edge, the repeated anatomy
+                (label row, then detail) reads uniform. */}
+            <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
               {/* Live is the loud chip: the one state that means "go now". */}
-              <li className="flex flex-col items-center justify-center gap-0.5 rounded-2xl border border-border bg-background px-3 py-2.5">
+              <li className="flex flex-col items-start justify-center gap-0.5 rounded-2xl border border-border bg-background px-4 py-2.5">
                 <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-primary">
                   <span
                     aria-hidden="true"
@@ -241,7 +243,7 @@ export function LandingPage({
                   Confirmed minutes ago
                 </span>
               </li>
-              <li className="flex flex-col items-center justify-center gap-0.5 rounded-2xl border border-border bg-background px-3 py-2.5">
+              <li className="flex flex-col items-start justify-center gap-0.5 rounded-2xl border border-border bg-background px-4 py-2.5">
                 <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-live">
                   <CalendarClock className="size-4" aria-hidden="true" />
                   Scheduled
@@ -250,7 +252,7 @@ export function LandingPage({
                   Tonight&apos;s market
                 </span>
               </li>
-              <li className="flex flex-col items-center justify-center gap-0.5 rounded-2xl border border-border bg-background px-3 py-2.5">
+              <li className="flex flex-col items-start justify-center gap-0.5 rounded-2xl border border-border bg-background px-4 py-2.5">
                 <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-brand">
                   <Clock className="size-4" aria-hidden="true" />
                   Usually here
@@ -259,7 +261,7 @@ export function LandingPage({
                   Like clockwork
                 </span>
               </li>
-              <li className="flex flex-col items-center justify-center gap-0.5 rounded-2xl border border-dashed border-border bg-background px-3 py-2.5">
+              <li className="flex flex-col items-start justify-center gap-0.5 rounded-2xl border border-dashed border-border bg-background px-4 py-2.5">
                 <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
                   <MapPin className="size-4" aria-hidden="true" />
                   Hotspot
