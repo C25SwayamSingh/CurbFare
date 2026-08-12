@@ -16,13 +16,17 @@ describe("LandingPage", () => {
     ).toBeInTheDocument();
   });
 
-  it("keeps the hero customer-first: one CTA, no vendor pitch", () => {
+  it("keeps the hero customer-first with one universal map label", () => {
     render(<LandingPage />);
 
-    expect(screen.getByRole("link", { name: /Find Vendors/i })).toHaveAttribute(
-      "href",
-      "/discover",
-    );
+    // "Explore the map" is the only discovery label on the page — one
+    // vocabulary for finding carts, in the hero and the customers panel.
+    const mapLinks = screen.getAllByRole("link", { name: /Explore the map/i });
+    expect(mapLinks.length).toBeGreaterThanOrEqual(1);
+    for (const link of mapLinks) {
+      expect(link).toHaveAttribute("href", "/discover");
+    }
+    expect(screen.queryByRole("link", { name: /Find Vendors/i })).toBeNull();
     // Vendors get their own section further down; the hero sells eating.
     expect(
       screen.queryByRole("link", { name: /List Your Business/i }),

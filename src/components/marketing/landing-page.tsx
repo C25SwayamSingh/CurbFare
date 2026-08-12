@@ -173,7 +173,7 @@ export function LandingPage({
                     >
                       <Link href="/discover">
                         <MapPin aria-hidden="true" />
-                        Find Vendors
+                        Explore the map
                       </Link>
                     </Button>
                   </>
@@ -181,7 +181,7 @@ export function LandingPage({
                   <Button asChild size="lg" className="w-full sm:w-auto">
                     <Link href="/discover">
                       <MapPin aria-hidden="true" />
-                      Find Vendors
+                      Explore the map
                     </Link>
                   </Button>
                 )}
@@ -241,49 +241,31 @@ export function LandingPage({
               </Button>
             </div>
 
-            {/* Equal-width, non-interactive legend — these teach the four
-                states; the one click in this panel is the button below.
-                Content is left-aligned on purpose: the cells are identical
-                boxes, but centred text of varying length made them read as
-                different sizes. Anchored to one edge, the repeated anatomy
-                (label row, then detail) reads uniform. */}
-            <ol className="mt-3 grid grid-cols-3 gap-2 sm:gap-3">
-              <li className="flex items-start gap-2 sm:gap-3">
-                <span className="text-xl font-bold text-brand sm:text-2xl">
+            {/* Two steps, not a tutorial: find a cart, earn if it offers. */}
+            <ol className="mt-4 grid grid-cols-2 gap-3 sm:gap-4">
+              <li className="flex items-start gap-2.5 sm:gap-3">
+                <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand/10 font-display text-base font-bold text-brand">
                   1
                 </span>
                 <div>
-                  <p className="text-sm font-semibold sm:text-base">
+                  <p className="text-base font-semibold leading-snug">
                     Search your block
                   </p>
-                  <p className="text-xs text-muted-foreground sm:text-sm">
-                    Your location stays yours.
+                  <p className="mt-0.5 text-sm text-muted-foreground">
+                    Or your favorite spot.
                   </p>
                 </div>
               </li>
-              <li className="flex items-start gap-2 sm:gap-3">
-                <span className="text-xl font-bold text-brand sm:text-2xl">
+              <li className="flex items-start gap-2.5 sm:gap-3">
+                <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand/10 font-display text-base font-bold text-brand">
                   2
                 </span>
                 <div>
-                  <p className="text-sm font-semibold sm:text-base">
-                    See who&apos;s out
-                  </p>
-                  <p className="text-xs text-muted-foreground sm:text-sm">
-                    Nearest first.
-                  </p>
-                </div>
-              </li>
-              <li className="flex items-start gap-2 sm:gap-3">
-                <span className="text-xl font-bold text-brand sm:text-2xl">
-                  3
-                </span>
-                <div>
-                  <p className="text-sm font-semibold sm:text-base">
+                  <p className="text-base font-semibold leading-snug">
                     Walk up and earn
                   </p>
-                  <p className="text-xs text-muted-foreground sm:text-sm">
-                    Points on every dollar.
+                  <p className="mt-0.5 text-sm text-muted-foreground">
+                    Points, if the cart offers them.
                   </p>
                 </div>
               </li>
@@ -294,9 +276,11 @@ export function LandingPage({
             <h3 className="text-lg font-bold tracking-tight">
               Know before you walk over
             </h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Every pin says how it knows.
-            </p>
+            {/* Equal-width, non-interactive legend — these teach the four
+                states; the one click in this panel is the button above.
+                Content is left-aligned on purpose: the cells are identical
+                boxes, but centred text of varying length made them read as
+                different sizes. */}
             <ul className="mt-3 grid grid-cols-2 gap-2 lg:grid-cols-4">
               {/* Live is the loud chip: the one state that means "go now". */}
               <li className="flex flex-col items-start justify-center gap-0.5 rounded-2xl border border-border bg-background px-4 py-2.5">
@@ -366,40 +350,36 @@ export function LandingPage({
                 </Button>
               </div>
             </div>
+            {/* Real card surfaces on the teal: a translucent tint read as a
+                smudge, so these use the app's card tokens for contrast. */}
             <ul className="mt-3 grid gap-2 sm:grid-cols-3 sm:gap-3">
-              <li className="rounded-2xl bg-card/10 px-3 py-2.5 sm:p-3">
+              <li className="rounded-2xl bg-card px-3 py-2.5 text-card-foreground shadow-sm sm:p-3">
                 <h3 className="flex items-center gap-2 font-semibold">
-                  <MapPin
-                    className="size-4 text-secondary-foreground/70"
-                    aria-hidden="true"
-                  />
+                  <MapPin className="size-4 text-brand" aria-hidden="true" />
                   Go live in one tap
                 </h3>
-                <p className="mt-1 text-sm text-secondary-foreground/80">
+                <p className="mt-1 text-sm text-muted-foreground">
                   Share today&apos;s spot instantly.
                 </p>
               </li>
-              <li className="rounded-2xl bg-card/10 px-3 py-2.5 sm:p-3">
+              <li className="rounded-2xl bg-card px-3 py-2.5 text-card-foreground shadow-sm sm:p-3">
                 <h3 className="flex items-center gap-2 font-semibold">
                   <CalendarClock
-                    className="size-4 text-secondary-foreground/70"
+                    className="size-4 text-brand"
                     aria-hidden="true"
                   />
                   Post your week
                 </h3>
-                <p className="mt-1 text-sm text-secondary-foreground/80">
+                <p className="mt-1 text-sm text-muted-foreground">
                   Set it once, they show up.
                 </p>
               </li>
-              <li className="rounded-2xl bg-card/10 px-3 py-2.5 sm:p-3">
+              <li className="rounded-2xl bg-card px-3 py-2.5 text-card-foreground shadow-sm sm:p-3">
                 <h3 className="flex items-center gap-2 font-semibold">
-                  <Store
-                    className="size-4 text-secondary-foreground/70"
-                    aria-hidden="true"
-                  />
+                  <Store className="size-4 text-brand" aria-hidden="true" />
                   Points, not punch cards
                 </h3>
-                <p className="mt-1 text-sm text-secondary-foreground/80">
+                <p className="mt-1 text-sm text-muted-foreground">
                   Big-chain loyalty, cart-sized.
                 </p>
               </li>

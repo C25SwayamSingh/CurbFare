@@ -7,7 +7,6 @@ import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
@@ -96,7 +95,7 @@ export default async function CustomerDashboardPage() {
               <Button asChild variant="outline">
                 <Link href="/discover">
                   <MapPin aria-hidden="true" />
-                  Find vendors near me
+                  Explore the map
                 </Link>
               </Button>
             </div>
@@ -115,14 +114,6 @@ export default async function CustomerDashboardPage() {
                 the counter. Your points land here.
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <Button asChild variant="outline">
-                <Link href="/discover">
-                  <MapPin aria-hidden="true" />
-                  Explore the map
-                </Link>
-              </Button>
-            </CardContent>
           </Card>
         ) : (
           <section aria-label="My carts">
