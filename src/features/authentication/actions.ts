@@ -118,10 +118,10 @@ export async function signInAction(
     );
   }
 
-  const nextPath = safeNextPath(
-    formData.get("next")?.toString(),
-    "/onboarding",
-  );
+  // Sign-in lands on the home page: returning users get the greeting and
+  // their one-tap rewards button, not a setup flow they finished weeks ago.
+  // Brand-new accounts still reach onboarding through the dashboard guards.
+  const nextPath = safeNextPath(formData.get("next")?.toString(), "/");
 
   const supabase = await createServerClient();
   const { error } = await supabase.auth.signInWithPassword({

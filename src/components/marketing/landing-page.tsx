@@ -14,6 +14,7 @@ import {
   Pizza,
   Salad,
   Sandwich,
+  QrCode,
   Soup,
   Store,
   Truck,
@@ -86,17 +87,11 @@ export function LandingPage({
           </div>
           <div className="flex items-center gap-4 sm:gap-6">
             {viewer ? (
-              <>
-                {/* One personal destination, named as theirs. */}
-                <Button asChild size="sm">
-                  <Link href={viewer.dashboardHref}>My Dashboard</Link>
-                </Button>
-                {viewer.firstName ? (
-                  <span className="hidden text-sm text-secondary-foreground/85 sm:inline">
-                    Hi, {viewer.firstName}
-                  </span>
-                ) : null}
-              </>
+              viewer.firstName ? (
+                <span className="text-sm text-secondary-foreground/85">
+                  Hi, {viewer.firstName}
+                </span>
+              ) : null
             ) : (
               <>
                 <Button asChild variant="ghost" size="sm">
@@ -158,12 +153,38 @@ export function LandingPage({
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Button asChild size="lg" className="w-full sm:w-auto">
-                  <Link href="/discover">
-                    <MapPin aria-hidden="true" />
-                    Find Vendors
-                  </Link>
-                </Button>
+                {/* Signed in, the habit loop leads: their points, one tap,
+                    in the loud color. Discovery drops to the quiet slot. */}
+                {viewer ? (
+                  <>
+                    <Button asChild size="lg" className="w-full sm:w-auto">
+                      <Link href={viewer.dashboardHref}>
+                        <QrCode aria-hidden="true" />
+                        {viewer.dashboardHref === "/vendor"
+                          ? "My Dashboard"
+                          : "My Rewards"}
+                      </Link>
+                    </Button>
+                    <Button
+                      asChild
+                      size="lg"
+                      variant="outline"
+                      className="w-full border-secondary-foreground/30 bg-transparent text-secondary-foreground hover:border-primary hover:bg-transparent hover:text-primary sm:w-auto"
+                    >
+                      <Link href="/discover">
+                        <MapPin aria-hidden="true" />
+                        Find Vendors
+                      </Link>
+                    </Button>
+                  </>
+                ) : (
+                  <Button asChild size="lg" className="w-full sm:w-auto">
+                    <Link href="/discover">
+                      <MapPin aria-hidden="true" />
+                      Find Vendors
+                    </Link>
+                  </Button>
+                )}
               </div>
             </div>
           </div>
@@ -206,11 +227,19 @@ export function LandingPage({
         >
           <div className="rounded-3xl border border-border bg-card p-4 shadow-sm sm:p-6">
             <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
-              Know before you walk over
+              For customers
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Every pin says how it knows.
+              Find a cart, walk up, earn points. One account.
             </p>
+            <div className="mt-4">
+              <Button asChild size="lg">
+                <Link href="/discover">
+                  <MapPin aria-hidden="true" />
+                  Explore the map
+                </Link>
+              </Button>
+            </div>
 
             {/* Equal-width, non-interactive legend — these teach the four
                 states; the one click in this panel is the button below.
@@ -218,52 +247,6 @@ export function LandingPage({
                 boxes, but centred text of varying length made them read as
                 different sizes. Anchored to one edge, the repeated anatomy
                 (label row, then detail) reads uniform. */}
-            <ul className="mt-3 grid grid-cols-2 gap-2 lg:grid-cols-4">
-              {/* Live is the loud chip: the one state that means "go now". */}
-              <li className="flex flex-col items-start justify-center gap-0.5 rounded-2xl border border-border bg-background px-4 py-2.5">
-                <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-primary">
-                  <span
-                    aria-hidden="true"
-                    className="size-2 rounded-full bg-primary motion-safe:animate-pulse"
-                  />
-                  Live now
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  Confirmed minutes ago
-                </span>
-              </li>
-              <li className="flex flex-col items-start justify-center gap-0.5 rounded-2xl border border-border bg-background px-4 py-2.5">
-                <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-live">
-                  <CalendarClock className="size-4" aria-hidden="true" />
-                  Scheduled
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  Tonight&apos;s market
-                </span>
-              </li>
-              <li className="flex flex-col items-start justify-center gap-0.5 rounded-2xl border border-border bg-background px-4 py-2.5">
-                <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-brand">
-                  <Clock className="size-4" aria-hidden="true" />
-                  Usually here
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  Like clockwork
-                </span>
-              </li>
-              <li className="flex flex-col items-start justify-center gap-0.5 rounded-2xl border border-dashed border-border bg-background px-4 py-2.5">
-                <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  <MapPin className="size-4" aria-hidden="true" />
-                  Hotspot
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  No vendor confirmed
-                </span>
-              </li>
-            </ul>
-
-            <div className="my-4 border-t border-border/60" />
-
-            <h3 className="text-lg font-bold tracking-tight">For customers</h3>
             <ol className="mt-3 grid grid-cols-3 gap-2 sm:gap-3">
               <li className="flex items-start gap-2 sm:gap-3">
                 <span className="text-xl font-bold text-brand sm:text-2xl">
@@ -306,14 +289,56 @@ export function LandingPage({
               </li>
             </ol>
 
-            <div className="mt-4">
-              <Button asChild size="lg">
-                <Link href="/discover">
-                  <MapPin aria-hidden="true" />
-                  Explore the map
-                </Link>
-              </Button>
-            </div>
+            <div className="my-4 border-t border-border/60" />
+
+            <h3 className="text-lg font-bold tracking-tight">
+              Know before you walk over
+            </h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Every pin says how it knows.
+            </p>
+            <ul className="mt-3 grid grid-cols-2 gap-2 lg:grid-cols-4">
+              {/* Live is the loud chip: the one state that means "go now". */}
+              <li className="flex flex-col items-start justify-center gap-0.5 rounded-2xl border border-border bg-background px-4 py-2.5">
+                <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-primary">
+                  <span
+                    aria-hidden="true"
+                    className="size-2 rounded-full bg-primary motion-safe:animate-pulse"
+                  />
+                  Live now
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  Confirmed minutes ago
+                </span>
+              </li>
+              <li className="flex flex-col items-start justify-center gap-0.5 rounded-2xl border border-border bg-background px-4 py-2.5">
+                <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-live">
+                  <CalendarClock className="size-4" aria-hidden="true" />
+                  Scheduled
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  Tonight&apos;s market
+                </span>
+              </li>
+              <li className="flex flex-col items-start justify-center gap-0.5 rounded-2xl border border-border bg-background px-4 py-2.5">
+                <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-brand">
+                  <Clock className="size-4" aria-hidden="true" />
+                  Usually here
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  Like clockwork
+                </span>
+              </li>
+              <li className="flex flex-col items-start justify-center gap-0.5 rounded-2xl border border-dashed border-border bg-background px-4 py-2.5">
+                <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  <MapPin className="size-4" aria-hidden="true" />
+                  Hotspot
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  No vendor confirmed
+                </span>
+              </li>
+            </ul>
           </div>
         </section>
 
@@ -329,6 +354,17 @@ export function LandingPage({
               <p className="mt-1 text-sm text-secondary-foreground/85">
                 Give your regulars a way to find you.
               </p>
+              {/* Signed-in users go straight to the application; the old
+                  /sign-up link bounced existing accounts to the customer
+                  dashboard, a dead end. */}
+              <div className="mt-4">
+                <Button asChild size="lg">
+                  <Link href={viewer ? "/onboarding/vendor" : "/sign-up"}>
+                    <Store aria-hidden="true" />
+                    Create your vendor profile
+                  </Link>
+                </Button>
+              </div>
             </div>
             <ul className="mt-3 grid gap-2 sm:grid-cols-3 sm:gap-3">
               <li className="rounded-2xl bg-card/10 px-3 py-2.5 sm:p-3">
@@ -368,11 +404,6 @@ export function LandingPage({
                 </p>
               </li>
             </ul>
-            <div className="mt-4">
-              <Button asChild size="lg">
-                <Link href="/sign-up">Create your vendor profile</Link>
-              </Button>
-            </div>
           </div>
         </section>
       </main>

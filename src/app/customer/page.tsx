@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { MapPin, Sparkles } from "lucide-react";
+import { MapPin, ScanLine, Sparkles } from "lucide-react";
 
 import { AuthenticatedAppShell } from "@/components/app/authenticated-app-shell";
 import { BackButton } from "@/components/ui/back-button";
@@ -84,12 +84,22 @@ export default async function CustomerDashboardPage() {
                 Your carts, your points, your code.
               </p>
             </div>
-            <Button asChild>
-              <Link href="/discover">
-                <MapPin aria-hidden="true" />
-                Find vendors near me
-              </Link>
-            </Button>
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+              {/* Scanning at the counter is the whole habit; it gets the
+                  loud button. Discovery is the quieter second tap. */}
+              <Button asChild size="lg">
+                <Link href="/customer/scan">
+                  <ScanLine aria-hidden="true" />
+                  Scan a cart&apos;s QR
+                </Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link href="/discover">
+                  <MapPin aria-hidden="true" />
+                  Find vendors near me
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -126,6 +136,16 @@ export default async function CustomerDashboardPage() {
             </div>
           </section>
         )}
+        <p className="text-sm text-muted-foreground">
+          Own a food cart or truck?{" "}
+          <Link
+            href="/onboarding/vendor"
+            className="font-medium text-brand underline underline-offset-2"
+          >
+            Apply to join Curbfare
+          </Link>
+          . We review every application ourselves.
+        </p>
       </div>
     </AuthenticatedAppShell>
   );

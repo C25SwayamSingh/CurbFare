@@ -72,12 +72,12 @@ describe("LandingPage", () => {
     expect(screen.queryByRole("link", { name: /sign in/i })).toBeNull();
   });
 
-  it("shows the dashboard link even without a display name", () => {
+  it("labels a customer's hero button My Rewards, even without a name", () => {
     render(
       <LandingPage viewer={{ firstName: null, dashboardHref: "/customer" }} />,
     );
 
-    expect(screen.getByRole("link", { name: "My Dashboard" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "My Rewards" })).toHaveAttribute(
       "href",
       "/customer",
     );

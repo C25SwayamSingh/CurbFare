@@ -35,9 +35,20 @@ type BarcodeDetectorLike = {
 export function QrScanner({
   onToken,
   onCancel,
+  parsePayload = parseCheckoutPayload,
+  privacyNotice = "Curbfare uses this camera only to scan the customer's checkout QR. Images and video are not saved.",
+  aimHint = "Point the camera at the customer's code.",
 }: {
   onToken: (token: string) => void;
   onCancel: () => void;
+  /**
+   * What counts as a valid code. Defaults to checkout payloads; the customer
+   * cart scanner passes the raw value through and validates the URL itself.
+   * Returning null keeps scanning instead of finishing.
+   */
+  parsePayload?: (raw: string) => string | null;
+  privacyNotice?: string;
+  aimHint?: string;
 }) {
   const [state, dispatch] = React.useReducer(
     scannerReducer,
@@ -97,7 +108,7 @@ export function QrScanner({
       try {
         const results = await detectorRef.current.detect(video);
         for (const result of results) {
-          const token = parseCheckoutPayload(result.rawValue);
+          const token = parsePayload(result.rawValue);
           if (token) return finish(token);
         }
       } catch {
@@ -124,7 +135,7 @@ export function QrScanner({
       inversionAttempts: "dontInvert",
     });
     if (found) {
-      const token = parseCheckoutPayload(found.data);
+      const token = parsePayload(found.data);
       if (token) finish(token);
     }
   }
@@ -190,7 +201,7 @@ export function QrScanner({
             className="aspect-square w-full object-cover"
             playsInline
             muted
-            aria-label="Camera preview for scanning the customer's checkout QR"
+            aria-label="Camera preview for QR scanning"
           />
           {/* Target frame: gives the vendor somewhere to aim. */}
           <div
@@ -208,9 +219,7 @@ export function QrScanner({
             </div>
           ) : null}
         </div>
-        <p className="text-center text-sm text-muted-foreground">
-          Point the camera at the customer&apos;s code.
-        </p>
+        <p className="text-center text-sm text-muted-foreground">{aimHint}</p>
         <Button variant="outline" className="w-full" onClick={cancel}>
           <X aria-hidden="true" />
           Cancel
@@ -226,10 +235,7 @@ export function QrScanner({
           <AlertDescription>{state.message}</AlertDescription>
         </Alert>
       ) : (
-        <p className="text-sm text-muted-foreground">
-          Curbfare uses this camera only to scan the customer&apos;s checkout
-          QR. Images and video are not saved.
-        </p>
+        <p className="text-sm text-muted-foreground">{privacyNotice}</p>
       )}
       <Button className="h-14 w-full text-base" onClick={start}>
         <Camera aria-hidden="true" />

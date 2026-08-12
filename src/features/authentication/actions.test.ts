@@ -158,7 +158,7 @@ describe("signInAction (open redirect protection)", () => {
           next: "https://evil.example.com/phish",
         }),
       ),
-    ).rejects.toThrow("REDIRECT:/onboarding");
+    ).rejects.toThrow("REDIRECT:/");
   });
 
   it("sanitizes protocol-relative next params", async () => {
@@ -172,7 +172,7 @@ describe("signInAction (open redirect protection)", () => {
           next: "//evil.example.com",
         }),
       ),
-    ).rejects.toThrow("REDIRECT:/onboarding");
+    ).rejects.toThrow("REDIRECT:/");
   });
 
   it("keeps same-origin next paths", async () => {

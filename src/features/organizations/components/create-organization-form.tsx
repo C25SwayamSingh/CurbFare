@@ -196,8 +196,8 @@ export function CreateOrganizationForm() {
           </strong>{" "}
           We&apos;ll get back to you within a few hours, one business day at
           most. While you wait, go ahead and set up your carts and rewards;
-          customers won&apos;t see anything until we approve you. You&apos;ll
-          be the owner, and you can invite your managers and staff from your
+          customers won&apos;t see anything until we approve you. You&apos;ll be
+          the owner, and you can invite your managers and staff from your
           dashboard whenever you&apos;re ready.
         </p>
       </div>

@@ -21,7 +21,9 @@ export default async function SignInPage({
   searchParams: Promise<{ next?: string; reset?: string }>;
 }) {
   const params = await searchParams;
-  const nextPath = safeNextPath(params.next, "/onboarding");
+  // Returning users land on the home page; accounts that still need
+  // onboarding are funneled there by the dashboard guards, not by sign-in.
+  const nextPath = safeNextPath(params.next, "/");
 
   const ctx = await getAuthContext();
   if (ctx) {
