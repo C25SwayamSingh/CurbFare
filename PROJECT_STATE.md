@@ -196,7 +196,8 @@ configuration are in place, is:
 
 Accumulated launch blockers. Check every item before the first real deploy.
 
-- [ ] **Do not set `NEXT_PUBLIC_APP_ENV=development` in production.** The
+- [x] **Do not set `NEXT_PUBLIC_APP_ENV=development` in production.**
+      Verified live 2026-08-12: no Mailpit helpers on curbfare.app. The
       Mailpit helpers on the forgot-password page (auto-continue button,
       "reset email received in Mailpit" copy, `/api/dev/mailpit/recovery`)
       are gated on it. The API route is additionally dead when
