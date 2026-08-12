@@ -16,12 +16,18 @@ describe("recovery email template", () => {
     expect(template).not.toMatch(/window\.open/i);
   });
 
-  it("contains exactly one recovery interstitial link", () => {
+  it("contains exactly one token-bearing link, routed to the interstitial", () => {
     const hrefs = template.match(/href="[^"]+"/g) ?? [];
-    expect(hrefs).toHaveLength(1);
-    expect(hrefs[0]).toContain("/auth/recovery");
-    expect(hrefs[0]).toContain("token_hash=");
-    expect(hrefs[0]).toContain("type=recovery");
+    const tokenLinks = hrefs.filter((h) => h.includes("token_hash="));
+    expect(tokenLinks).toHaveLength(1);
+    expect(tokenLinks[0]).toContain("/auth/recovery");
+    expect(tokenLinks[0]).toContain("type=recovery");
+    // Any other link (footer, wordmark) must be token-free marketing only.
+    for (const href of hrefs) {
+      if (!href.includes("token_hash=")) {
+        expect(href).toContain("curbfare.app");
+      }
+    }
   });
 
   it("routes through the interstitial page instead of direct verify URLs", () => {
