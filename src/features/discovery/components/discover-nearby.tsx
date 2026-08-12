@@ -455,7 +455,10 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
 
           {results !== null ? (
             <>
-              {view === "map" && mapData.length > 0 ? (
+              {/* The map renders even with zero results: an empty map of
+                  the searched area reads as "nothing here yet", while a
+                  vanished map reads as broken. */}
+              {view === "map" ? (
                 <NearbyMap
                   apiKey={mapsApiKey}
                   center={{ lat: center.lat, lng: center.lng }}
