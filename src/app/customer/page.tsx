@@ -3,6 +3,7 @@ import Link from "next/link";
 import { MapPin, Sparkles } from "lucide-react";
 
 import { AuthenticatedAppShell } from "@/components/app/authenticated-app-shell";
+import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -72,21 +73,24 @@ export default async function CustomerDashboardPage() {
   return (
     <AuthenticatedAppShell>
       <div className="space-y-6">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h1 className="font-display text-2xl font-semibold tracking-tight">
-              {firstName ? `Hey, ${firstName}` : "Hey there"}
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Your carts, your points, your code.
-            </p>
+        <div>
+          <BackButton fallback="/" className="mb-2 -ml-2" />
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h1 className="font-display text-2xl font-semibold tracking-tight">
+                {firstName ? `Hey, ${firstName}` : "Hey there"}
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Your carts, your points, your code.
+              </p>
+            </div>
+            <Button asChild>
+              <Link href="/discover">
+                <MapPin aria-hidden="true" />
+                Find vendors near me
+              </Link>
+            </Button>
           </div>
-          <Button asChild>
-            <Link href="/discover">
-              <MapPin aria-hidden="true" />
-              Find vendors near me
-            </Link>
-          </Button>
         </div>
 
         {cards.length === 0 ? (
@@ -94,7 +98,7 @@ export default async function CustomerDashboardPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Sparkles className="size-5 text-brand" aria-hidden="true" />
-                Start your first card
+                Start your first cart
               </CardTitle>
               <CardDescription>
                 Find a cart with rewards, order something, and show your code at

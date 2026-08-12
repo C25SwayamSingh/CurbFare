@@ -16,16 +16,17 @@ describe("LandingPage", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders primary call-to-action buttons", () => {
+  it("keeps the hero customer-first: one CTA, no vendor pitch", () => {
     render(<LandingPage />);
 
     expect(screen.getByRole("link", { name: /Find Vendors/i })).toHaveAttribute(
       "href",
       "/discover",
     );
+    // Vendors get their own section further down; the hero sells eating.
     expect(
-      screen.getByRole("link", { name: /List Your Business/i }),
-    ).toHaveAttribute("href", "/vendors/list");
+      screen.queryByRole("link", { name: /List Your Business/i }),
+    ).toBeNull();
   });
 
   it("keeps the cuisine tab row parked (SHOW_CUISINE_TABS off) for now", () => {

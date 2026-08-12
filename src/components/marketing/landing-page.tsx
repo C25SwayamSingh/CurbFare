@@ -164,17 +164,6 @@ export function LandingPage({
                     Find Vendors
                   </Link>
                 </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  size="lg"
-                  className="w-full sm:w-auto"
-                >
-                  <Link href="/vendors/list">
-                    <Store aria-hidden="true" />
-                    List Your Business
-                  </Link>
-                </Button>
               </div>
             </div>
           </div>
@@ -229,7 +218,7 @@ export function LandingPage({
                 boxes, but centred text of varying length made them read as
                 different sizes. Anchored to one edge, the repeated anatomy
                 (label row, then detail) reads uniform. */}
-            <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            <ul className="mt-3 grid grid-cols-2 gap-2 lg:grid-cols-4">
               {/* Live is the loud chip: the one state that means "go now". */}
               <li className="flex flex-col items-start justify-center gap-0.5 rounded-2xl border border-border bg-background px-4 py-2.5">
                 <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-primary">
@@ -275,30 +264,42 @@ export function LandingPage({
             <div className="my-4 border-t border-border/60" />
 
             <h3 className="text-lg font-bold tracking-tight">For customers</h3>
-            <ol className="mt-3 grid gap-3 sm:grid-cols-3">
-              <li className="flex items-start gap-3">
-                <span className="text-2xl font-bold text-brand">1</span>
+            <ol className="mt-3 grid grid-cols-3 gap-2 sm:gap-3">
+              <li className="flex items-start gap-2 sm:gap-3">
+                <span className="text-xl font-bold text-brand sm:text-2xl">
+                  1
+                </span>
                 <div>
-                  <p className="font-semibold">Search your block</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm font-semibold sm:text-base">
+                    Search your block
+                  </p>
+                  <p className="text-xs text-muted-foreground sm:text-sm">
                     Your location stays yours.
                   </p>
                 </div>
               </li>
-              <li className="flex items-start gap-3">
-                <span className="text-2xl font-bold text-brand">2</span>
+              <li className="flex items-start gap-2 sm:gap-3">
+                <span className="text-xl font-bold text-brand sm:text-2xl">
+                  2
+                </span>
                 <div>
-                  <p className="font-semibold">See who&apos;s out</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm font-semibold sm:text-base">
+                    See who&apos;s out
+                  </p>
+                  <p className="text-xs text-muted-foreground sm:text-sm">
                     Nearest first.
                   </p>
                 </div>
               </li>
-              <li className="flex items-start gap-3">
-                <span className="text-2xl font-bold text-brand">3</span>
+              <li className="flex items-start gap-2 sm:gap-3">
+                <span className="text-xl font-bold text-brand sm:text-2xl">
+                  3
+                </span>
                 <div>
-                  <p className="font-semibold">Walk up and earn</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm font-semibold sm:text-base">
+                    Walk up and earn
+                  </p>
+                  <p className="text-xs text-muted-foreground sm:text-sm">
                     Points on every dollar.
                   </p>
                 </div>
@@ -329,8 +330,8 @@ export function LandingPage({
                 Give your regulars a way to find you.
               </p>
             </div>
-            <ul className="mt-3 grid gap-3 sm:grid-cols-3">
-              <li className="rounded-2xl bg-card/10 p-3">
+            <ul className="mt-3 grid gap-2 sm:grid-cols-3 sm:gap-3">
+              <li className="rounded-2xl bg-card/10 px-3 py-2.5 sm:p-3">
                 <h3 className="flex items-center gap-2 font-semibold">
                   <MapPin
                     className="size-4 text-secondary-foreground/70"
@@ -342,7 +343,7 @@ export function LandingPage({
                   Share today&apos;s spot instantly.
                 </p>
               </li>
-              <li className="rounded-2xl bg-card/10 p-3">
+              <li className="rounded-2xl bg-card/10 px-3 py-2.5 sm:p-3">
                 <h3 className="flex items-center gap-2 font-semibold">
                   <CalendarClock
                     className="size-4 text-secondary-foreground/70"
@@ -354,7 +355,7 @@ export function LandingPage({
                   Set it once, they show up.
                 </p>
               </li>
-              <li className="rounded-2xl bg-card/10 p-3">
+              <li className="rounded-2xl bg-card/10 px-3 py-2.5 sm:p-3">
                 <h3 className="flex items-center gap-2 font-semibold">
                   <Store
                     className="size-4 text-secondary-foreground/70"
