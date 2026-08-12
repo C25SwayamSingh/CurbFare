@@ -211,7 +211,8 @@ Accumulated launch blockers. Check every item before the first real deploy.
 - [x] Add production URLs to hosted Supabase auth redirect allow-list
       (`/auth/confirm`, `/auth/recovery`, `/auth/verify`, `/auth/callback`).
 - [ ] USPTO search for "Curbfare" before spending on branding.
-- [ ] Rename the GitHub repo from CurbAgora if it should match the brand.
+- [x] Rename the GitHub repo from CurbAgora if it should match the brand.
+      Renamed to CurbFare 2026-08-11; local remote updated.
 - [ ] Decide whether cart deletion stays owner+manager or becomes owner-only.
 
 ## Assumptions
