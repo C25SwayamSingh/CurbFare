@@ -6,6 +6,7 @@ import { BackButton } from "@/components/ui/back-button";
 import { requireVendorSensitiveAction } from "@/lib/auth/guards";
 import { createServerClient } from "@/lib/supabase/server";
 import { EditOrganizationForm } from "@/features/organizations/components/edit-organization-form";
+import { DeleteOrganizationSection } from "@/features/organizations/components/delete-organization-section";
 
 export const metadata: Metadata = { title: pageTitle("Edit business details") };
 
@@ -49,6 +50,13 @@ export default async function EditOrganizationPage() {
       </p>
       <div className="mt-6">
         <EditOrganizationForm organization={organization} />
+      </div>
+      {/* Page guard is already owner + MFA; the danger zone re-verifies both
+          server-side and in the database policies. */}
+      <div className="mt-8">
+        <DeleteOrganizationSection
+          organizationName={organization.display_name}
+        />
       </div>
     </main>
   );

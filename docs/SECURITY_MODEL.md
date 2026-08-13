@@ -88,7 +88,11 @@ RLS is enabled on every table; the default is deny. Policy intent:
 - **organizations** — visible only to active members and platform admins.
   Updates: owners only, and protected fields (`created_by`, `id`,
   `created_at`) are trigger-locked. No insert policy: creation only via
-  `create_organization_with_owner()`. No delete policy: archive via status.
+  `create_organization_with_owner()`. Deletes: owners only, MFA-mandatory
+  (`organizations_delete_owner` + restrictive
+  `organizations_delete_requires_mfa`); every child table cascades, so one
+  delete removes the whole business. The app layer additionally requires the
+  owner to retype the business name.
 - **organization_members** — members see their own rows; owners/managers see
   their org's roster; no cross-org visibility. Inserts: owners (any role) or
   managers (never `owner`); never for yourself; `invited_by` must equal the
@@ -128,7 +132,11 @@ recursion). Inside DEFINER functions, `current_user` is the function owner
 (which Supabase and the pgTAP harness set to `authenticated`/`anon`), not on
 `current_user`. Migration `20260704000000_fix_membership_definer_triggers.sql`
 closed a bypass where self role changes and final-owner deletion were not
-blocked for API clients.
+blocked for API clients. `protect_membership_delete()` has one deliberate
+escape (migration `20260813120000_organization_owner_delete.sql`): the final
+owner row may cascade away when its organization row is already gone — the
+full-teardown case — while removing just the final owner of a live
+organization stays blocked.
 
 ## MFA (Supabase TOTP) — optional at signup, mandatory for sensitive actions
 

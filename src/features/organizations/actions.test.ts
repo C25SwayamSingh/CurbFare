@@ -23,6 +23,7 @@ vi.mock("@/lib/supabase/server", () => ({
 
 import {
   createOrganizationAction,
+  deleteOrganizationAction,
   updateOrganizationAction,
 } from "@/features/organizations/actions";
 import { idleState } from "@/features/authentication/action-state";
@@ -324,6 +325,114 @@ describe("updateOrganizationAction", () => {
       organizationUpdateError: { code: "42501", message: "permission denied" },
     });
     const state = await updateOrganizationAction(idleState, form(validForm));
+    expect(state.status).toBe("error");
+    expect(state.message).not.toMatch(/permission denied/i);
+  });
+});
+
+describe("deleteOrganizationAction", () => {
+  const organization = {
+    id: "org-1",
+    display_name: "Taco Cart",
+    legal_name: "Taco Cart LLC",
+    slug: "taco-cart",
+  };
+  const confirmed = { confirmName: "Taco Cart" };
+
+  it("requires authentication", async () => {
+    useSupabase({ user: null });
+    await expect(
+      deleteOrganizationAction(idleState, form(confirmed)),
+    ).rejects.toThrow("REDIRECT:/sign-in");
+  });
+
+  it("requires an aal2 (MFA-verified) session even for an owner", async () => {
+    const client = useSupabase({
+      user,
+      profile: vendorProfile,
+      memberships: [membership("owner")],
+      organization,
+      currentLevel: "aal1",
+      nextLevel: "aal1",
+    });
+    await expect(
+      deleteOrganizationAction(idleState, form(confirmed)),
+    ).rejects.toThrow("REDIRECT:/mfa-enroll");
+    expect(client.organizationDelete).not.toHaveBeenCalled();
+  });
+
+  it.each(["manager", "staff"] as const)(
+    "blocks %s (owner-only)",
+    async (role) => {
+      const client = useSupabase({
+        user,
+        profile: vendorProfile,
+        memberships: [membership(role)],
+        organization,
+        ...aal2,
+      });
+      await expect(
+        deleteOrganizationAction(idleState, form(confirmed)),
+      ).rejects.toThrow("REDIRECT:/vendor");
+      expect(client.organizationDelete).not.toHaveBeenCalled();
+    },
+  );
+
+  it("refuses when the typed name does not match the business name", async () => {
+    const client = useSupabase({
+      user,
+      profile: vendorProfile,
+      memberships: [membership("owner")],
+      organization,
+      ...aal2,
+    });
+    const state = await deleteOrganizationAction(
+      idleState,
+      form({ confirmName: "Taco Kart" }),
+    );
+    expect(state.status).toBe("error");
+    expect(state.fieldErrors?.confirmName).toBeDefined();
+    expect(client.organizationDelete).not.toHaveBeenCalled();
+  });
+
+  it("deletes the caller's own organization and redirects home", async () => {
+    const client = useSupabase({
+      user,
+      profile: vendorProfile,
+      memberships: [membership("owner")],
+      organization,
+      ...aal2,
+    });
+    await expect(
+      deleteOrganizationAction(idleState, form(confirmed)),
+    ).rejects.toThrow("REDIRECT:/");
+    expect(client.organizationDelete).toHaveBeenCalled();
+  });
+
+  it("treats a silent zero-row delete (RLS refusal) as an error, not success", async () => {
+    const client = useSupabase({
+      user,
+      profile: vendorProfile,
+      memberships: [membership("owner")],
+      organization,
+      ...aal2,
+      organizationDeleteMissing: true,
+    });
+    const state = await deleteOrganizationAction(idleState, form(confirmed));
+    expect(state.status).toBe("error");
+    expect(client.organizationDelete).toHaveBeenCalled();
+  });
+
+  it("returns a safe generic error for unexpected database failures", async () => {
+    useSupabase({
+      user,
+      profile: vendorProfile,
+      memberships: [membership("owner")],
+      organization,
+      ...aal2,
+      organizationDeleteError: { code: "42501", message: "permission denied" },
+    });
+    const state = await deleteOrganizationAction(idleState, form(confirmed));
     expect(state.status).toBe("error");
     expect(state.message).not.toMatch(/permission denied/i);
   });

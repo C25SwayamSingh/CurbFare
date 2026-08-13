@@ -56,6 +56,10 @@ export type MockUserConfig = {
   organization?: Partial<Organization> | null;
   /** Force organizations update to fail with this error. */
   organizationUpdateError?: { code?: string; message: string } | null;
+  /** Force organizations delete to fail with this error. */
+  organizationDeleteError?: { code?: string; message: string } | null;
+  /** When true, organizations delete succeeds but removes no row (RLS refusal). */
+  organizationDeleteMissing?: boolean;
 };
 
 function thenable(data: unknown) {
@@ -101,6 +105,8 @@ export function createMockSupabase(config: MockUserConfig) {
     locationSessionUpdateMissing = false,
     organization = null,
     organizationUpdateError = null,
+    organizationDeleteError = null,
+    organizationDeleteMissing = false,
   } = config;
 
   type MockError = { code?: string; message: string; status?: number } | null;
@@ -208,6 +214,21 @@ export function createMockSupabase(config: MockUserConfig) {
   const organizationUpdate = vi.fn((payload: unknown) => {
     organizationUpdatePayloads.push(payload);
     const result = { error: organizationUpdateError };
+    const builder = {
+      eq: () => builder,
+      then: (resolve: (value: typeof result) => void) => resolve(result),
+    };
+    return builder;
+  });
+
+  // Successful deletes flip this flag so a follow-up organizations read sees
+  // the row as gone — mirroring the action's verify-after-delete pattern.
+  let organizationDeleted = false;
+  const organizationDelete = vi.fn(() => {
+    const result = { error: organizationDeleteError };
+    if (!organizationDeleteError && !organizationDeleteMissing) {
+      organizationDeleted = true;
+    }
     const builder = {
       eq: () => builder,
       then: (resolve: (value: typeof result) => void) => resolve(result),
@@ -325,6 +346,7 @@ export function createMockSupabase(config: MockUserConfig) {
     locationSessionInsert,
     locationSessionUpdate,
     organizationUpdate,
+    organizationDelete,
     from: vi.fn((table: string) => {
       if (table === "profiles") {
         const builder = {
@@ -335,8 +357,20 @@ export function createMockSupabase(config: MockUserConfig) {
       }
       if (table === "organizations") {
         const builder = {
-          ...thenable(organization),
+          select: () => builder,
+          eq: () => builder,
+          order: () => builder,
+          maybeSingle: async () => ({
+            data: organizationDeleted ? null : organization,
+            error: null,
+          }),
+          then: (resolve: (value: { data: unknown; error: null }) => void) =>
+            resolve({
+              data: organizationDeleted ? null : organization,
+              error: null,
+            }),
           update: organizationUpdate,
+          delete: organizationDelete,
         };
         return builder;
       }

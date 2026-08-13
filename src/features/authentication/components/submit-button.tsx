@@ -12,12 +12,18 @@ import { Button, type ButtonProps } from "@/components/ui/button";
 export function SubmitButton({
   children,
   pendingLabel = "Please wait…",
+  disabled,
   ...props
 }: ButtonProps & { pendingLabel?: string }) {
   const { pending } = useFormStatus();
 
   return (
-    <Button type="submit" disabled={pending} aria-busy={pending} {...props}>
+    <Button
+      type="submit"
+      disabled={pending || disabled}
+      aria-busy={pending}
+      {...props}
+    >
       {pending ? (
         <>
           <Loader2 className="animate-spin" aria-hidden="true" />
