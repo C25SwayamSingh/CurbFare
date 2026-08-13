@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { getAuthContext } from "@/lib/auth/guards";
+import { ResendConfirmation } from "@/features/authentication/components/resend-confirmation";
 
 export const metadata = { title: "Auth link — Curbfare" };
 
@@ -43,8 +44,10 @@ export default async function AuthErrorPage({
     </>
   ) : signupFlow ? (
     <>
-      Verification links are single-use and expire for your security. If you
-      already verified your email, you can sign in now.
+      Verification links are single-use, and only the newest one works. Email
+      apps often hide the newest message inside the same conversation thread. If
+      you already verified, just sign in. Still stuck? Send yourself a fresh
+      link below.
     </>
   ) : (
     <>
@@ -69,15 +72,18 @@ export default async function AuthErrorPage({
           <Button asChild variant={ctx?.user ? "outline" : "default"}>
             <Link href="/auth/sign-out?next=/sign-in">Go to sign in</Link>
           </Button>
-          {signupFlow ? (
-            <Button asChild variant="outline">
-              <Link href="/sign-up">Create a new account</Link>
-            </Button>
-          ) : (
+          {signupFlow ? null : (
             <Button asChild variant="outline">
               <Link href="/forgot-password">Request a new reset link</Link>
             </Button>
           )}
+          {/* The fix belongs on the page where the pain happens: a dead
+              sign-up link gets a fresh one sent from right here. */}
+          {signupFlow ? (
+            <div className="w-full border-t border-border/60 pt-3">
+              <ResendConfirmation />
+            </div>
+          ) : null}
         </CardContent>
       </Card>
     </main>
