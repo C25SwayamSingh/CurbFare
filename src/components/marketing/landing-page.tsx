@@ -392,6 +392,20 @@ export function LandingPage({
         <p className="text-center text-sm text-secondary-foreground/80">
           Curbfare. Street food, found.
         </p>
+        <p className="mt-2 flex justify-center gap-4 text-xs text-secondary-foreground/60">
+          <Link
+            href="/privacy"
+            className="underline-offset-2 hover:text-secondary-foreground hover:underline"
+          >
+            Privacy
+          </Link>
+          <Link
+            href="/terms"
+            className="underline-offset-2 hover:text-secondary-foreground hover:underline"
+          >
+            Terms
+          </Link>
+        </p>
       </footer>
     </div>
   );
