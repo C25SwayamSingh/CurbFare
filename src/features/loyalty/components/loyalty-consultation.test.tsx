@@ -25,7 +25,7 @@ async function fillValidForm(user: ReturnType<typeof userEvent.setup>) {
 /** The mode selector for the reward-cost field (exists in every mode). */
 function costModeSelect() {
   return screen.getByLabelText(
-    /What it costs you to make — how would you like to answer\?/i,
+    /What it costs you to make: how would you like to answer\?/i,
   );
 }
 

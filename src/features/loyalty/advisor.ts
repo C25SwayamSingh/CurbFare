@@ -228,7 +228,7 @@ function priceReward(
       excluded: {
         label: reward.name,
         severity: "block",
-        reason: `Pricing “${reward.name}” at a sustainable rate would need about ${formatCents(economics.spendToEarnCents)} of spend — beyond what any reward tier should require.`,
+        reason: `Pricing “${reward.name}” at a sustainable rate would need about ${formatCents(economics.spendToEarnCents)} of spend, beyond what any reward tier should require.`,
         calculation: `Customer-perceived target ${formatBps(targetPerceivedBps)} on a ${formatCents(e0.customerValueCents)} reward needs ${formatCents(spendForPerceived)}; keeping vendor cost ≤ ${formatBps(PRICING_COST_CEILING_BPS)} needs ${formatCents(spendForCostFloor)}. The binding figure is ${formatCents(spendTarget)}.`,
         remedy:
           "Offer a lower-value reward, or split it into a cheaper entry reward plus this one as a premium tier.",
@@ -291,7 +291,7 @@ function scoreProgram(
   if (economics.items.every((it) => it.reward.kind === "FREE_ITEM")) {
     score += 10;
     breakdown.push(
-      "+10 every reward is a free item — value the customer sees exceeds your cost",
+      "+10 every reward is a free item: value the customer sees exceeds your cost",
     );
   } else {
     score -= 5;
@@ -354,7 +354,7 @@ function tierSummary(t: PricedReward): string {
     t.reward.name,
     t.economics.reward.customerValueCents,
   );
-  return `${label} — ${formatPoints(t.item.pointsCost)} (≈ ${formatCents(t.economics.spendToEarnCents)} spent, ${formatBps(t.economics.perceivedRateBps)} back)`;
+  return `${label} · ${formatPoints(t.item.pointsCost)} (≈ ${formatCents(t.economics.spendToEarnCents)} spent, ${formatBps(t.economics.perceivedRateBps)} back)`;
 }
 
 function makeRecommendation(
@@ -392,7 +392,7 @@ function makeRecommendation(
         {
           label: shapeTitle(shape, priced),
           severity: "block",
-          reason: `Its cheapest reward needs about ${formatCents(economics.entry.spendToEarnCents)} of spend — too far for a first reward.`,
+          reason: `Its cheapest reward needs about ${formatCents(economics.entry.spendToEarnCents)} of spend, too far for a first reward.`,
           calculation: `Entry tier ${formatPoints(economics.entry.pointsCost)} ÷ ${pointsPerDollar} pts/$ = ${formatCents(economics.entry.spendToEarnCents)}.`,
           remedy: `Add a cheaper reward so customers reach something within about ${formatCents(MAX_SPEND_ENTRY_TIER_CENTS)}.`,
         },
@@ -427,7 +427,7 @@ function makeRecommendation(
       // Beyond roughly triple the stated budget this stops being a tradeoff
       // and becomes a program the vendor has said they cannot fund.
       severity: overBy >= 3 ? "block" : "downgrade",
-      reason: `This would cost about ${formatCents(economics.monthlyCostLowCents)}–${formatCents(economics.monthlyCostHighCents)} a month in rewards — ${overBy >= 2 ? `roughly ${overBy}× ` : ""}more than the ${formatCents(budgetCents)} you said you could spend.`,
+      reason: `This would cost about ${formatCents(economics.monthlyCostLowCents)}–${formatCents(economics.monthlyCostHighCents)} a month in rewards, ${overBy >= 2 ? `roughly ${overBy}× ` : ""}more than the ${formatCents(budgetCents)} you said you could spend.`,
       calculation:
         `Your ${regulars} regulars would earn about ${rewardsPerMonth} rewards a month between them ` +
         `(each regular earns one every ${describeEarnPace(economics.entryRewardsPerRegularPerMonthX10000)}). ` +
@@ -445,7 +445,7 @@ function makeRecommendation(
     );
   }
   if (answers.goal === "bigger_orders") {
-    why.push("Bigger orders earn more points automatically — no extra rules.");
+    why.push("Bigger orders earn more points automatically. No extra rules.");
   }
   if (answers.goal === "new_item") {
     why.push(
@@ -481,13 +481,13 @@ function makeRecommendation(
     assumptions: [
       economics.conversionNote,
       `About ${answers.regularsPerMonth.value} active regulars per month (${sourceLabel(answers.regularsPerMonth.source)}).`,
-      "Completion band 40–70% of earned rewards — an assumption to validate, not a fact.",
+      "Completion band 40–70% of earned rewards: an assumption to validate, not a fact.",
       answers.typicalOrderCents.value === null
-        ? "Typical order not given, so monthly projections can't be computed — enter it for exposure figures."
+        ? "Typical order not given, so monthly projections can't be computed. Enter it for exposure figures."
         : `Typical order ${formatCents(answers.typicalOrderCents.value)} (${sourceLabel(answers.typicalOrderCents.source)}).`,
     ],
     refundNote:
-      "If a purchase is refunded, you or a manager reverse those points from the customer's history — one action, fully audited.",
+      "If a purchase is refunded, you or a manager reverse those points from the customer's history. One action, fully audited.",
     pauseNote:
       "Pausing stops new points but never erases earned points; customers can still redeem unless you pause redemptions too.",
     fitScore: score,
@@ -518,12 +518,12 @@ function shapeTitle(
   priced: PricedReward[],
 ): string {
   if (shape === "single") {
-    return `One-reward points card — ${priced[0].reward.name}`;
+    return `One-reward points card: ${priced[0].reward.name}`;
   }
   if (shape === "ladder") {
-    return `Two-tier points ladder — ${priced[0].reward.name} → ${priced[priced.length - 1].reward.name}`;
+    return `Two-tier points ladder: ${priced[0].reward.name} → ${priced[priced.length - 1].reward.name}`;
   }
-  return `Full points catalog — ${priced.length} rewards`;
+  return `Full points catalog: ${priced.length} rewards`;
 }
 
 export function recommendPrograms(answers: ConsultationAnswers): AdvisorResult {
@@ -638,7 +638,7 @@ function inputSummary(
       label: "Typical order total",
       value:
         order.value === null
-          ? "not given — we can't estimate your monthly cost without it"
+          ? "not given, so we can't estimate your monthly cost"
           : formatCents(order.value),
       source: sourceLabel(order.source),
     },
@@ -656,7 +656,7 @@ function inputSummary(
       label: "Monthly reward budget",
       value:
         answers.monthlyBudgetCents.value === null
-          ? "not given — budget fit not checked"
+          ? "not given, so budget fit was not checked"
           : formatCents(answers.monthlyBudgetCents.value),
       source: sourceLabel(answers.monthlyBudgetCents.source),
     },
@@ -681,7 +681,7 @@ export function existingSystemGuidance(
       return {
         title: "Moving from paper punch cards",
         summary:
-          "Your regulars are carrying half-finished cards. Don't void them — run both briefly and let paper age out.",
+          "Your regulars are carrying half-finished cards. Don't void them. Run both briefly and let paper age out.",
         steps: [
           "Keep honoring existing paper cards until each one is redeemed.",
           "Start new customers on the digital points card now.",
@@ -695,7 +695,7 @@ export function existingSystemGuidance(
         summary:
           "Your POS program keeps working at the register. Curbfare's points card is strongest for customers who discover you here.",
         steps: [
-          "Decide which system earns on a given sale — one purchase should not earn in both.",
+          "Decide which system earns on a given sale. One purchase should not earn in both.",
           "Many vendors run Curbfare as a complement for new regulars rather than replacing the POS.",
           "Keep the rewards roughly comparable so neither card feels like the worse deal.",
         ],
@@ -704,10 +704,10 @@ export function existingSystemGuidance(
       return {
         title: "Using Curbfare with your current loyalty program",
         summary:
-          "You can run both, but a single purchase should earn in one place only — otherwise you pay twice for the same visit.",
+          "You can run both, but a single purchase should earn in one place only, otherwise you pay twice for the same visit.",
         steps: [
           "Pick one system per transaction and make sure staff know which.",
-          "Watch for customers asking to earn in both — that is the double-reward risk.",
+          "Watch for customers asking to earn in both. That is the double-reward risk.",
           "If your current program is working well, keeping it is a legitimate choice.",
         ],
       };

@@ -116,7 +116,7 @@ export const RETURN_BANDS: readonly ReturnBand[] = [
     label: "Balanced",
     lowBps: 450,
     highBps: 650,
-    bestFor: "Most independent carts — recognizable without hurting",
+    bestFor: "Most independent carts. Recognizable without hurting",
   },
   {
     stance: "competitive",
@@ -194,12 +194,30 @@ export function benchmarkModelPhrase(returnBps: number): string {
   const pos = benchmarkPosition(returnBps);
   switch (pos.kind) {
     case "model":
-      return `This is the ${pos.chain.company} model — ${pos.chain.structure} (${pct(pos.chain.returnBps)} back).`;
+      return `This is the ${pos.chain.company} model: ${pos.chain.structure} (${pct(pos.chain.returnBps)} back).`;
     case "between":
-      return `Closest to ${pos.nearest.company} (${pct(pos.nearest.returnBps)} back) — between ${pos.lower.company} (${pct(pos.lower.returnBps)}) and ${pos.upper.company} (${pct(pos.upper.returnBps)}).`;
+      return `Closest to ${pos.nearest.company} (${pct(pos.nearest.returnBps)} back), between ${pos.lower.company} (${pct(pos.lower.returnBps)}) and ${pos.upper.company} (${pct(pos.upper.returnBps)}).`;
     case "leaner":
-      return `Leaner than every published chain program — nearest is ${pos.nearest.company} at ${pct(pos.nearest.returnBps)} back.`;
+      return `Leaner than every published chain program; nearest is ${pos.nearest.company} at ${pct(pos.nearest.returnBps)} back.`;
     case "richer":
-      return `Richer than every published chain program — nearest is ${pos.nearest.company} at ${pct(pos.nearest.returnBps)} back.`;
+      return `Richer than every published chain program; nearest is ${pos.nearest.company} at ${pct(pos.nearest.returnBps)} back.`;
+  }
+}
+
+/**
+ * The compact form for tight layouts: names the model without restating its
+ * mechanics. The full phrase stays for places with room to teach.
+ */
+export function benchmarkModelShort(returnBps: number): string {
+  const pos = benchmarkPosition(returnBps);
+  switch (pos.kind) {
+    case "model":
+      return `the ${pos.chain.company} model`;
+    case "between":
+      return `closest to ${pos.nearest.company}`;
+    case "leaner":
+      return "leaner than every chain";
+    case "richer":
+      return "richer than every chain";
   }
 }

@@ -163,7 +163,7 @@ export function rewardEconomics(reward: RewardSpec): RewardEconomics {
     customerValueCents: reward.discountCents,
     vendorCostCents: reward.discountCents,
     costSource: "provided",
-    modelNote: `Money off: ${formatCents(reward.discountCents)} off costs you the full ${formatCents(reward.discountCents)} — there is no cheaper ingredient behind it.`,
+    modelNote: `Money off: ${formatCents(reward.discountCents)} off costs you the full ${formatCents(reward.discountCents)}. There is no cheaper ingredient behind it.`,
   };
 }
 
@@ -438,7 +438,7 @@ export function validatePointsProgram(
       issues.push({
         severity: "warning",
         code: "cost_rate_elevated",
-        message: `“${label}” costs ${formatBps(e.costRateBps)} of the spend to earn it — above the ${formatBps(b.warnCostRateBps)} comfort line.`,
+        message: `“${label}” costs ${formatBps(e.costRateBps)} of the spend to earn it, above the ${formatBps(b.warnCostRateBps)} comfort line.`,
         calculation: calc,
       });
     }
@@ -446,7 +446,7 @@ export function validatePointsProgram(
       issues.push({
         severity: "warning",
         code: "discount_no_leverage",
-        message: `“${label}” is a fixed discount — it costs you its full face value, unlike a free item.`,
+        message: `“${label}” is a fixed discount: it costs you its full face value, unlike a free item.`,
       });
       // For a discount, perceived value and vendor cost are the same number,
       // so the return rate is the whole story. Compared against published
@@ -455,7 +455,7 @@ export function validatePointsProgram(
         issues.push({
           severity: "warning",
           code: "discount_return_high",
-          message: `“${label}” gives back ${formatBps(e.perceivedRateBps)} — more generous than any major chain's cash reward, and it all comes out of your margin.`,
+          message: `“${label}” gives back ${formatBps(e.perceivedRateBps)}, more generous than any major chain's cash reward, and it all comes out of your margin.`,
           calculation: calc,
           remedy: `Most chains sit between ${formatBps(DISCOUNT_LIMITS.suggestLowBps)} and ${formatBps(DISCOUNT_LIMITS.suggestHighBps)}. Raise its points cost to bring it into that range.`,
         });
@@ -471,7 +471,7 @@ export function validatePointsProgram(
       issues.push({
         severity: "warning",
         code: "free_item_cost_high",
-        message: `“${label}” costs you ${formatBps(e.costRateBps)} — high for a menu item, where ${formatBps(FREE_ITEM_LIMITS.costLowBps)}–${formatBps(FREE_ITEM_LIMITS.costHighBps)} is typical. A cheaper item would feel just as generous.`,
+        message: `“${label}” costs you ${formatBps(e.costRateBps)}, high for a menu item, where ${formatBps(FREE_ITEM_LIMITS.costLowBps)}–${formatBps(FREE_ITEM_LIMITS.costHighBps)} is typical. A cheaper item would feel just as generous.`,
         calculation: calc,
       });
     }

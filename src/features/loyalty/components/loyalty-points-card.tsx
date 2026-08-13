@@ -117,7 +117,7 @@ export function LoyaltyPointsCard({ card }: { card: PointsCardData }) {
         <CardTitle className="text-lg">{card.organizationName}</CardTitle>
         <CardDescription>
           {next
-            ? `${formatPoints(pointsToNext)} until ${rewardLabel(next)} — about ${formatCents(spendToNextCents)} more.`
+            ? `${formatPoints(pointsToNext)} until ${rewardLabel(next)} · about ${formatCents(spendToNextCents)} more.`
             : affordable.length > 0
               ? "You have enough points to redeem a reward."
               : "Earn points on every visit."}

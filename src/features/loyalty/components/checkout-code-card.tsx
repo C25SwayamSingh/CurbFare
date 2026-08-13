@@ -127,7 +127,7 @@ export function CheckoutCodeCard({ vendor }: { vendor: CheckoutVendor }) {
         {toNext !== null && toNext > 0 ? (
           <p className="mt-1 text-sm text-muted-foreground">
             {formatPoints(toNext)} until {vendor.nextRewardLabel}
-            {spendToNext ? ` — about ${formatCents(spendToNext)} more` : ""}
+            {spendToNext ? ` · about ${formatCents(spendToNext)} more` : ""}
           </p>
         ) : (
           <p className="mt-1 text-sm text-muted-foreground">

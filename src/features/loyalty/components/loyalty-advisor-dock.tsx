@@ -57,7 +57,7 @@ function ProposalCard({
     try {
       const result = await applyAdvisorProposalAction(proposal.proposal);
       if (result.status === "success") {
-        setDone(result.message ?? "Applied — your program is updated.");
+        setDone(result.message ?? "Applied. Your program is updated.");
         onApplied();
       } else {
         setError(result.message ?? "That didn't go through. Try again.");

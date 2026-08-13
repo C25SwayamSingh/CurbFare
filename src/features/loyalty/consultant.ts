@@ -232,7 +232,7 @@ export async function runLoyaltyAdvisorSession(
     if (response.stop_reason === "refusal") {
       return {
         ok: true,
-        text: "I can't help with that one. For anything else about your program, ask away — or use the editor below to change it yourself.",
+        text: "I can't help with that one. For anything else about your program, ask away, or use the editor below to change it yourself.",
         proposal: null,
       };
     }

@@ -36,6 +36,7 @@ import {
   DEFAULT_STANCE,
   bandFor,
   benchmarkModelPhrase,
+  benchmarkModelShort,
 } from "@/features/loyalty/benchmarks";
 import {
   VISIT_CADENCE_LABEL,
@@ -428,7 +429,7 @@ export function LoyaltyConsultation({
             Tell the advisor about your cart
           </CardTitle>
           <CardDescription>
-            Anything you don&apos;t know, say so — the advisor uses a clearly
+            Anything you don&apos;t know, say so. The advisor uses a clearly
             labeled estimate rather than pretending.
           </CardDescription>
         </CardHeader>
@@ -437,7 +438,7 @@ export function LoyaltyConsultation({
             <FormQuestion
               n={1}
               title="What can customers get?"
-              hint="One to four rewards. We price each one in points from its value and your cost — you never pick the point numbers."
+              hint="One to four rewards. We price each one in points from its value and your cost. You never pick the point numbers."
             >
               <fieldset className="space-y-4">
                 <legend className="sr-only">
@@ -546,7 +547,7 @@ export function LoyaltyConsultation({
                       <MoneyField
                         id={`cost-${r.key}`}
                         label="What it costs you to make"
-                        hint="Ingredients and cup — not the menu price."
+                        hint="Ingredients and cup, not the menu price."
                         mode={r.costMode}
                         onModeChange={(m) => setReward(r.key, { costMode: m })}
                         value={r.cost}
@@ -556,7 +557,7 @@ export function LoyaltyConsultation({
                       />
                     ) : (
                       <p className="text-xs text-muted-foreground">
-                        A discount costs you its full face value — there&apos;s
+                        A discount costs you its full face value. There&apos;s
                         no cost field because the amount off <em>is</em> the
                         cost.
                       </p>
@@ -891,7 +892,7 @@ function AdvisorIntro({ aiEnabled }: { aiEnabled: boolean }) {
         */}
         <ol className="list-decimal space-y-1.5 pl-5 text-muted-foreground marker:font-medium marker:text-foreground">
           <li>
-            You name the rewards you&apos;d hand over — a drink, a taco, money
+            You name the rewards you&apos;d hand over: a drink, a taco, money
             off.
           </li>
           <li>
@@ -934,13 +935,10 @@ function AdvisorIntro({ aiEnabled }: { aiEnabled: boolean }) {
 }
 
 /**
- * Three separately-labelled boxes, deliberately not merged.
- *
- * An owner comparing their cart to McDonald's needs to know which number is
- * whose. Blending "what a chain does", "what Curbfare suggests", and "what
- * yours actually costs" into one figure is how a vendor ends up believing a
- * benchmark is a target, or that a suggestion is a measurement of their own
- * business.
+ * One compact strip, three attributed rows. The old three-box grid repeated
+ * the same percentages five times; a vendor only needs whose number is whose:
+ * the chains' range, Curbfare's suggestion, and this program's rate. The
+ * chain-by-chain list lives in the card's fine print.
  */
 function ReturnComparison({
   economics,
@@ -949,62 +947,34 @@ function ReturnComparison({
 }) {
   const entry = economics.entry;
   const band = bandFor(DEFAULT_STANCE);
-  const isDiscount = entry.reward.kind === "FIXED_DISCOUNT";
+  const chainLow = Math.min(...CHAIN_BENCHMARKS.map((b) => b.returnBps));
+  const chainHigh = Math.max(...CHAIN_BENCHMARKS.map((b) => b.returnBps));
 
   return (
-    <div className="grid gap-3 sm:grid-cols-3">
-      <div className="rounded-lg border border-border p-3">
-        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          What chains do
-        </p>
-        <ul className="mt-1.5 space-y-1 text-xs">
-          {CHAIN_BENCHMARKS.map((b) => (
-            <li key={b.company} className="flex justify-between gap-2">
-              <span className="text-muted-foreground">{b.company}</span>
-              <span className="font-medium tabular-nums">
-                {formatBps(b.returnBps)}
-              </span>
-            </li>
-          ))}
-        </ul>
-        <p className="mt-2 text-[11px] leading-snug text-muted-foreground">
-          Their published programs, checked {CHAIN_BENCHMARKS[0].reviewed}. They
-          can change them anytime.
-        </p>
+    <dl className="space-y-1.5 rounded-lg border border-border p-3 text-sm">
+      <div className="flex items-baseline justify-between gap-2">
+        <dt className="text-muted-foreground">Chains give back</dt>
+        <dd className="font-medium tabular-nums">
+          {formatBps(chainLow)} to {formatBps(chainHigh)}
+        </dd>
       </div>
-
-      <div className="rounded-lg border border-secondary/50 bg-accent/30 p-3">
-        <p className="text-xs font-medium uppercase tracking-wide text-brand">
-          What Curbfare suggests
-        </p>
-        <p className="mt-1.5 text-lg font-semibold tabular-nums">
-          {formatBps(band.lowBps)}–{formatBps(band.highBps)}
-        </p>
-        <p className="text-[11px] leading-snug text-muted-foreground">
-          {band.label} — {band.bestFor}. A starting point, not a promise.
-        </p>
+      <div className="flex items-baseline justify-between gap-2">
+        <dt className="text-muted-foreground">Curbfare suggests</dt>
+        <dd className="font-medium tabular-nums">
+          {formatBps(band.lowBps)} to {formatBps(band.highBps)}
+        </dd>
       </div>
-
-      <div className="rounded-lg border border-border p-3">
-        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          What yours does
-        </p>
-        <p className="mt-1.5 text-lg font-semibold tabular-nums">
+      <div className="flex items-baseline justify-between gap-2">
+        <dt className="font-medium">This program</dt>
+        <dd className="text-base font-semibold tabular-nums text-brand">
           {formatBps(entry.perceivedRateBps)}
-        </p>
-        <p className="text-[11px] leading-snug text-muted-foreground">
-          {benchmarkModelPhrase(entry.perceivedRateBps)}{" "}
-          {isDiscount ? (
-            <>Costs you the same {formatBps(entry.costRateBps)}.</>
-          ) : (
-            <>
-              Costs you {formatBps(entry.costRateBps)}
-              {entry.reward.costSource === "estimated" ? " (estimated)" : ""}.
-            </>
-          )}
-        </p>
+        </dd>
       </div>
-    </div>
+      <p className="pt-1 text-xs text-muted-foreground">
+        That&apos;s {benchmarkModelShort(entry.perceivedRateBps)}. A starting
+        point, not a promise.
+      </p>
+    </dl>
   );
 }
 
@@ -1090,7 +1060,7 @@ function ModeSelect({
   return (
     <Select
       id={`${id}-mode`}
-      aria-label={`${label} — how would you like to answer?`}
+      aria-label={`${label}: how would you like to answer?`}
       // py-0 alongside h-8: the base style pairs h-10 with py-2, and shrinking
       // only the height left a 14px content box for a 16px line, which clipped
       // the label. A native select centres its own text, so drop the padding.
@@ -1215,7 +1185,7 @@ function InputSummary({
       <CardHeader>
         <CardTitle className="text-base">Your numbers</CardTitle>
         <CardDescription>
-          Everything below comes from what you typed — nothing invented.
+          Everything below comes from what you typed. Nothing invented.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -1367,22 +1337,17 @@ function RecommendationCard({
           </ul>
         </div>
 
-        <dl className="grid grid-cols-2 gap-3 rounded-lg bg-muted/60 p-4 text-sm sm:grid-cols-4">
+        {/* Three numbers answer the vendor's three questions: what does my
+            customer get, when do they get it, what does it cost me. Every
+            other figure lives in the fine print below. */}
+        <dl className="grid grid-cols-3 gap-3 rounded-lg bg-muted/60 p-4 text-sm">
           <Stat
-            label="Spend to first reward"
-            value={formatCents(e.entry.spendToEarnCents)}
-          />
-          <Stat
-            label="Customer value"
+            label="Customers get back"
             value={formatBps(e.entry.perceivedRateBps)}
           />
           <Stat
-            label={
-              e.entry.reward.costSource === "estimated"
-                ? "Est. your cost"
-                : "Your cost"
-            }
-            value={formatBps(e.entry.costRateBps)}
+            label="First reward at"
+            value={formatCents(e.entry.spendToEarnCents)}
           />
           <Stat
             label="Est. monthly cost"
@@ -1392,12 +1357,13 @@ function RecommendationCard({
 
         <ReturnComparison economics={e} />
 
-        {rec.why.length > 0 ? (
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Why this fits
-            </p>
-            <ul className="mt-1 space-y-1 text-sm">
+        <details className="text-sm">
+          <summary className="cursor-pointer text-muted-foreground">
+            Why this fits, what to watch, and the fine print
+          </summary>
+
+          {rec.why.length > 0 ? (
+            <ul className="mt-3 space-y-1">
               {rec.why.map((line, i) => (
                 <li key={i} className="flex gap-2">
                   <CheckCircle2
@@ -1408,15 +1374,10 @@ function RecommendationCard({
                 </li>
               ))}
             </ul>
-          </div>
-        ) : null}
+          ) : null}
 
-        {rec.warnings.length > 0 ? (
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Watch for
-            </p>
-            <ul className="mt-1 space-y-1 text-sm">
+          {rec.warnings.length > 0 ? (
+            <ul className="mt-3 space-y-1">
               {rec.warnings.map((w, i) => (
                 <li key={`${w.code}-${i}`} className="flex gap-2">
                   <TriangleAlert
@@ -1426,7 +1387,7 @@ function RecommendationCard({
                   <span>
                     {w.message}
                     {w.calculation ? (
-                      <span className="mt-0.5 block font-mono text-xs text-muted-foreground">
+                      <span className="mt-0.5 block text-xs text-muted-foreground">
                         {w.calculation}
                       </span>
                     ) : null}
@@ -1434,24 +1395,47 @@ function RecommendationCard({
                 </li>
               ))}
             </ul>
-          </div>
-        ) : null}
+          ) : null}
 
-        <details className="text-sm">
-          <summary className="cursor-pointer text-muted-foreground">
-            Assumptions, scoring, refunds &amp; pause
-          </summary>
-          <ul className="mt-2 space-y-1 text-muted-foreground">
+          <div className="mt-3">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              What the chains do
+            </p>
+            <ul className="mt-1 space-y-0.5 text-xs text-muted-foreground">
+              {CHAIN_BENCHMARKS.map((b) => (
+                <li key={b.company} className="flex justify-between gap-2">
+                  <span>{b.company}</span>
+                  <span className="font-medium tabular-nums">
+                    {formatBps(b.returnBps)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Their published programs, checked {CHAIN_BENCHMARKS[0].reviewed}.
+              They can change them anytime.
+            </p>
+          </div>
+
+          <ul className="mt-3 space-y-1 text-muted-foreground">
+            <li>
+              • This program costs you {formatBps(e.entry.costRateBps)}
+              {e.entry.reward.costSource === "estimated"
+                ? " (estimated)"
+                : ""}{" "}
+              of eligible spend.
+            </li>
             {rec.assumptions.map((line, i) => (
               <li key={i}>• {line}</li>
             ))}
             <li>• {rec.refundNote}</li>
             <li>• {rec.pauseNote}</li>
           </ul>
-          <p className="mt-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+
+          <p className="mt-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
             How this scored {rec.fitScore}
           </p>
-          <ul className="mt-1 space-y-0.5 font-mono text-xs text-muted-foreground">
+          <ul className="mt-1 space-y-0.5 text-xs text-muted-foreground">
             {rec.scoreBreakdown.map((line, i) => (
               <li key={i}>{line}</li>
             ))}
