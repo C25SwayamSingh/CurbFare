@@ -195,7 +195,7 @@ select is(
 select matches(
   (select reason_label from public.nearby_vendor_locations(40.70, -74.00, 5)
     where vendor_unit_id = '40000000-0000-0000-0000-000000000001'),
-  '^Live — confirmed',
+  '^Live · confirmed',
   'The live result explains itself with how recently it was confirmed'
 );
 
@@ -331,8 +331,8 @@ select is(
   (select reason_label from public.nearby_vendor_locations(40.70, -74.00, 5,
      true, true, true, true)
     where state = 'HOTSPOT' and public_label = 'Permitted vending zone'),
-  'Food-vendor hotspot — vendor not confirmed',
-  'A hotspot says in words that no vendor is confirmed there'
+  'Curbfare pick · street food often sets up here',
+  'A hotspot reads as a curated place and never claims a vendor'
 );
 
 select is(

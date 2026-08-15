@@ -316,10 +316,10 @@ export function LandingPage({
               <li className="flex flex-col items-start justify-center gap-0.5 rounded-2xl border border-dashed border-border bg-background px-4 py-2.5">
                 <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
                   <MapPin className="size-4" aria-hidden="true" />
-                  Hotspot
+                  Curbfare pick
                 </span>
                 <span className="text-sm text-muted-foreground">
-                  No vendor confirmed
+                  Corners we scouted
                 </span>
               </li>
             </ul>

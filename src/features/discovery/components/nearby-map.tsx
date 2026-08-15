@@ -8,6 +8,7 @@ import {
   STATE_STYLES,
   displayTitle,
   markerAccessibleName,
+  markerFillFor,
   walkingDirectionsUrl,
 } from "@/features/discovery/location-state";
 import { formatDistance } from "@/features/discovery/components/nearby-location-card";
@@ -62,12 +63,15 @@ function markerIcon(
     };
   }
   if (style.markerShape === "hollow") {
+    // Cuisine-tinted: the hue says what the corner is known for while the
+    // hollow shape keeps saying "a place, not a vendor".
+    const fill = markerFillFor(result);
     return {
       path: maps.SymbolPath.CIRCLE,
       scale: 9 * base,
-      fillColor: style.markerFill,
+      fillColor: fill,
       fillOpacity: 0.25,
-      strokeColor: style.markerFill,
+      strokeColor: fill,
       strokeWeight: 2.5,
     };
   }

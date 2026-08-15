@@ -75,6 +75,8 @@ export type NearbyVendorLocation = {
   starts_at: string | null;
   ends_at: string | null;
   distance_miles: number;
+  /** What a hotspot corner is known for (halal, mexican); null for vendors. */
+  cuisine_hint: string | null;
 };
 export type MembershipStatus = "invited" | "active" | "revoked";
 export type VendorUnitType =
@@ -435,6 +437,7 @@ export type Database = {
           valid_from: string | null;
           valid_until: string | null;
           last_imported_at: string | null;
+          cuisine_hint: string | null;
           verification: LocationVerification;
           review_notes: string | null;
           reviewed_by: string | null;

@@ -114,8 +114,8 @@ export const STATE_STYLES: Record<LocationState, StateStyle> = {
     isVendor: true,
   },
   HOTSPOT: {
-    badge: "Hotspot",
-    badgeClass: "bg-muted text-muted-foreground",
+    badge: "Curbfare pick",
+    badgeClass: "bg-secondary/15 text-brand",
     markerFill: "#8A8A85",
     markerStroke: "#FAF5EC",
     // Hollow: reads as "a place", not "someone is here".
@@ -123,6 +123,24 @@ export const STATE_STYLES: Record<LocationState, StateStyle> = {
     isVendor: false,
   },
 };
+
+/**
+ * Cuisine tints for hotspot pins. The hollow shape still says "place, not
+ * vendor"; the hue says what the corner is known for. Orange is deliberately
+ * absent: orange is the live-vendor signal and nothing may dilute it.
+ */
+export const CUISINE_TINTS: Record<string, { fill: string; label: string }> = {
+  halal: { fill: "#3E6B4F", label: "Halal picks" },
+  mexican: { fill: "#D9A404", label: "Taco & Mexican picks" },
+};
+
+/** Marker fill for a result: vendors by state, hotspots by cuisine hint. */
+export function markerFillFor(result: NearbyVendorLocation): string {
+  const style = STATE_STYLES[result.state];
+  if (result.state !== "HOTSPOT") return style.markerFill;
+  const hint = result.cuisine_hint?.toLowerCase() ?? "";
+  return CUISINE_TINTS[hint]?.fill ?? style.markerFill;
+}
 
 /**
  * The accessible name a screen reader hears for a marker.
@@ -156,7 +174,7 @@ export function hasNoConfirmedVendors(
 }
 
 export const HOTSPOT_EXPLANATION =
-  "Mobile food vendors commonly operate here, but none are confirmed right now.";
+  "No Curbfare vendors are out in this area right now. These are Curbfare picks: corners we scouted where street food loves to set up.";
 
 /**
  * Server ordering is already correct (rank, then distance). This re-sorts

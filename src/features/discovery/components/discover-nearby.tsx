@@ -1,7 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { List, LocateFixed, Map as MapIcon, RefreshCw } from "lucide-react";
+import {
+  BadgeCheck,
+  List,
+  LocateFixed,
+  Map as MapIcon,
+  RefreshCw,
+} from "lucide-react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -402,6 +408,25 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
                 {f.label}
               </button>
             ))}
+          </div>
+
+          {/* The one-line legend: what a checkmark means, what a pick is.
+              Colors are decorative here; the words carry the meaning. */}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1">
+              <BadgeCheck
+                className="size-3.5 text-success"
+                aria-hidden="true"
+              />
+              Confirmed Curbfare vendors, points and all
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <span
+                aria-hidden="true"
+                className="size-2.5 rounded-full border-2 border-muted-foreground/70"
+              />
+              Curbfare picks: corners we scouted for street food
+            </span>
           </div>
 
           <div

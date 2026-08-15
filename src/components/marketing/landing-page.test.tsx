@@ -94,8 +94,8 @@ describe("LandingPage", () => {
     expect(screen.getByText("Live now")).toBeInTheDocument();
     expect(screen.getByText("Scheduled")).toBeInTheDocument();
     expect(screen.getByText("Usually here")).toBeInTheDocument();
-    expect(screen.getByText("Hotspot")).toBeInTheDocument();
+    expect(screen.getByText("Curbfare pick")).toBeInTheDocument();
     // A hotspot must never read as a confirmed vendor — even in marketing.
-    expect(screen.getByText(/No vendor confirmed/i)).toBeInTheDocument();
+    expect(screen.getByText(/Corners we scouted/i)).toBeInTheDocument();
   });
 });

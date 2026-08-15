@@ -39,11 +39,11 @@ function makeResult(
     longitude: -97.74,
     public_label: vendorish ? "Corner of 5th & Main" : "Permitted vending zone",
     reason_label: {
-      LIVE: "Live — confirmed 4 minutes ago",
+      LIVE: "Live · confirmed 4 minutes ago",
       SCHEDULED_NOW: "Scheduled now, until 2:00 PM",
       RECURRING_NOW: "Usually here weekdays, 11 AM–3 PM",
       SCHEDULED_UPCOMING: "Scheduled tomorrow, 5:00 PM–9:00 PM",
-      HOTSPOT: "Food-vendor hotspot — vendor not confirmed",
+      HOTSPOT: "Curbfare pick · street food often sets up here",
     }[state],
     source_type: vendorish ? "VENDOR_LIVE" : "MUNICIPAL_OPEN_DATA",
     verification: "CONFIRMED",
@@ -51,6 +51,7 @@ function makeResult(
     starts_at: null,
     ends_at: null,
     distance_miles: 0.4,
+    cuisine_hint: null,
     ...overrides,
   };
 }
@@ -201,7 +202,7 @@ describe("hotspots are never vendors", () => {
       name: /permitted vending zone/i,
     });
     const scope = within(card);
-    expect(scope.getByText("Hotspot")).toBeDefined();
+    expect(scope.getByText("Curbfare pick")).toBeDefined();
     // No invented business name, no "View page" link.
     expect(scope.queryByText("Maria's Taco Cart")).toBeNull();
     expect(scope.queryByText(/view page/i)).toBeNull();
@@ -214,7 +215,7 @@ describe("hotspots are never vendors", () => {
     render(<DiscoverNearby mapsApiKey="browser-key" />);
     await search();
     expect(
-      await screen.findByText(/none are confirmed right now/i),
+      await screen.findByText(/No Curbfare vendors are out in this area/i),
     ).toBeDefined();
     expect(screen.getByText("Permitted vending zone")).toBeDefined();
   });

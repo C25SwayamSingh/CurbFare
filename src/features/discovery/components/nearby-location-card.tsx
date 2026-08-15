@@ -1,7 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { ExternalLink, Footprints, MapPin, MapPinned } from "lucide-react";
+import {
+  BadgeCheck,
+  ExternalLink,
+  Footprints,
+  MapPin,
+  MapPinned,
+} from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import type { NearbyVendorLocation } from "@/lib/supabase/database.types";
@@ -203,6 +209,14 @@ export function NearbyLocationCard({
             <p className="text-base font-semibold tracking-tight">
               {result.name ?? result.public_label}
             </p>
+            {/* The checkmark is the product's differentiator: this is a real
+                business on Curbfare, points and all — not just a map guess. */}
+            {style.isVendor ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-success/15 px-2 py-0.5 text-xs font-semibold text-success">
+                <BadgeCheck className="size-3.5" aria-hidden="true" />
+                On Curbfare
+              </span>
+            ) : null}
             <span
               className={cn(
                 "rounded-full px-2 py-0.5 text-xs font-medium",

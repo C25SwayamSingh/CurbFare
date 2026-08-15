@@ -47,11 +47,11 @@ function result(
     longitude: -74,
     public_label: vendorish ? "Corner pitch" : "Permitted vending zone",
     reason_label: {
-      LIVE: "Live — confirmed 4 minutes ago",
+      LIVE: "Live · confirmed 4 minutes ago",
       SCHEDULED_NOW: "Scheduled now, until 2:00 PM",
       RECURRING_NOW: "Usually here weekdays, 11 AM–3 PM",
       SCHEDULED_UPCOMING: "Scheduled tomorrow, 5:00 PM–9:00 PM",
-      HOTSPOT: "Food-vendor hotspot — vendor not confirmed",
+      HOTSPOT: "Curbfare pick · street food often sets up here",
     }[state],
     source_type: "VENDOR_LIVE",
     verification: "CONFIRMED",
@@ -59,6 +59,7 @@ function result(
     starts_at: null,
     ends_at: null,
     distance_miles: 0.4,
+    cuisine_hint: null,
     ...overrides,
   };
 }
@@ -92,9 +93,12 @@ describe("a hotspot is never a vendor", () => {
     expect(text).not.toMatch(/\blive\b/i);
   });
 
-  it("says plainly that nobody is confirmed", () => {
-    expect(HOTSPOT_EXPLANATION).toMatch(/none are confirmed/i);
-    expect(result("HOTSPOT").reason_label).toMatch(/not confirmed/i);
+  it("stays honest while selling the curation", () => {
+    // The fallback line must say plainly that no vendors are out, and the
+    // hotspot label must never borrow vendor language.
+    expect(HOTSPOT_EXPLANATION).toMatch(/no curbfare vendors are out/i);
+    expect(result("HOTSPOT").reason_label).toMatch(/curbfare pick/i);
+    expect(result("HOTSPOT").reason_label).not.toMatch(/\bopen\b|\blive\b/i);
   });
 
   it("is excluded from the default view", () => {
