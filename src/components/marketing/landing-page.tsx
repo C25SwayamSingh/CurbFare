@@ -113,8 +113,8 @@ export function LandingPage({
         <section className="px-4 pt-4 sm:px-6 sm:pt-6">
           <div
             className={cn(
-              "relative mx-auto w-full max-w-6xl overflow-hidden rounded-3xl bg-secondary px-6 pt-12 text-secondary-foreground sm:px-12 sm:pt-16",
-              SHOW_CUISINE_TABS ? "pb-24 sm:pb-28" : "pb-12 sm:pb-16",
+              "relative mx-auto w-full max-w-6xl overflow-hidden rounded-3xl bg-secondary px-6 pt-8 text-secondary-foreground sm:px-12 sm:pt-14",
+              SHOW_CUISINE_TABS ? "pb-24 sm:pb-28" : "pb-8 sm:pb-14",
             )}
           >
             {/* Block-style geometry: visible whenever the video isn't. */}
@@ -142,17 +142,17 @@ export function LandingPage({
               <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary">
                 Food carts, trucks &amp; stands
               </p>
-              <h1 className="font-display text-4xl font-bold leading-tight tracking-tight sm:text-5xl md:text-6xl">
+              <h1 className="font-display text-3xl font-bold leading-[1.15] tracking-tight sm:text-5xl md:text-6xl">
                 The best food isn&apos;t in a building.{" "}
                 <span className="underline decoration-primary decoration-4 underline-offset-8">
                   It&apos;s parked nearby.
                 </span>
               </h1>
-              <p className="mt-5 max-w-xl text-base text-secondary-foreground/85 sm:text-lg">
+              <p className="mt-3 max-w-xl text-base text-secondary-foreground/85 sm:text-lg">
                 Find it while it&apos;s still sizzling.
               </p>
 
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-5 flex flex-col gap-3 sm:mt-7 sm:flex-row">
                 {/* Signed in, the habit loop leads: their points, one tap,
                     in the loud color. Discovery drops to the quiet slot. */}
                 {viewer ? (
