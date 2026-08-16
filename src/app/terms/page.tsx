@@ -20,7 +20,7 @@ export default function TermsOfServicePage() {
         Terms of service
       </h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Last updated: August 13, 2026
+        Last updated: August 16, 2026
       </p>
 
       <div className="mt-8 space-y-8 text-sm leading-relaxed [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:tracking-tight [&_ul]:mt-2 [&_ul]:list-disc [&_ul]:space-y-1 [&_ul]:pl-5">
@@ -76,7 +76,16 @@ export default function TermsOfServicePage() {
               confirms a purchase. We may correct entries that result from fraud
               or error; corrections are audited.
             </li>
-            <li>If a business closes, its points program ends with it.</li>
+            <li>
+              If a vendor ends their rewards program while staying in business,
+              customers keep at least 30 days to redeem points they have already
+              earned. If a business closes, its points program ends with it.
+            </li>
+            <li>
+              Points are promotional benefits, not money or property. They are
+              not bought, and no refund is owed for them if a program or the
+              service ends.
+            </li>
           </ul>
         </section>
 
@@ -110,6 +119,11 @@ export default function TermsOfServicePage() {
               allows, we are not liable for indirect damages, and our total
               liability is limited to the greater of $100 or what you paid us in
               the past twelve months.
+            </li>
+            <li>
+              We may change or discontinue features, or the service itself. If
+              Curbfare ever shuts down entirely, we will give reasonable advance
+              notice so open rewards can be used.
             </li>
           </ul>
         </section>

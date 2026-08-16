@@ -74,11 +74,47 @@ export default async function VendorUnitQrPage({
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Print this on your cart</CardTitle>
+            <CardTitle className="text-lg">Three steps, then done</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <ol className="space-y-2 text-sm">
+              <li className="flex gap-2">
+                <span className="font-bold text-brand">1.</span>
+                <span>
+                  <strong>Print the placard.</strong> Or save it as a PDF from
+                  the print screen and text or email it to whoever has a
+                  printer.
+                </span>
+              </li>
+              <li className="flex gap-2">
+                <span className="font-bold text-brand">2.</span>
+                <span>
+                  <strong>Tape it where customers order</strong>, at eye level:
+                  the counter, the window, the menu board.
+                </span>
+              </li>
+              <li className="flex gap-2">
+                <span className="font-bold text-brand">3.</span>
+                <span>
+                  <strong>That&apos;s it.</strong> Customers scan to join and
+                  earn. Staff confirm purchases in Checkout.
+                </span>
+              </li>
+            </ol>
+            <Button asChild size="lg" className="w-full sm:w-auto">
+              <Link href={`/vendor/unit/${unit.id}/qr/print`}>
+                Open the printable placard
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">The code itself</CardTitle>
             <CardDescription>
-              Put it on the counter, the menu, a sign, or your packaging.
-              Customers scan it to join your rewards and to pull up their
-              checkout code.
+              Same code as the placard, as a plain image for stickers, menus, or
+              packaging.
             </CardDescription>
           </CardHeader>
           <CardContent>
