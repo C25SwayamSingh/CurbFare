@@ -178,12 +178,27 @@ export function LandingPage({
                     </Button>
                   </>
                 ) : (
-                  <Button asChild size="lg" className="w-full sm:w-auto">
-                    <Link href="/discover">
-                      <MapPin aria-hidden="true" />
-                      Explore the map
-                    </Link>
-                  </Button>
+                  <>
+                    <Button asChild size="lg" className="w-full sm:w-auto">
+                      <Link href="/discover">
+                        <MapPin aria-hidden="true" />
+                        Explore the map
+                      </Link>
+                    </Button>
+                    {/* The signed-out mirror of "My Rewards": says up front
+                        that this is a rewards app you join, not just a map. */}
+                    <Button
+                      asChild
+                      size="lg"
+                      variant="outline"
+                      className="w-full border-secondary-foreground/30 bg-transparent text-secondary-foreground hover:border-primary hover:bg-transparent hover:text-primary sm:w-auto"
+                    >
+                      <Link href="/sign-up">
+                        <QrCode aria-hidden="true" />
+                        Start earning points
+                      </Link>
+                    </Button>
+                  </>
                 )}
               </div>
             </div>
