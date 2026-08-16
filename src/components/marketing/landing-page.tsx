@@ -230,7 +230,7 @@ export function LandingPage({
               For customers
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Find a cart, walk up, earn points. One account.
+              Search your block, walk up, earn points. One account.
             </p>
             <div className="mt-4">
               <Button asChild size="lg">
@@ -240,36 +240,6 @@ export function LandingPage({
                 </Link>
               </Button>
             </div>
-
-            {/* Two steps, not a tutorial: find a cart, earn if it offers. */}
-            <ol className="mt-4 grid grid-cols-2 gap-3 sm:gap-4">
-              <li className="flex items-start gap-2.5 sm:gap-3">
-                <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand/10 font-display text-base font-bold text-brand">
-                  1
-                </span>
-                <div>
-                  <p className="text-base font-semibold leading-snug">
-                    Search your block
-                  </p>
-                  <p className="mt-0.5 text-sm text-muted-foreground">
-                    Or your favorite spot.
-                  </p>
-                </div>
-              </li>
-              <li className="flex items-start gap-2.5 sm:gap-3">
-                <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand/10 font-display text-base font-bold text-brand">
-                  2
-                </span>
-                <div>
-                  <p className="text-base font-semibold leading-snug">
-                    Walk up and earn
-                  </p>
-                  <p className="mt-0.5 text-sm text-muted-foreground">
-                    Points, if the cart offers them.
-                  </p>
-                </div>
-              </li>
-            </ol>
 
             <div className="my-4 border-t border-border/60" />
 
