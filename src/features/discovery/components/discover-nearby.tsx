@@ -315,7 +315,7 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
             htmlFor="area-search"
             className="mb-1 block text-sm text-muted-foreground"
           >
-            Or search a street, neighborhood, or city
+            Or search an area, then filter carts by name or food
           </label>
           <Input
             id="area-search"

@@ -16,9 +16,8 @@ export default function DiscoverPage() {
         Find vendors near you
       </h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        See carts, trucks, and stands that are live right now. Pick a spot, then
-        filter what&apos;s there by name or food. Your location is only used
-        when you ask, only for this search, and never stored.
+        See carts, trucks, and stands that are live right now. Your location is
+        only used when you ask, only for this search, and never stored.
       </p>
       <div className="mt-6">
         <DiscoverNearby
