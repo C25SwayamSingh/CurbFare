@@ -84,8 +84,18 @@ export default function AboutPage() {
 
         <section>
           <p className="font-medium">
-            Built at the curb in New York. Headed to every city that eats
-            outside.
+            Built at the curb in New York by Swayam Singh. Headed to every city
+            that eats outside.
+          </p>
+          <p className="mt-2 text-muted-foreground">
+            Questions? Email{" "}
+            <a
+              href="mailto:swayam@curbfare.app"
+              className="underline underline-offset-2"
+            >
+              swayam@curbfare.app
+            </a>
+            .
           </p>
         </section>
       </div>
