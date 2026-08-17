@@ -270,3 +270,73 @@ describe("map and list selection stay in sync", () => {
     expect(card.getAttribute("aria-pressed")).toBe("true");
   });
 });
+
+describe("name filter", () => {
+  it("narrows the list by name and shows the shown-of-total count", async () => {
+    mockNearby([
+      makeResult("LIVE", { result_id: "a", name: "Maria's Taco Cart" }),
+      makeResult("LIVE", {
+        result_id: "b",
+        name: "Birria-Landia",
+        cuisine_categories: ["mexican"],
+      }),
+    ]);
+    render(<DiscoverNearby mapsApiKey={null} />);
+    await search();
+    await screen.findByText("Maria's Taco Cart");
+
+    await userEvent.type(
+      screen.getByLabelText(/filter results by name or food/i),
+      "birria",
+    );
+
+    expect(screen.getByText("Birria-Landia")).toBeInTheDocument();
+    expect(screen.queryByText("Maria's Taco Cart")).toBeNull();
+    expect(screen.getByText(/showing 1 of 2 nearby/i)).toBeInTheDocument();
+  });
+
+  it("offers a clear path out when nothing matches", async () => {
+    mockNearby([makeResult("LIVE", { name: "Maria's Taco Cart" })]);
+    render(<DiscoverNearby mapsApiKey={null} />);
+    await search();
+    await screen.findByText("Maria's Taco Cart");
+
+    await userEvent.type(
+      screen.getByLabelText(/filter results by name or food/i),
+      "falafel",
+    );
+    expect(
+      screen.getByText(/nothing nearby matches .falafel./i),
+    ).toBeInTheDocument();
+
+    await userEvent.click(
+      screen.getByRole("button", { name: /clear filter/i }),
+    );
+    expect(screen.getByText("Maria's Taco Cart")).toBeInTheDocument();
+  });
+
+  it("matches on cuisine, not just the printed name", async () => {
+    mockNearby([
+      makeResult("LIVE", {
+        result_id: "a",
+        name: "Maria's Taco Cart",
+        cuisine_categories: ["mexican"],
+      }),
+      makeResult("LIVE", {
+        result_id: "b",
+        name: "Green Cart",
+        cuisine_categories: ["vegan_vegetarian"],
+      }),
+    ]);
+    render(<DiscoverNearby mapsApiKey={null} />);
+    await search();
+    await screen.findByText("Green Cart");
+
+    await userEvent.type(
+      screen.getByLabelText(/filter results by name or food/i),
+      "vegan",
+    );
+    expect(screen.getByText("Green Cart")).toBeInTheDocument();
+    expect(screen.queryByText("Maria's Taco Cart")).toBeNull();
+  });
+});

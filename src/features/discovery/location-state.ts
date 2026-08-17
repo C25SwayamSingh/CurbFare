@@ -257,3 +257,31 @@ export function requiredAttribution(
     ? "Includes data © OpenStreetMap contributors (ODbL)"
     : null;
 }
+
+/**
+ * Client-side name/food filter over already-fetched results: vendor name,
+ * street label, and cuisines (vendor categories and hotspot hints), matched
+ * case-insensitively. Cuisine slugs are underscored (vegan_vegetarian), so
+ * underscores read as spaces. Pure so the list and the map can never
+ * disagree about what matches.
+ */
+export function matchesNameQuery(
+  result: NearbyVendorLocation,
+  query: string,
+): boolean {
+  const q = query.trim().toLowerCase();
+  if (!q) {
+    return true;
+  }
+  const haystack = [
+    result.name,
+    result.public_label,
+    result.cuisine_hint,
+    ...(result.cuisine_categories ?? []),
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .replaceAll("_", " ")
+    .toLowerCase();
+  return haystack.includes(q);
+}

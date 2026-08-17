@@ -11,6 +11,7 @@ import {
   requiredAttribution,
   markerAccessibleName,
   matchesFilter,
+  matchesNameQuery,
   queryFlagsFor,
   sortResults,
   walkingDirectionsUrl,
@@ -299,5 +300,38 @@ describe("requiredAttribution", () => {
       source_type: "THIRD_PARTY_DIRECTORY" as const,
     };
     expect(requiredAttribution([osm])).toMatch(/OpenStreetMap contributors/);
+  });
+});
+
+describe("matchesNameQuery", () => {
+  it("matches the vendor name, case-insensitively and on substrings", () => {
+    const cart = result("LIVE", { name: "Birria-Landia" });
+    expect(matchesNameQuery(cart, "birria")).toBe(true);
+    expect(matchesNameQuery(cart, "LANDIA")).toBe(true);
+    expect(matchesNameQuery(cart, "falafel")).toBe(false);
+  });
+
+  it("matches cuisine categories, reading underscores as spaces", () => {
+    const cart = result("LIVE", {
+      name: "Green Cart",
+      cuisine_categories: ["vegan_vegetarian"],
+    });
+    expect(matchesNameQuery(cart, "vegan vegetarian")).toBe(true);
+    expect(matchesNameQuery(cart, "vegan")).toBe(true);
+  });
+
+  it("matches hotspots by street label and cuisine hint", () => {
+    const spot = result("HOTSPOT", {
+      public_label: "Roosevelt Ave & 78th St · Jackson Heights",
+      cuisine_hint: "mexican",
+    });
+    expect(matchesNameQuery(spot, "roosevelt")).toBe(true);
+    expect(matchesNameQuery(spot, "mexican")).toBe(true);
+    expect(matchesNameQuery(spot, "halal")).toBe(false);
+  });
+
+  it("treats blank queries as match-everything", () => {
+    expect(matchesNameQuery(result("LIVE"), "")).toBe(true);
+    expect(matchesNameQuery(result("HOTSPOT"), "   ")).toBe(true);
   });
 });

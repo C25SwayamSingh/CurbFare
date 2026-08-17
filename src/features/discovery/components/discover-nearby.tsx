@@ -22,6 +22,7 @@ import {
 import {
   HOTSPOT_EXPLANATION,
   groupHotspotResults,
+  matchesNameQuery,
   requiredAttribution,
 } from "@/features/discovery/location-state";
 
@@ -274,8 +275,22 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
     setSelectedId((current) => (current === resultId ? null : resultId));
   }, []);
 
+  // Name/food filter: pure narrowing of what the server already returned,
+  // applied to the list and the map alike so they can never disagree.
+  const [nameQuery, setNameQuery] = React.useState("");
+  const nameFilterActive = nameQuery.trim().length > 0;
+  const visible = React.useMemo(
+    () =>
+      results && nameFilterActive
+        ? results.filter((result) => matchesNameQuery(result, nameQuery))
+        : results,
+    [results, nameQuery, nameFilterActive],
+  );
+
   const isEmpty = results !== null && results.length === 0;
-  const mapData = isEmpty ? fallback : (results ?? []);
+  const mapData = isEmpty ? fallback : (visible ?? []);
+  const filteredOutEverything =
+    results !== null && results.length > 0 && visible?.length === 0;
 
   return (
     <div className="space-y-6">
@@ -410,6 +425,29 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
             ))}
           </div>
 
+          {/* Narrow the results by what or who you're craving. Hidden until
+              there is something to filter. */}
+          {results !== null && results.length > 0 ? (
+            <div>
+              <label htmlFor="name-filter" className="sr-only">
+                Filter results by name or food
+              </label>
+              <Input
+                id="name-filter"
+                value={nameQuery}
+                onChange={(event) => setNameQuery(event.target.value)}
+                placeholder="Filter by name or food, e.g. birria"
+                autoComplete="off"
+                className="max-w-sm"
+              />
+              {nameFilterActive && !filteredOutEverything ? (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Showing {visible?.length} of {results.length} nearby
+                </p>
+              ) : null}
+            </div>
+          ) : null}
+
           {/* The one-line legend: what a checkmark means, what a pick is.
               Colors are decorative here; the words carry the meaning. */}
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
@@ -494,9 +532,29 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
                 />
               ) : null}
 
-              {results.length > 0 ? (
+              {filteredOutEverything ? (
+                <div className="rounded-lg border border-border p-6 text-center">
+                  <p className="font-medium">
+                    Nothing nearby matches &ldquo;{nameQuery.trim()}&rdquo;.
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {results.length} {results.length === 1 ? "spot" : "spots"}{" "}
+                    nearby didn&apos;t match. Try another craving, or clear the
+                    filter.
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="mt-3"
+                    onClick={() => setNameQuery("")}
+                  >
+                    Clear filter
+                  </Button>
+                </div>
+              ) : results.length > 0 ? (
                 <GroupedResultList
-                  results={results}
+                  results={visible ?? []}
                   view={view}
                   selectedId={selectedId}
                   onSelect={handleSelect}
