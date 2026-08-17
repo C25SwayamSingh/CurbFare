@@ -85,6 +85,9 @@ export function LandingPage({
             </span>
           </div>
           <div className="flex items-center gap-4 sm:gap-6">
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/vendors">For vendors</Link>
+            </Button>
             {viewer ? (
               viewer.firstName ? (
                 <span className="text-sm text-secondary-foreground/85">
