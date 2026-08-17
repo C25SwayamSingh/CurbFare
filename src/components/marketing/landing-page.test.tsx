@@ -5,15 +5,18 @@ import { LandingPage } from "@/components/marketing/landing-page";
 import { CUISINE_CATEGORIES } from "@/features/vendors/schemas";
 
 describe("LandingPage", () => {
-  it("renders customer and vendor value propositions", () => {
+  it("renders the hero pitch and the vendor section", () => {
     render(<LandingPage />);
 
-    expect(
-      screen.getByRole("heading", { name: /For customers/i }),
-    ).toBeInTheDocument();
+    // The customer pitch lives in the hero itself; the only sectioned
+    // audience block is the vendor one.
+    expect(screen.getByText(/Earn points toward rewards/i)).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: /For vendors/i }),
     ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: /For customers/i }),
+    ).toBeNull();
   });
 
   it("keeps the hero customer-first with one universal map label", () => {
@@ -88,14 +91,12 @@ describe("LandingPage", () => {
     expect(screen.queryByText(/^Hi,/)).toBeNull();
   });
 
-  it("presents the four location states with honest wording", () => {
+  it("leaves pin-state education to the map, not the landing", () => {
     render(<LandingPage />);
 
-    expect(screen.getByText("Live now")).toBeInTheDocument();
-    expect(screen.getByText("Scheduled")).toBeInTheDocument();
-    expect(screen.getByText("Usually here")).toBeInTheDocument();
-    expect(screen.getByText("Curbfare pick")).toBeInTheDocument();
-    // A hotspot must never read as a confirmed vendor — even in marketing.
-    expect(screen.getByText(/Corners we scouted/i)).toBeInTheDocument();
+    // The legend moved to /discover; marketing must not carry a stale copy
+    // that could drift from the real states.
+    expect(screen.queryByText("Live now")).toBeNull();
+    expect(screen.queryByText("Curbfare pick")).toBeNull();
   });
 });

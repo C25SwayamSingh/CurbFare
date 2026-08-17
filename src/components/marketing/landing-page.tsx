@@ -4,7 +4,6 @@ import {
   Beef,
   CakeSlice,
   CalendarClock,
-  Clock,
   Coffee,
   CookingPot,
   Flame,
@@ -249,88 +248,10 @@ export function LandingPage({
           </section>
         ) : null}
 
-        {/* One panel for everything a customer needs: the four pin states
-            as tappable chips, then the three steps as plain rows. One box,
-            not seven — the states stay distinguishable by color + icon. */}
-        <section
-          id="customers"
-          className="mx-auto w-full max-w-6xl px-4 py-5 sm:px-6 sm:py-6"
-        >
-          <div className="rounded-3xl border border-border bg-card p-4 shadow-sm sm:p-6">
-            <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
-              For customers
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Search your block, walk up, earn points. One account.
-            </p>
-            <div className="mt-4">
-              <Button asChild size="lg">
-                <Link href="/discover">
-                  <MapPin aria-hidden="true" />
-                  Explore the map
-                </Link>
-              </Button>
-            </div>
-
-            <div className="my-4 border-t border-border/60" />
-
-            <h3 className="text-lg font-bold tracking-tight">
-              Know before you walk over
-            </h3>
-            {/* Equal-width, non-interactive legend — these teach the four
-                states; the one click in this panel is the button above.
-                Content is left-aligned on purpose: the cells are identical
-                boxes, but centred text of varying length made them read as
-                different sizes. */}
-            <ul className="mt-3 grid grid-cols-2 gap-2 lg:grid-cols-4">
-              {/* Live is the loud chip: the one state that means "go now". */}
-              <li className="flex flex-col items-start justify-center gap-0.5 rounded-2xl border border-border bg-background px-4 py-2.5">
-                <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-primary">
-                  <span
-                    aria-hidden="true"
-                    className="size-2 rounded-full bg-primary motion-safe:animate-pulse"
-                  />
-                  Live now
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  Confirmed minutes ago
-                </span>
-              </li>
-              <li className="flex flex-col items-start justify-center gap-0.5 rounded-2xl border border-border bg-background px-4 py-2.5">
-                <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-live">
-                  <CalendarClock className="size-4" aria-hidden="true" />
-                  Scheduled
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  Tonight&apos;s market
-                </span>
-              </li>
-              <li className="flex flex-col items-start justify-center gap-0.5 rounded-2xl border border-border bg-background px-4 py-2.5">
-                <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-brand">
-                  <Clock className="size-4" aria-hidden="true" />
-                  Usually here
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  Like clockwork
-                </span>
-              </li>
-              <li className="flex flex-col items-start justify-center gap-0.5 rounded-2xl border border-dashed border-border bg-background px-4 py-2.5">
-                <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  <MapPin className="size-4" aria-hidden="true" />
-                  Curbfare pick
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  Corners we scouted
-                </span>
-              </li>
-            </ul>
-          </div>
-        </section>
-
         {/* Vendor block: the "become a seller" section, in brand teal.
             Same card geometry as the customer panel above — same width,
             radius, and padding, so the two read as siblings. */}
-        <section id="vendors" className="px-4 pb-5 sm:px-6 sm:pb-6">
+        <section id="vendors" className="px-4 py-5 sm:px-6 sm:py-6">
           <div className="mx-auto w-full max-w-6xl rounded-3xl bg-secondary p-4 text-secondary-foreground sm:p-6">
             <div className="max-w-2xl">
               <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
