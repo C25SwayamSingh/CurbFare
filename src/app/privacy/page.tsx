@@ -61,7 +61,7 @@ export default function PrivacyPolicyPage() {
             <li>Business details: legal and display name, cart info, city.</li>
             <li>
               License and permit numbers from your application. These are seen
-              only by our human reviewers and are never shown publicly.
+              only during application review and are never shown publicly.
             </li>
             <li>The locations and schedules you choose to publish.</li>
           </ul>

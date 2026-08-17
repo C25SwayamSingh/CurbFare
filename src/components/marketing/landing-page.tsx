@@ -316,6 +316,12 @@ export function LandingPage({
         </p>
         <p className="mt-2 flex justify-center gap-4 text-xs text-secondary-foreground/60">
           <Link
+            href="/about"
+            className="underline-offset-2 hover:text-secondary-foreground hover:underline"
+          >
+            About
+          </Link>
+          <Link
             href="/privacy"
             className="underline-offset-2 hover:text-secondary-foreground hover:underline"
           >
