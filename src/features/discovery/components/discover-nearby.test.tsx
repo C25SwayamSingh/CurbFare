@@ -338,3 +338,41 @@ describe("name filter", () => {
     expect(screen.queryByText("Maria's Taco Cart")).toBeNull();
   });
 });
+
+describe("unified search box", () => {
+  it("suggests matching carts and links straight to their pages", async () => {
+    fetchMock.mockImplementation(async (url: string) => {
+      const s = String(url);
+      if (s.includes("/api/discover/carts")) {
+        return {
+          ok: true,
+          json: async () => ({
+            carts: [
+              {
+                name: "Birria-Landia",
+                href: "/vendors/birria-landia/jackson-heights",
+                place: "Jackson Heights, Queens",
+              },
+            ],
+          }),
+        };
+      }
+      if (s.includes("/api/discover/area")) {
+        return {
+          ok: true,
+          json: async () => ({ configured: true, suggestions: [] }),
+        };
+      }
+      return { ok: true, json: async () => ({ results: [] }) };
+    });
+
+    render(<DiscoverNearby mapsApiKey={null} />);
+    await userEvent.type(screen.getByLabelText(/search an area/i), "birria");
+
+    const link = await screen.findByRole("link", { name: /birria-landia/i });
+    expect(link).toHaveAttribute(
+      "href",
+      "/vendors/birria-landia/jackson-heights",
+    );
+  });
+});

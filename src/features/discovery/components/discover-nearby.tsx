@@ -1,12 +1,14 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import {
   BadgeCheck,
   List,
   LocateFixed,
   Map as MapIcon,
   RefreshCw,
+  Truck,
 } from "lucide-react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -62,6 +64,8 @@ type SearchCenter = {
 
 type AreaSuggestion = { placeId: string; description: string };
 
+type CartSuggestion = { name: string; href: string; place: string };
+
 /**
  * Customer discovery across all four location states.
  *
@@ -116,6 +120,9 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
   const [areaSuggestions, setAreaSuggestions] = React.useState<
     AreaSuggestion[]
   >([]);
+  const [cartSuggestions, setCartSuggestions] = React.useState<
+    CartSuggestion[]
+  >([]);
   const [areaConfigured, setAreaConfigured] = React.useState(true);
   const [areaError, setAreaError] = React.useState<string | null>(null);
   const areaDebounceRef = React.useRef<ReturnType<typeof setTimeout> | null>(
@@ -161,31 +168,45 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
     }
     if (value.trim().length < 2) {
       setAreaSuggestions([]);
+      setCartSuggestions([]);
       return;
     }
     areaDebounceRef.current = setTimeout(async () => {
-      try {
-        const response = await fetch(
-          `/api/discover/area?q=${encodeURIComponent(value)}`,
-        );
-        const data = (await response.json()) as {
-          configured?: boolean;
-          suggestions?: AreaSuggestion[];
-        };
-        if (data.configured === false) {
+      // One box, two sources: places from Google, carts from Curbfare.
+      // Either one failing must not take the other down.
+      const [areaResult, cartResult] = await Promise.allSettled([
+        fetch(`/api/discover/area?q=${encodeURIComponent(value)}`).then(
+          (response) =>
+            response.json() as Promise<{
+              configured?: boolean;
+              suggestions?: AreaSuggestion[];
+            }>,
+        ),
+        fetch(`/api/discover/carts?q=${encodeURIComponent(value)}`).then(
+          (response) =>
+            response.json() as Promise<{ carts?: CartSuggestion[] }>,
+        ),
+      ]);
+
+      if (areaResult.status === "fulfilled") {
+        if (areaResult.value.configured === false) {
           setAreaConfigured(false);
           setAreaSuggestions([]);
-          return;
+        } else {
+          setAreaSuggestions(areaResult.value.suggestions ?? []);
         }
-        setAreaSuggestions(data.suggestions ?? []);
-      } catch {
+      } else {
         setAreaSuggestions([]);
       }
+      setCartSuggestions(
+        cartResult.status === "fulfilled" ? (cartResult.value.carts ?? []) : [],
+      );
     }, 300);
   }
 
   async function selectArea(suggestion: AreaSuggestion) {
     setAreaSuggestions([]);
+    setCartSuggestions([]);
     setAreaQuery(suggestion.description);
     setAreaError(null);
     try {
@@ -315,18 +336,37 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
             htmlFor="area-search"
             className="mb-1 block text-sm text-muted-foreground"
           >
-            Or search an area
+            Or search an area or a cart
           </label>
           <Input
             id="area-search"
             value={areaQuery}
             onChange={(event) => handleAreaQueryChange(event.target.value)}
-            placeholder="e.g. Broadway, Astoria, Jersey City"
+            placeholder="e.g. Astoria, Roosevelt Ave, Birria-Landia"
             autoComplete="off"
             disabled={!areaConfigured}
           />
-          {areaSuggestions.length > 0 ? (
+          {areaSuggestions.length > 0 || cartSuggestions.length > 0 ? (
             <ul className="absolute z-10 mt-1 w-full rounded-md border border-input bg-background shadow-md">
+              {/* Carts first: a name match is almost always what was meant,
+                  and it jumps straight to that cart's page. */}
+              {cartSuggestions.map((cart) => (
+                <li key={cart.href}>
+                  <Link
+                    href={cart.href}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-accent"
+                  >
+                    <Truck
+                      className="size-4 shrink-0 text-brand"
+                      aria-hidden="true"
+                    />
+                    <span className="font-medium">{cart.name}</span>
+                    <span className="ml-auto text-xs text-muted-foreground">
+                      {cart.place}
+                    </span>
+                  </Link>
+                </li>
+              ))}
               {areaSuggestions.map((suggestion) => (
                 <li key={suggestion.placeId}>
                   <button
