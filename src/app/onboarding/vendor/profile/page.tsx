@@ -43,7 +43,7 @@ export default async function VendorProfilePage() {
           <CardHeader>
             <CardTitle>Tell us about yourself</CardTitle>
             <CardDescription>
-              Just the basics — you can change these anytime in your account
+              Just the basics. You can change these anytime in your account
               settings.
             </CardDescription>
           </CardHeader>

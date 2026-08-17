@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useActionState } from "react";
-import { AlertCircle, Store, UtensilsCrossed } from "lucide-react";
+import { AlertCircle, Truck, UtensilsCrossed } from "lucide-react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
@@ -88,7 +88,7 @@ export function OnboardingPathForm({
             className="sr-only"
           />
           <span className="flex items-center justify-between">
-            <Store className="size-6 text-primary" aria-hidden="true" />
+            <Truck className="size-6 text-primary" aria-hidden="true" />
             <span className="rounded-full bg-primary/15 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-live">
               Business owner
             </span>
@@ -103,8 +103,7 @@ export function OnboardingPathForm({
       </fieldset>
 
       <p className="text-sm text-muted-foreground">
-        You can switch between customer and vendor interfaces anytime. Vendor
-        access requires joining or creating an organization.
+        You can switch between the two anytime.
       </p>
 
       <SubmitButton className="w-full sm:w-auto" pendingLabel="Continuing…">

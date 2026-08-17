@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { AppShell } from "@/components/app/app-shell";
 import { OnboardingSteps } from "@/components/app/onboarding-steps";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -35,7 +37,7 @@ export default async function VendorOnboardingPage() {
 
   return (
     <AppShell>
-      <div className="mx-auto max-w-xl">
+      <div className="mx-auto max-w-xl space-y-4">
         <OnboardingSteps steps={VENDOR_ONBOARDING_STEPS} current={2} />
         <Card>
           <CardHeader>
@@ -49,6 +51,11 @@ export default async function VendorOnboardingPage() {
             <CreateOrganizationForm />
           </CardContent>
         </Card>
+        {/* The escape hatch for someone who picked vendor by accident:
+            nothing is created until the form submits, so leaving is free. */}
+        <Button asChild variant="ghost" size="sm">
+          <Link href="/customer">Back to customer home</Link>
+        </Button>
       </div>
     </AppShell>
   );

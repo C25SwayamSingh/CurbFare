@@ -59,10 +59,7 @@ export default async function OnboardingPage({
         <Card>
           <CardHeader>
             <CardTitle>What would you like to do first?</CardTitle>
-            <CardDescription>
-              Pick a starting path — you can switch interfaces anytime after
-              setup.
-            </CardDescription>
+            <CardDescription>Pick a starting path.</CardDescription>
           </CardHeader>
           <CardContent>
             <OnboardingPathForm
