@@ -148,12 +148,24 @@ export function LandingPage({
                   parks at the curb.
                 </span>
               </h1>
-              {/* The rewards half of the product, stated in earn-and-progress
-                  framing (the Starbucks pattern), never "free stuff". */}
-              <p className="mt-5 max-w-xl text-base text-secondary-foreground/85 sm:text-lg">
-                Find carts on the live map. Earn points toward rewards every
-                time you come back.
-              </p>
+              {/* The rewards half of the product as two numbered beats, in
+                  earn-and-progress framing (the Starbucks pattern), never
+                  "free stuff". Same circle treatment the customers panel
+                  used, tinted for the teal hero. */}
+              <div className="mt-5 max-w-xl space-y-2.5">
+                <p className="flex items-center gap-2.5 text-base text-secondary-foreground/85 sm:text-lg">
+                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/15 font-display text-base font-bold text-primary">
+                    1
+                  </span>
+                  Find carts on the live map.
+                </p>
+                <p className="flex items-center gap-2.5 text-base text-secondary-foreground/85 sm:text-lg">
+                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/15 font-display text-base font-bold text-primary">
+                    2
+                  </span>
+                  Earn points toward rewards every time you come back.
+                </p>
+              </div>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 {/* Signed in, the habit loop leads: their points, one tap,
