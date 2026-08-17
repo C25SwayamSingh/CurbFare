@@ -148,8 +148,11 @@ export function LandingPage({
                   parks at the curb.
                 </span>
               </h1>
+              {/* The rewards half of the product, stated in earn-and-progress
+                  framing (the Starbucks pattern), never "free stuff". */}
               <p className="mt-5 max-w-xl text-base text-secondary-foreground/85 sm:text-lg">
-                Find it while it&apos;s still sizzling.
+                Find carts on the live map. Earn points toward rewards every
+                time you come back.
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -179,23 +182,24 @@ export function LandingPage({
                   </>
                 ) : (
                   <>
+                    {/* Signed out, the rewards program leads in the loud
+                        color: this is a rewards app you join, not just a
+                        map. Discovery keeps the quiet slot. */}
                     <Button asChild size="lg" className="w-full sm:w-auto">
-                      <Link href="/discover">
-                        <MapPin aria-hidden="true" />
-                        Explore the map
+                      <Link href="/sign-up">
+                        <QrCode aria-hidden="true" />
+                        Start earning points
                       </Link>
                     </Button>
-                    {/* The signed-out mirror of "My Rewards": says up front
-                        that this is a rewards app you join, not just a map. */}
                     <Button
                       asChild
                       size="lg"
                       variant="outline"
                       className="w-full border-secondary-foreground/30 bg-transparent text-secondary-foreground hover:border-primary hover:bg-transparent hover:text-primary sm:w-auto"
                     >
-                      <Link href="/sign-up">
-                        <QrCode aria-hidden="true" />
-                        Start earning points
+                      <Link href="/discover">
+                        <MapPin aria-hidden="true" />
+                        Explore the map
                       </Link>
                     </Button>
                   </>
