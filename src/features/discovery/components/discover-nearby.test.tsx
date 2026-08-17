@@ -129,9 +129,7 @@ describe("privacy and lazy loading", () => {
     expect(
       await screen.findByText(/location permission was denied/i),
     ).toBeDefined();
-    expect(
-      screen.getByLabelText(/search an area, then filter carts/i),
-    ).toBeDefined();
+    expect(screen.getByLabelText(/search an area/i)).toBeDefined();
   });
 
   it("shows results in list view without loading the Maps script", async () => {
