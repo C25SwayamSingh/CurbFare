@@ -143,9 +143,9 @@ export function LandingPage({
                 Food carts, trucks &amp; stands
               </p>
               <h1 className="font-display text-4xl font-bold leading-tight tracking-tight sm:text-5xl md:text-6xl">
-                The best food is{" "}
+                The best food{" "}
                 <span className="underline decoration-primary decoration-4 underline-offset-8">
-                  around the corner.
+                  parks at the curb.
                 </span>
               </h1>
               <p className="mt-5 max-w-xl text-base text-secondary-foreground/85 sm:text-lg">
