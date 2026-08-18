@@ -78,10 +78,17 @@ export function LandingPage({
     <div className="flex min-h-full flex-col">
       <header className="bg-secondary text-secondary-foreground">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
-          <div className="flex items-center gap-2">
-            <Truck className="size-6 text-primary" aria-hidden="true" />
-            <span className="text-lg font-semibold tracking-tight">
-              {APP_CONFIG.name}
+          <div className="flex items-center gap-2.5">
+            <Link href="/" className="flex items-center gap-2">
+              <Truck className="size-6 text-primary" aria-hidden="true" />
+              <span className="text-lg font-semibold tracking-tight">
+                {APP_CONFIG.name}
+              </span>
+            </Link>
+            {/* The 5-second-test motto: both halves of the product in four
+                words. Hidden on phones where the header is already full. */}
+            <span className="hidden text-sm text-secondary-foreground/75 md:inline">
+              &middot; Find carts. Earn rewards.
             </span>
           </div>
           <div className="flex items-center gap-4 sm:gap-6">
