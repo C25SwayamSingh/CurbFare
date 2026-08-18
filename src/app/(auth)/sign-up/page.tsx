@@ -13,10 +13,20 @@ import { SignUpForm } from "@/features/authentication/components/sign-up-form";
 
 export const metadata: Metadata = { title: "Create account — Curbfare" };
 
-export default async function SignUpPage() {
+export default async function SignUpPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ intent?: string }>;
+}) {
+  // ?intent=vendor (from /vendors or the landing's vendor CTA) routes the
+  // whole flow toward vendor onboarding: signed-in users skip straight
+  // there, and new accounts carry the intent through email confirmation.
+  const { intent } = await searchParams;
+  const vendorIntent = intent === "vendor";
+
   const ctx = await getAuthContext();
   if (ctx) {
-    redirect("/onboarding");
+    redirect(vendorIntent ? "/onboarding/vendor/profile" : "/onboarding");
   }
 
   return (
@@ -24,12 +34,13 @@ export default async function SignUpPage() {
       <CardHeader>
         <CardTitle>Create your account</CardTitle>
         <CardDescription>
-          Find the best street food near you, or bring more customers to your
-          cart.
+          {vendorIntent
+            ? "First a quick account, then we set up your business. Ten minutes total."
+            : "Find the best street food near you, or bring more customers to your cart."}
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <SignUpForm />
+        <SignUpForm intent={vendorIntent ? "vendor" : null} />
       </CardContent>
     </Card>
   );

@@ -29,7 +29,21 @@ async function handleConfirm(
     redirectTo.searchParams.set("flow", result.flow);
   }
 
-  return NextResponse.redirect(redirectTo, 303);
+  // Vendor sign-up intent (set by signUpAction) survives email
+  // confirmation via cookie: a confirmed vendor goes straight into
+  // vendor onboarding instead of the generic path chooser. Consumed
+  // only on a successful signup confirmation.
+  const intent = request.cookies.get("cf-signup-intent")?.value;
+  const response = NextResponse.redirect(redirectTo, 303);
+  if (intent === "vendor" && input.type === "signup") {
+    if (result.pathname !== "/auth/error") {
+      redirectTo.pathname = "/onboarding/vendor/profile";
+      const vendorResponse = NextResponse.redirect(redirectTo, 303);
+      vendorResponse.cookies.delete("cf-signup-intent");
+      return vendorResponse;
+    }
+  }
+  return response;
 }
 
 /**

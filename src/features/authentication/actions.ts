@@ -1,5 +1,6 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
@@ -93,6 +94,22 @@ export async function signUpAction(
     }
     console.error("sign-up failed", { code: error.code });
     return errorState(GENERIC_AUTH_ERROR, undefined, submitted);
+  }
+
+  // A vendor arriving from /vendors or the landing CTA should land in
+  // vendor onboarding right after confirming their email. The email
+  // template carries no redirect, so the intent rides a short-lived
+  // cookie that /auth/confirm consumes. Same-device only by design;
+  // cross-device confirmation falls back to the normal path chooser.
+  if (formData.get("intent")?.toString() === "vendor") {
+    const cookieStore = await cookies();
+    cookieStore.set("cf-signup-intent", "vendor", {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 60 * 60,
+    });
   }
 
   redirect(`/verify-email?email=${encodeURIComponent(parsed.data.email)}`);

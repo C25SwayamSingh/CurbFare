@@ -12,8 +12,12 @@ const redirectMock = vi.hoisted(() =>
   }),
 );
 const createServerClientMock = vi.hoisted(() => vi.fn());
+const cookieSetMock = vi.hoisted(() => vi.fn());
 
 vi.mock("next/navigation", () => ({ redirect: redirectMock }));
+vi.mock("next/headers", () => ({
+  cookies: vi.fn(async () => ({ set: cookieSetMock })),
+}));
 vi.mock("@/lib/supabase/server", () => ({
   createServerClient: createServerClientMock,
 }));
@@ -123,6 +127,45 @@ describe("signUpAction", () => {
     expect(client.auth.signUp).toHaveBeenCalledWith(
       expect.objectContaining({ email: "maria@example.com" }),
     );
+    // No intent submitted: no intent cookie may be written.
+    expect(cookieSetMock).not.toHaveBeenCalled();
+  });
+
+  it("carries vendor intent via a short-lived cookie", async () => {
+    useSupabase({ user: null });
+    await expect(
+      signUpAction(
+        idleState,
+        form({
+          displayName: "Freddy",
+          email: "freddy@example.com",
+          password: "a-strong-password",
+          intent: "vendor",
+        }),
+      ),
+    ).rejects.toThrow("REDIRECT:/verify-email");
+
+    expect(cookieSetMock).toHaveBeenCalledWith(
+      "cf-signup-intent",
+      "vendor",
+      expect.objectContaining({ httpOnly: true, maxAge: 3600 }),
+    );
+  });
+
+  it("ignores unknown intent values instead of persisting them", async () => {
+    useSupabase({ user: null });
+    await expect(
+      signUpAction(
+        idleState,
+        form({
+          displayName: "Maria",
+          email: "maria@example.com",
+          password: "a-strong-password",
+          intent: "platform_admin",
+        }),
+      ),
+    ).rejects.toThrow("REDIRECT:/verify-email");
+    expect(cookieSetMock).not.toHaveBeenCalled();
   });
 
   it("tells the user directly when the email is already registered", async () => {

@@ -268,7 +268,11 @@ export function LandingPage({
                   dashboard, a dead end. */}
               <div className="mt-4">
                 <Button asChild size="lg">
-                  <Link href={viewer ? "/onboarding/vendor" : "/sign-up"}>
+                  <Link
+                    href={
+                      viewer ? "/onboarding/vendor" : "/sign-up?intent=vendor"
+                    }
+                  >
                     <Store aria-hidden="true" />
                     Create your vendor profile
                   </Link>

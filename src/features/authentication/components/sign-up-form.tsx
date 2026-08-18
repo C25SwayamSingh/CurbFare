@@ -13,11 +13,12 @@ import { FieldError } from "@/features/authentication/components/field-error";
 import { PasswordInput } from "@/features/authentication/components/password-input";
 import { SubmitButton } from "@/features/authentication/components/submit-button";
 
-export function SignUpForm() {
+export function SignUpForm({ intent = null }: { intent?: "vendor" | null }) {
   const [state, formAction] = useActionState(signUpAction, idleState);
 
   return (
     <form action={formAction} className="space-y-4" noValidate>
+      {intent ? <input type="hidden" name="intent" value={intent} /> : null}
       {state.status === "error" && state.message ? (
         <Alert variant="destructive">
           <AlertCircle aria-hidden="true" />
