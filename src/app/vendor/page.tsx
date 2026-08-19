@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import {
   Gift,
   Hourglass,
@@ -83,11 +82,6 @@ export default async function VendorDashboardPage() {
       .eq("status", "pending")
       .order("created_at"),
   ]);
-
-  // Staff is checkout-only: their whole workspace is the checkout screen.
-  if (ctx.membership.role === "staff") {
-    redirect("/vendor/checkout");
-  }
 
   const isLeadership = isMfaMandatoryRole(ctx.membership.role);
   const canManageUnit =
@@ -342,7 +336,7 @@ export default async function VendorDashboardPage() {
             units={vendorUnits ?? []}
             organizationSlug={organization.slug}
             canManage={canManageUnit}
-            canManageLocation={canManageUnit}
+            canManageLocation
             openLocationSessionsByUnitId={openLocationSessionsByUnitId}
             loyalty={loyalty}
           />

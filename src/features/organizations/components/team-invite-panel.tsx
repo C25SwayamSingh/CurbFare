@@ -173,11 +173,10 @@ export function TeamInvitePanel({
             <Label htmlFor="invite-role">What can they do?</Label>
             <Select id="invite-role" name="role" defaultValue="staff">
               <option value="staff">
-                Staff: checkout only. They award and redeem points, nothing
-                else.
+                Staff: run checkout and go live. No editing the business.
               </option>
               <option value="manager">
-                Manager: also go live, edit schedules, rewards, and the team
+                Manager: also edit schedules, rewards, and the team
               </option>
               {canInviteOwner ? (
                 <option value="owner">Owner: full control</option>

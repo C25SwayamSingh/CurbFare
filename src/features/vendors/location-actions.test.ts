@@ -1,6 +1,6 @@
 /**
  * Adversarial tests for vendor location sessions: any active member
- * (owner/manager; staff is checkout-only) can start/update/end, the
+ * (owner/manager/staff) can start/update/end, a stranger cannot, the
  * organization is always server-derived from membership, and database
  * error codes map to safe, specific messages.
  */
@@ -93,18 +93,7 @@ describe("startLocationSessionAction", () => {
     ).rejects.toThrow("REDIRECT:/customer");
   });
 
-  it("blocks staff: checkout-only workers cannot go live", async () => {
-    useSupabase({
-      user,
-      profile: vendorProfile,
-      memberships: [membership("staff")],
-    });
-    await expect(
-      startLocationSessionAction(idleState, form(validStartForm)),
-    ).rejects.toThrow("REDIRECT:/vendor");
-  });
-
-  it.each(["owner", "manager"] as const)(
+  it.each(["owner", "manager", "staff"] as const)(
     "allows %s to start a session",
     async (role) => {
       const client = useSupabase({
@@ -125,7 +114,7 @@ describe("startLocationSessionAction", () => {
     const client = useSupabase({
       user,
       profile: vendorProfile,
-      memberships: [membership("manager")],
+      memberships: [membership("staff")],
     });
     await startLocationSessionAction(
       idleState,
@@ -232,7 +221,7 @@ describe("updateLocationSessionAction", () => {
     ).rejects.toThrow("REDIRECT:/sign-in");
   });
 
-  it.each(["owner", "manager"] as const)(
+  it.each(["owner", "manager", "staff"] as const)(
     "allows %s to update a session",
     async (role) => {
       const client = useSupabase({
@@ -318,7 +307,7 @@ describe("endLocationSessionAction", () => {
     ).rejects.toThrow("REDIRECT:/sign-in");
   });
 
-  it.each(["owner", "manager"] as const)(
+  it.each(["owner", "manager", "staff"] as const)(
     "allows %s to end a session",
     async (role) => {
       const client = useSupabase({
