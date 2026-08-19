@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Fraunces, IBM_Plex_Mono, Plus_Jakarta_Sans } from "next/font/google";
 
 import { APP_CONFIG, pageTitle } from "@/lib/app-config";
+import { directionFor } from "@/lib/i18n/config";
+import { LocaleProvider } from "@/lib/i18n/client";
+import { getLocale } from "@/lib/i18n/server";
 
 import "./globals.css";
 
@@ -33,17 +36,23 @@ export const metadata: Metadata = {
   description: APP_CONFIG.shortDescription,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // The locale cookie drives language AND direction: Arabic flips the
+  // whole document to RTL here, so every page inherits it for free.
+  const locale = await getLocale();
   return (
     <html
-      lang="en"
+      lang={locale}
+      dir={directionFor(locale)}
       className={`${sans.variable} ${display.variable} ${mono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        <LocaleProvider locale={locale}>{children}</LocaleProvider>
+      </body>
     </html>
   );
 }

@@ -5,6 +5,8 @@ import { QrCode, Store } from "lucide-react";
 import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
 import { pageTitle } from "@/lib/app-config";
+import { getT } from "@/lib/i18n/server";
+import { LanguageSwitcher } from "@/features/i18n/language-switcher";
 
 export const metadata: Metadata = { title: pageTitle("For vendors") };
 
@@ -17,32 +19,27 @@ export const metadata: Metadata = { title: pageTitle("For vendors") };
  * consistent with the outreach emails: staff-entered amounts,
  * vendor-chosen reward costs, no cut of sales.
  */
-export default function ForVendorsPage() {
+export default async function ForVendorsPage() {
+  const t = await getT("vendorsPage");
   return (
     <main className="mx-auto w-full max-w-2xl px-4 py-10 sm:py-16">
-      <BackButton fallback="/" className="-ml-3 text-muted-foreground" />
+      <div className="flex items-center justify-between">
+        <BackButton fallback="/" className="-ms-3 text-muted-foreground" />
+        <LanguageSwitcher />
+      </div>
 
       <h1 className="mt-4 font-display text-3xl font-bold tracking-tight sm:text-4xl">
-        You run the cart. Curbfare brings them back.
+        {t("title")}
       </h1>
-      <p className="mt-3 text-lg text-muted-foreground">
-        If Swayam emailed you or left a card at your window, this is that.
-        Curbfare is a website, not an app to download: your page, a pin on a
-        live map, and a points program for your regulars, run from one printed
-        QR code.
-      </p>
+      <p className="mt-3 text-lg text-muted-foreground">{t("subtitle")}</p>
 
       <div className="mt-8 space-y-8 text-base leading-relaxed">
         <section>
           <h2 className="text-lg font-semibold tracking-tight">
-            How it works, in three steps
+            {t("howHeading")}
           </h2>
           <ol className="mt-3 space-y-3">
-            {[
-              "We set up your page together. It takes about ten minutes, and every business is checked before it goes public.",
-              "Tape the QR code where customers order. Customers scan it and join free in their phone's browser.",
-              "When someone buys, you tap in what they spent. Five seconds. That is when they earn points.",
-            ].map((step, i) => (
+            {[t("step1"), t("step2"), t("step3")].map((step, i) => (
               <li key={step} className="flex items-start gap-3">
                 <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/15 font-display text-base font-bold text-primary">
                   {i + 1}
@@ -54,36 +51,29 @@ export default function ForVendorsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold tracking-tight">The deal</h2>
+          <h2 className="text-lg font-semibold tracking-tight">
+            {t("dealHeading")}
+          </h2>
           <ul className="mt-2 list-disc space-y-1.5 pl-5">
-            <li>
-              Free for the first 30 founding carts for six months, possibly a
-              full year. After that you see any price before you pay a dollar.
-            </li>
-            <li>You choose the rewards and what they cost you.</li>
-            <li>
-              No cut of your sales, no touching your cash or how you charge.
-            </li>
-            <li>
-              No contract. Your business, menu, and customers stay yours, and
-              you can stop anytime.
-            </li>
+            <li>{t("deal1")}</li>
+            <li>{t("deal2")}</li>
+            <li>{t("deal3")}</li>
+            <li>{t("deal4")}</li>
           </ul>
         </section>
 
         <section className="rounded-2xl bg-secondary p-5 text-secondary-foreground sm:p-6">
           <h2 className="text-lg font-semibold tracking-tight">
-            Ready, or have questions?
+            {t("readyHeading")}
           </h2>
           <p className="mt-1 text-sm text-secondary-foreground/85">
-            The orange button starts your vendor account. Or just reply to
-            Swayam&apos;s email and he will set it up with you in person.
+            {t("readySub")}
           </p>
           <div className="mt-4 flex flex-col gap-3 sm:flex-row">
             <Button asChild size="lg" className="w-full sm:w-auto">
               <Link href="/sign-up?intent=vendor">
                 <Store aria-hidden="true" />
-                Start your vendor profile
+                {t("startCta")}
               </Link>
             </Button>
             <Button
@@ -94,18 +84,18 @@ export default function ForVendorsPage() {
             >
               <a href="mailto:swayam@curbfare.app">
                 <QrCode aria-hidden="true" />
-                Email swayam@curbfare.app
+                {t("emailCta")}
               </a>
             </Button>
           </div>
         </section>
 
         <p className="text-sm text-muted-foreground">
-          Not a vendor, just hungry?{" "}
+          {t("hungryLead")}{" "}
           <Link href="/" className="underline underline-offset-2">
-            Head to the home page
+            {t("hungryLink")}
           </Link>{" "}
-          to find carts near you.
+          {t("hungryTail")}
         </p>
       </div>
     </main>

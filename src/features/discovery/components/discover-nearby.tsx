@@ -15,6 +15,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n/client";
 import type { NearbyVendorLocation } from "@/lib/supabase/database.types";
 import { NearbyMap } from "@/features/discovery/components/nearby-map";
 import {
@@ -38,11 +39,15 @@ type RadiusMiles = (typeof RADIUS_OPTIONS)[number];
  * stuck on.
  */
 type StateKey = "live" | "scheduled" | "recurring" | "hotspots";
-const STATE_FILTERS: { key: StateKey; label: string }[] = [
-  { key: "live", label: "Live now" },
-  { key: "scheduled", label: "Scheduled" },
-  { key: "recurring", label: "Usually here" },
-  { key: "hotspots", label: "Hotspots" },
+const STATE_FILTERS: {
+  key: StateKey;
+  labelKey:
+    "filterLive" | "filterScheduled" | "filterRecurring" | "filterHotspots";
+}[] = [
+  { key: "live", labelKey: "filterLive" },
+  { key: "scheduled", labelKey: "filterScheduled" },
+  { key: "recurring", labelKey: "filterRecurring" },
+  { key: "hotspots", labelKey: "filterHotspots" },
 ];
 
 function flagsFor(active: ReadonlySet<StateKey>) {
@@ -75,6 +80,7 @@ type CartSuggestion = { name: string; href: string; place: string };
  * states stay visibly distinct, and a hotspot is never shown as a vendor.
  */
 export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
+  const t = useT("discover");
   const [center, setCenter] = React.useState<SearchCenter | null>(null);
   const [locating, setLocating] = React.useState(false);
   const [geoError, setGeoError] = React.useState<string | null>(null);
@@ -132,9 +138,7 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
   function requestDeviceLocation() {
     setGeoError(null);
     if (!("geolocation" in navigator)) {
-      setGeoError(
-        "Your browser doesn't support location — search an area below instead.",
-      );
+      setGeoError(t("geoUnsupported"));
       return;
     }
     setLocating(true);
@@ -143,7 +147,7 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
         setCenter({
           lat: position.coords.latitude,
           lng: position.coords.longitude,
-          label: "your current location",
+          label: t("yourLocation"),
           source: "device",
         });
         setLocating(false);
@@ -151,8 +155,8 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
       (error) => {
         setGeoError(
           error.code === error.PERMISSION_DENIED
-            ? "Location permission was denied — no problem, search an area below instead."
-            : "Couldn't get your location right now. Try again, or search an area below.",
+            ? t("geoDenied")
+            : t("geoFailed"),
         );
         setLocating(false);
       },
@@ -217,7 +221,7 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
         location?: { latitude: number; longitude: number };
       };
       if (!response.ok || !data.location) {
-        setAreaError("Couldn't find that area — try a different search.");
+        setAreaError(t("areaNotFound"));
         return;
       }
       setCenter({
@@ -228,7 +232,7 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
       });
       setGeoError(null);
     } catch {
-      setAreaError("Couldn't find that area — try a different search.");
+      setAreaError(t("areaNotFound"));
     }
   }
 
@@ -279,11 +283,11 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
         if (error instanceof DOMException && error.name === "AbortError") {
           return;
         }
-        setResultsError("Couldn't load nearby vendors. Please try again.");
+        setResultsError(t("loadFailed"));
         setCompletedKey(searchKey);
       });
     return () => controller.abort();
-  }, [center, radius, flagsQuery, hotspotsOnly, refreshNonce, searchKey]);
+  }, [center, radius, flagsQuery, hotspotsOnly, refreshNonce, searchKey, t]);
 
   function refresh() {
     if (center?.source === "device") {
@@ -323,7 +327,7 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
           className="w-full sm:w-auto"
         >
           <LocateFixed aria-hidden="true" />
-          {locating ? "Finding you…" : "Use my current location"}
+          {locating ? t("findingYou") : t("useMyLocation")}
         </Button>
         {geoError ? (
           <Alert variant="destructive">
@@ -336,13 +340,13 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
             htmlFor="area-search"
             className="mb-1 block text-sm text-muted-foreground"
           >
-            Or search an area or a cart
+            {t("searchLabel")}
           </label>
           <Input
             id="area-search"
             value={areaQuery}
             onChange={(event) => handleAreaQueryChange(event.target.value)}
-            placeholder="e.g. Astoria, Roosevelt Ave, Birria-Landia"
+            placeholder={t("searchPlaceholder")}
             autoComplete="off"
             disabled={!areaConfigured}
           />
@@ -382,8 +386,7 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
           ) : null}
           {!areaConfigured ? (
             <p className="mt-1 text-xs text-muted-foreground">
-              Area search isn&apos;t available right now — use your current
-              location instead.
+              {t("areaUnavailable")}
             </p>
           ) : null}
           {areaError ? (
@@ -395,7 +398,7 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
       {center ? (
         <>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm text-muted-foreground">Within</span>
+            <span className="text-sm text-muted-foreground">{t("within")}</span>
             {RADIUS_OPTIONS.map((option) => (
               <button
                 key={option}
@@ -409,11 +412,13 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
                     : "border-border text-muted-foreground hover:bg-accent/60 hover:text-accent-foreground",
                 )}
               >
-                {option} mi
+                {option === 1
+                  ? t("mileChipOne")
+                  : t("miles", { count: option })}
               </button>
             ))}
             <span className="text-sm text-muted-foreground">
-              of {center.label}
+              {t("ofPlace", { place: center.label })}
             </span>
             <Button
               type="button"
@@ -423,7 +428,7 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
               className="ml-auto"
             >
               <RefreshCw aria-hidden="true" />
-              Refresh
+              {t("refresh")}
             </Button>
           </div>
 
@@ -431,7 +436,7 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
               to unselect it; none selected means everything shows. */}
           <div
             role="group"
-            aria-label="Filter by location status"
+            aria-label={t("statusFilterLabel")}
             className="flex flex-wrap gap-1.5"
           >
             <button
@@ -445,7 +450,7 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
                   : "border-border text-muted-foreground hover:bg-accent/60 hover:text-accent-foreground",
               )}
             >
-              All
+              {t("filterAll")}
             </button>
             {STATE_FILTERS.map((f) => (
               <button
@@ -460,7 +465,7 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
                     : "border-border text-muted-foreground hover:bg-accent/60 hover:text-accent-foreground",
                 )}
               >
-                {f.label}
+                {t(f.labelKey)}
               </button>
             ))}
           </div>
@@ -470,19 +475,22 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
           {results !== null && results.length > 0 ? (
             <div>
               <label htmlFor="name-filter" className="sr-only">
-                Filter results by name or food
+                {t("nameFilterLabel")}
               </label>
               <Input
                 id="name-filter"
                 value={nameQuery}
                 onChange={(event) => setNameQuery(event.target.value)}
-                placeholder="Filter by name or food, e.g. birria"
+                placeholder={t("nameFilterPlaceholder")}
                 autoComplete="off"
                 className="max-w-sm"
               />
               {nameFilterActive && !filteredOutEverything ? (
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Showing {visible?.length} of {results.length} nearby
+                  {t("showingCount", {
+                    shown: visible?.length ?? 0,
+                    total: results.length,
+                  })}
                 </p>
               ) : null}
             </div>
@@ -496,20 +504,20 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
                 className="size-3.5 text-success"
                 aria-hidden="true"
               />
-              Confirmed Curbfare vendors, points and all
+              {t("legendConfirmed")}
             </span>
             <span className="inline-flex items-center gap-1">
               <span
                 aria-hidden="true"
                 className="size-2.5 rounded-full border-2 border-muted-foreground/70"
               />
-              Curbfare picks: corners we scouted for street food
+              {t("legendPicks")}
             </span>
           </div>
 
           <div
             role="tablist"
-            aria-label="Results view"
+            aria-label={t("viewLabel")}
             className="inline-flex rounded-lg border border-border p-0.5"
           >
             <button
@@ -525,7 +533,7 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
               )}
             >
               <List className="size-4" aria-hidden="true" />
-              List
+              {t("listView")}
             </button>
             <button
               type="button"
@@ -540,7 +548,7 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
               )}
             >
               <MapIcon className="size-4" aria-hidden="true" />
-              Map
+              {t("mapView")}
             </button>
           </div>
 
@@ -551,9 +559,7 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
           ) : null}
 
           {loading && results === null ? (
-            <p className="text-sm text-muted-foreground">
-              Looking for vendors near you…
-            </p>
+            <p className="text-sm text-muted-foreground">{t("looking")}</p>
           ) : null}
 
           {results !== null ? (
@@ -575,12 +581,12 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
               {filteredOutEverything ? (
                 <div className="rounded-lg border border-border p-6 text-center">
                   <p className="font-medium">
-                    Nothing nearby matches &ldquo;{nameQuery.trim()}&rdquo;.
+                    {t("noMatchTitle", { query: nameQuery.trim() })}
                   </p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    {results.length} {results.length === 1 ? "spot" : "spots"}{" "}
-                    nearby didn&apos;t match. Try another craving, or clear the
-                    filter.
+                    {results.length === 1
+                      ? t("noMatchBodyOne")
+                      : t("noMatchBody", { count: results.length })}
                   </p>
                   <Button
                     type="button"
@@ -589,7 +595,7 @@ export function DiscoverNearby({ mapsApiKey }: { mapsApiKey: string | null }) {
                     className="mt-3"
                     onClick={() => setNameQuery("")}
                   >
-                    Clear filter
+                    {t("clearFilter")}
                   </Button>
                 </div>
               ) : results.length > 0 ? (
@@ -688,17 +694,17 @@ function EmptyState({
   selectedId: string | null;
   onSelect: (resultId: string) => void;
 }) {
-  const noun = hotspotsOnly ? "food-vendor hotspots" : "vendors";
+  const t = useT("discover");
+  const noun = hotspotsOnly ? t("nounHotspots") : t("nounVendors");
+  const radiusLabel = `${radius} ${radius === 1 ? t("mileOne") : t("mileMany")}`;
 
   return (
     <div className="space-y-3">
       <div className="rounded-lg border border-border p-6 text-center">
         <p className="font-medium">
-          No {noun} within {radius} {radius === 1 ? "mile" : "miles"} right now.
+          {t("emptyTitle", { noun, radius: radiusLabel })}
         </p>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Try a larger radius, a different area, or check back later.
-        </p>
+        <p className="mt-1 text-sm text-muted-foreground">{t("emptyBody")}</p>
       </div>
 
       {!hotspotsOnly && fallback.length > 0 ? (

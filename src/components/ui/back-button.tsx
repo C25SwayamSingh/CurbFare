@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { useT } from "@/lib/i18n/client";
 
 /**
  * A back control that behaves like the browser's Back button: it returns to
@@ -28,6 +29,7 @@ export function BackButton({
   className?: string;
   children?: React.ReactNode;
 }) {
+  const t = useT("common");
   const router = useRouter();
   return (
     <Button
@@ -44,7 +46,7 @@ export function BackButton({
       }}
     >
       <ArrowLeft aria-hidden="true" />
-      {children ?? "Back"}
+      {children ?? t("back")}
     </Button>
   );
 }

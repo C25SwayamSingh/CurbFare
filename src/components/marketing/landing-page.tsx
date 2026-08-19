@@ -19,7 +19,8 @@ import {
   Truck,
 } from "lucide-react";
 
-import { APP_CONFIG } from "@/lib/app-config";
+import { getT } from "@/lib/i18n/server";
+import { LanguageSwitcher } from "@/features/i18n/language-switcher";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { HeroLoopVideo } from "@/components/marketing/hero-loop-video";
@@ -69,11 +70,13 @@ export type LandingViewer = {
  * visitor gets a greeting and their dashboard instead — the page must never
  * ask an existing user to sign up.
  */
-export function LandingPage({
+export async function LandingPage({
   viewer = null,
 }: {
   viewer?: LandingViewer | null;
 }) {
+  const t = await getT("landing");
+  const tc = await getT("common");
   return (
     <div className="flex min-h-full flex-col">
       <header className="bg-secondary text-secondary-foreground">
@@ -82,32 +85,33 @@ export function LandingPage({
             <Link href="/" className="flex items-center gap-2">
               <Truck className="size-6 text-primary" aria-hidden="true" />
               <span className="text-lg font-semibold tracking-tight">
-                {APP_CONFIG.name}
+                {tc("appName")}
               </span>
             </Link>
             {/* The 5-second-test motto: both halves of the product in four
                 words. Hidden on phones where the header is already full. */}
             <span className="hidden text-sm text-secondary-foreground/75 md:inline">
-              &middot; Find carts. Earn rewards.
+              &middot; {tc("motto")}
             </span>
           </div>
           <div className="flex items-center gap-4 sm:gap-6">
+            <LanguageSwitcher tone="header" />
             <Button asChild variant="ghost" size="sm">
-              <Link href="/vendors">For vendors</Link>
+              <Link href="/vendors">{tc("forVendors")}</Link>
             </Button>
             {viewer ? (
               viewer.firstName ? (
                 <span className="text-sm text-secondary-foreground/85">
-                  Hi, {viewer.firstName}
+                  {t("hiName", { name: viewer.firstName })}
                 </span>
               ) : null
             ) : (
               <>
                 <Button asChild variant="ghost" size="sm">
-                  <Link href="/sign-in">Sign in</Link>
+                  <Link href="/sign-in">{tc("signIn")}</Link>
                 </Button>
                 <Button asChild size="sm">
-                  <Link href="/sign-up">Sign up</Link>
+                  <Link href="/sign-up">{tc("signUp")}</Link>
                 </Button>
               </>
             )}
@@ -149,12 +153,12 @@ export function LandingPage({
 
             <div className="relative max-w-2xl">
               <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary">
-                Food carts, trucks &amp; stands
+                {t("eyebrow")}
               </p>
               <h1 className="font-display text-4xl font-bold leading-tight tracking-tight sm:text-5xl md:text-6xl">
-                The best food{" "}
+                {t("heroTitleLead")}{" "}
                 <span className="underline decoration-primary decoration-4 underline-offset-8">
-                  parks at the curb.
+                  {t("heroTitleAccent")}
                 </span>
               </h1>
               {/* The rewards half of the product as two numbered beats, in
@@ -166,13 +170,13 @@ export function LandingPage({
                   <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/15 font-display text-base font-bold text-primary">
                     1
                   </span>
-                  Find carts on the live map.
+                  {t("beatFind")}
                 </p>
                 <p className="flex items-center gap-2.5 text-base text-secondary-foreground/85 sm:text-lg">
                   <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/15 font-display text-base font-bold text-primary">
                     2
                   </span>
-                  Earn points toward rewards every time you come back.
+                  {t("beatEarn")}
                 </p>
               </div>
 
@@ -185,8 +189,8 @@ export function LandingPage({
                       <Link href={viewer.dashboardHref}>
                         <QrCode aria-hidden="true" />
                         {viewer.dashboardHref === "/vendor"
-                          ? "My Dashboard"
-                          : "My Rewards"}
+                          ? t("myDashboard")
+                          : t("myRewards")}
                       </Link>
                     </Button>
                     <Button
@@ -197,7 +201,7 @@ export function LandingPage({
                     >
                       <Link href="/discover">
                         <MapPin aria-hidden="true" />
-                        Explore the map
+                        {t("exploreMap")}
                       </Link>
                     </Button>
                   </>
@@ -209,7 +213,7 @@ export function LandingPage({
                     <Button asChild size="lg" className="w-full sm:w-auto">
                       <Link href="/sign-up">
                         <QrCode aria-hidden="true" />
-                        Start earning points
+                        {t("startEarning")}
                       </Link>
                     </Button>
                     <Button
@@ -220,7 +224,7 @@ export function LandingPage({
                     >
                       <Link href="/discover">
                         <MapPin aria-hidden="true" />
-                        Explore the map
+                        {t("exploreMap")}
                       </Link>
                     </Button>
                   </>
@@ -265,10 +269,10 @@ export function LandingPage({
           <div className="mx-auto w-full max-w-6xl rounded-3xl bg-secondary p-4 text-secondary-foreground sm:p-6">
             <div className="max-w-2xl">
               <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
-                For vendors
+                {t("vendorsHeading")}
               </h2>
               <p className="mt-1 text-sm text-secondary-foreground/85">
-                Give your regulars a way to find you.
+                {t("vendorsSub")}
               </p>
               {/* Signed-in users go straight to the application; the old
                   /sign-up link bounced existing accounts to the customer
@@ -281,7 +285,7 @@ export function LandingPage({
                     }
                   >
                     <Store aria-hidden="true" />
-                    Create your vendor profile
+                    {t("createVendorProfile")}
                   </Link>
                 </Button>
               </div>
@@ -292,10 +296,10 @@ export function LandingPage({
               <li className="rounded-2xl bg-card px-3 py-2.5 text-card-foreground shadow-sm sm:p-3">
                 <h3 className="flex items-center gap-2 font-semibold">
                   <MapPin className="size-4 text-brand" aria-hidden="true" />
-                  Go live in one tap
+                  {t("cardLiveTitle")}
                 </h3>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Share today&apos;s spot instantly.
+                  {t("cardLiveBody")}
                 </p>
               </li>
               <li className="rounded-2xl bg-card px-3 py-2.5 text-card-foreground shadow-sm sm:p-3">
@@ -304,19 +308,19 @@ export function LandingPage({
                     className="size-4 text-brand"
                     aria-hidden="true"
                   />
-                  Post your week
+                  {t("cardWeekTitle")}
                 </h3>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Set it once, they show up.
+                  {t("cardWeekBody")}
                 </p>
               </li>
               <li className="rounded-2xl bg-card px-3 py-2.5 text-card-foreground shadow-sm sm:p-3">
                 <h3 className="flex items-center gap-2 font-semibold">
                   <Store className="size-4 text-brand" aria-hidden="true" />
-                  Points, not punch cards
+                  {t("cardPointsTitle")}
                 </h3>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Big-chain loyalty, cart-sized.
+                  {t("cardPointsBody")}
                 </p>
               </li>
             </ul>
@@ -326,26 +330,26 @@ export function LandingPage({
 
       <footer className="bg-secondary py-6 text-secondary-foreground">
         <p className="text-center text-sm text-secondary-foreground/80">
-          Curbfare. Street food, found.
+          {t("footerLine")}
         </p>
         <p className="mt-3 flex justify-center gap-5 text-sm text-secondary-foreground/75">
           <Link
             href="/about"
             className="underline-offset-2 hover:text-secondary-foreground hover:underline"
           >
-            About
+            {t("footerAbout")}
           </Link>
           <Link
             href="/privacy"
             className="underline-offset-2 hover:text-secondary-foreground hover:underline"
           >
-            Privacy
+            {t("footerPrivacy")}
           </Link>
           <Link
             href="/terms"
             className="underline-offset-2 hover:text-secondary-foreground hover:underline"
           >
-            Terms
+            {t("footerTerms")}
           </Link>
         </p>
       </footer>

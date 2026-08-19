@@ -1,12 +1,18 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+// The header's LanguageSwitcher needs the app router for refresh-on-switch;
+// unit tests render outside Next's router, so provide a stub.
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ refresh: vi.fn() }),
+}));
 
 import { LandingPage } from "@/components/marketing/landing-page";
 import { CUISINE_CATEGORIES } from "@/features/vendors/schemas";
 
 describe("LandingPage", () => {
-  it("renders the hero pitch and the vendor section", () => {
-    render(<LandingPage />);
+  it("renders the hero pitch and the vendor section", async () => {
+    render(await LandingPage({}));
 
     // The customer pitch lives in the hero itself; the only sectioned
     // audience block is the vendor one.
@@ -19,8 +25,8 @@ describe("LandingPage", () => {
     ).toBeNull();
   });
 
-  it("keeps the hero customer-first with one universal map label", () => {
-    render(<LandingPage />);
+  it("keeps the hero customer-first with one universal map label", async () => {
+    render(await LandingPage({}));
 
     // "Explore the map" is the only discovery label on the page — one
     // vocabulary for finding carts, in the hero and the customers panel.
@@ -36,8 +42,8 @@ describe("LandingPage", () => {
     ).toBeNull();
   });
 
-  it("keeps the cuisine tab row parked (SHOW_CUISINE_TABS off) for now", () => {
-    render(<LandingPage />);
+  it("keeps the cuisine tab row parked (SHOW_CUISINE_TABS off) for now", async () => {
+    render(await LandingPage({}));
 
     for (const cuisine of CUISINE_CATEGORIES) {
       expect(
@@ -51,8 +57,8 @@ describe("LandingPage", () => {
     }
   });
 
-  it("offers Sign in / Sign up to signed-out visitors", () => {
-    render(<LandingPage />);
+  it("offers Sign in / Sign up to signed-out visitors", async () => {
+    render(await LandingPage({}));
 
     expect(screen.getByRole("link", { name: /sign in/i })).toHaveAttribute(
       "href",
@@ -64,9 +70,11 @@ describe("LandingPage", () => {
     );
   });
 
-  it("greets a signed-in visitor and links their dashboard instead", () => {
+  it("greets a signed-in visitor and links their dashboard instead", async () => {
     render(
-      <LandingPage viewer={{ firstName: "Maria", dashboardHref: "/vendor" }} />,
+      await LandingPage({
+        viewer: { firstName: "Maria", dashboardHref: "/vendor" },
+      }),
     );
 
     expect(screen.getByText("Hi, Maria")).toBeInTheDocument();
@@ -79,9 +87,11 @@ describe("LandingPage", () => {
     expect(screen.queryByRole("link", { name: /sign in/i })).toBeNull();
   });
 
-  it("labels a customer's hero button My Rewards, even without a name", () => {
+  it("labels a customer's hero button My Rewards, even without a name", async () => {
     render(
-      <LandingPage viewer={{ firstName: null, dashboardHref: "/customer" }} />,
+      await LandingPage({
+        viewer: { firstName: null, dashboardHref: "/customer" },
+      }),
     );
 
     expect(screen.getByRole("link", { name: "My Rewards" })).toHaveAttribute(
@@ -91,8 +101,8 @@ describe("LandingPage", () => {
     expect(screen.queryByText(/^Hi,/)).toBeNull();
   });
 
-  it("leaves pin-state education to the map, not the landing", () => {
-    render(<LandingPage />);
+  it("leaves pin-state education to the map, not the landing", async () => {
+    render(await LandingPage({}));
 
     // The legend moved to /discover; marketing must not carry a stale copy
     // that could drift from the real states.
