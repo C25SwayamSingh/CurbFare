@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
 
 import { confirmEmailToken } from "@/lib/auth/confirm-token";
+import { safeNextPath } from "@/lib/auth/redirect";
 import { createServerClient } from "@/lib/supabase/server";
 
 function parseOtpType(value: string | null): EmailOtpType | null {
@@ -29,21 +30,25 @@ async function handleConfirm(
     redirectTo.searchParams.set("flow", result.flow);
   }
 
-  // Vendor sign-up intent (set by signUpAction) survives email
-  // confirmation via cookie: a confirmed vendor goes straight into
-  // vendor onboarding instead of the generic path chooser. Consumed
-  // only on a successful signup confirmation.
-  const intent = request.cookies.get("cf-signup-intent")?.value;
-  const response = NextResponse.redirect(redirectTo, 303);
-  if (intent === "vendor" && input.type === "signup") {
-    if (result.pathname !== "/auth/error") {
-      redirectTo.pathname = "/onboarding/vendor/profile";
-      const vendorResponse = NextResponse.redirect(redirectTo, 303);
-      vendorResponse.cookies.delete("cf-signup-intent");
-      return vendorResponse;
+  // Sign-up return paths survive email confirmation via cookies set by
+  // signUpAction, consumed only on a successful signup confirmation. An
+  // explicit next path (invite links) outranks the vendor-onboarding
+  // intent; both cookies are cleared once used.
+  if (input.type === "signup" && result.pathname !== "/auth/error") {
+    const nextCookie = request.cookies.get("cf-signup-next")?.value;
+    const safeNext = nextCookie ? safeNextPath(nextCookie, "") : "";
+    const intent = request.cookies.get("cf-signup-intent")?.value;
+    const target =
+      safeNext || (intent === "vendor" ? "/onboarding/vendor/profile" : null);
+    if (target) {
+      redirectTo.pathname = target;
+      const routed = NextResponse.redirect(redirectTo, 303);
+      routed.cookies.delete("cf-signup-next");
+      routed.cookies.delete("cf-signup-intent");
+      return routed;
     }
   }
-  return response;
+  return NextResponse.redirect(redirectTo, 303);
 }
 
 /**

@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { getAuthContext } from "@/lib/auth/guards";
+import { safeNextPath } from "@/lib/auth/redirect";
 import { SignUpForm } from "@/features/authentication/components/sign-up-form";
 
 export const metadata: Metadata = { title: "Create account — Curbfare" };
@@ -16,17 +17,21 @@ export const metadata: Metadata = { title: "Create account — Curbfare" };
 export default async function SignUpPage({
   searchParams,
 }: {
-  searchParams: Promise<{ intent?: string }>;
+  searchParams: Promise<{ intent?: string; next?: string }>;
 }) {
   // ?intent=vendor (from /vendors or the landing's vendor CTA) routes the
-  // whole flow toward vendor onboarding: signed-in users skip straight
-  // there, and new accounts carry the intent through email confirmation.
-  const { intent } = await searchParams;
+  // whole flow toward vendor onboarding; ?next= (from an invite link)
+  // carries an explicit return path. Both survive email confirmation via
+  // short-lived cookies consumed by /auth/confirm.
+  const { intent, next } = await searchParams;
   const vendorIntent = intent === "vendor";
+  const nextPath = next ? safeNextPath(next, "") : "";
 
   const ctx = await getAuthContext();
   if (ctx) {
-    redirect(vendorIntent ? "/onboarding/vendor/profile" : "/onboarding");
+    redirect(
+      nextPath || (vendorIntent ? "/onboarding/vendor/profile" : "/onboarding"),
+    );
   }
 
   return (
@@ -40,7 +45,10 @@ export default async function SignUpPage({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <SignUpForm intent={vendorIntent ? "vendor" : null} />
+        <SignUpForm
+          intent={vendorIntent ? "vendor" : null}
+          next={nextPath || null}
+        />
       </CardContent>
     </Card>
   );

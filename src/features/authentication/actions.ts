@@ -97,19 +97,31 @@ export async function signUpAction(
   }
 
   // A vendor arriving from /vendors or the landing CTA should land in
-  // vendor onboarding right after confirming their email. The email
-  // template carries no redirect, so the intent rides a short-lived
-  // cookie that /auth/confirm consumes. Same-device only by design;
-  // cross-device confirmation falls back to the normal path chooser.
+  // vendor onboarding right after confirming their email; someone arriving
+  // from an invite link should land back on that invite. The email
+  // template carries no redirect, so both ride short-lived cookies that
+  // /auth/confirm consumes. Same-device only by design; cross-device
+  // confirmation falls back to the normal path chooser.
+  const cookieOptions = {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 60 * 60,
+  } as const;
   if (formData.get("intent")?.toString() === "vendor") {
     const cookieStore = await cookies();
-    cookieStore.set("cf-signup-intent", "vendor", {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      maxAge: 60 * 60,
-    });
+    cookieStore.set("cf-signup-intent", "vendor", cookieOptions);
+  }
+  const rawNext = formData.get("next")?.toString();
+  if (rawNext) {
+    // safeNextPath re-sanitizes server-side: a tampered hidden field can
+    // never turn the confirmation redirect into an open redirect.
+    const nextPath = safeNextPath(rawNext, "");
+    if (nextPath) {
+      const cookieStore = await cookies();
+      cookieStore.set("cf-signup-next", nextPath, cookieOptions);
+    }
   }
 
   redirect(`/verify-email?email=${encodeURIComponent(parsed.data.email)}`);

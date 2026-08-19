@@ -185,7 +185,7 @@ export function TeamInvitePanel({
           </div>
           <div className="flex flex-wrap gap-2">
             <SubmitButton pendingLabel="Creating link…">
-              Create invite link
+              Send invite
             </SubmitButton>
             <Button
               type="button"

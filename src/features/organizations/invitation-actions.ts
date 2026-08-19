@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { requireAuth, requireVendorMember } from "@/lib/auth/guards";
@@ -16,6 +17,7 @@ import {
   hashInvitationToken,
   isValidInvitationToken,
 } from "@/features/organizations/invitation-token";
+import { notifyInvitation } from "@/lib/notify/invitation";
 
 const GENERIC_ERROR = "Something went wrong. Please try again in a moment.";
 
@@ -73,11 +75,28 @@ export async function createInvitationAction(
   }
 
   const { origin } = await publicOrigin();
+  const inviteUrl = `${origin}/invite/${token}`;
+
+  // Email the invite to the invitee directly (fail-open; the copyable link
+  // below is the backup channel if their inbox misses it).
+  const { data: org } = await supabase
+    .from("organizations")
+    .select("display_name")
+    .eq("id", ctx.membership.organization_id)
+    .maybeSingle();
+  await notifyInvitation({
+    toEmail: parsed.data.email,
+    firstName: parsed.data.firstName,
+    organizationName: org?.display_name ?? "A Curbfare business",
+    role: parsed.data.role,
+    inviteUrl,
+  });
+
   revalidatePath("/vendor");
-  // The link rides back in the success message so the page can surface it for
-  // copying. It is not persisted anywhere retrievable.
+  // The link rides back in the success message so the page can surface it
+  // for copying. It is not persisted anywhere retrievable.
   return successState(
-    `${parsed.data.firstName}'s invite link|${origin}/invite/${token}`,
+    `Invite emailed to ${parsed.data.email}. Backup link|${inviteUrl}`,
   );
 }
 
@@ -169,5 +188,7 @@ export async function acceptInvitationAction(
   if (!data?.[0]) return errorState(GENERIC_ERROR);
 
   revalidatePath("/vendor");
-  return successState("You're on the team.");
+  // Straight to the workplace: re-rendering the invite page would show
+  // "already used" to the very person who just used it.
+  redirect("/vendor");
 }

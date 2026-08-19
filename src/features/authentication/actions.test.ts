@@ -152,6 +152,46 @@ describe("signUpAction", () => {
     );
   });
 
+  it("stores a safe next path for the confirmation redirect", async () => {
+    useSupabase({ user: null });
+    await expect(
+      signUpAction(
+        idleState,
+        form({
+          displayName: "Worker",
+          email: "worker@example.com",
+          password: "a-strong-password",
+          next: "/invite/abc123",
+        }),
+      ),
+    ).rejects.toThrow("REDIRECT:/verify-email");
+    expect(cookieSetMock).toHaveBeenCalledWith(
+      "cf-signup-next",
+      "/invite/abc123",
+      expect.objectContaining({ httpOnly: true }),
+    );
+  });
+
+  it("never stores an absolute-URL next value (open redirect guard)", async () => {
+    useSupabase({ user: null });
+    await expect(
+      signUpAction(
+        idleState,
+        form({
+          displayName: "Worker",
+          email: "worker2@example.com",
+          password: "a-strong-password",
+          next: "https://evil.example/phish",
+        }),
+      ),
+    ).rejects.toThrow("REDIRECT:/verify-email");
+    expect(cookieSetMock).not.toHaveBeenCalledWith(
+      "cf-signup-next",
+      expect.anything(),
+      expect.anything(),
+    );
+  });
+
   it("ignores unknown intent values instead of persisting them", async () => {
     useSupabase({ user: null });
     await expect(
