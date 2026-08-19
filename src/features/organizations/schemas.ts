@@ -29,6 +29,18 @@ const businessDetailsShape = {
 
 export const createOrganizationSchema = z.object({
   ...businessDetailsShape,
+  // Signup speed: the registered legal name is optional here (the display
+  // name stands in) and editable later from business settings, where
+  // updateOrganizationSchema still requires it.
+  legalName: z
+    .string()
+    .trim()
+    .max(200, "Legal name is too long")
+    .optional()
+    .transform((v) => (v ? v : null))
+    .refine((v) => v === null || v.length >= 2, {
+      message: "Legal name must be at least 2 characters",
+    }),
   licenseNumber: z
     .string()
     .trim()

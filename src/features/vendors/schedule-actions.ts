@@ -24,7 +24,8 @@ const GENERIC_ERROR = "Something went wrong. Please try again in a moment.";
  * rule and the RLS write policy: describing a location is operational, not a
  * management action like changing the reward economics.
  */
-const SCHEDULE_ROLES = ["owner", "manager", "staff"] as const;
+// Staff is checkout-only (Aug 2026): schedules are owner/manager territory.
+const SCHEDULE_ROLES = ["owner", "manager"] as const;
 
 function friendlyDbError(error: { code?: string; message?: string }): string {
   if (error.code === "23505") {

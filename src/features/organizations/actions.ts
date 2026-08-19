@@ -44,7 +44,7 @@ export async function createOrganizationAction(
   }
 
   const parsed = createOrganizationSchema.safeParse({
-    legalName: formData.get("legalName"),
+    legalName: formData.get("legalName") ?? undefined,
     displayName: formData.get("displayName"),
     slug: formData.get("slug"),
     licenseNumber: formData.get("licenseNumber"),
@@ -55,11 +55,9 @@ export async function createOrganizationAction(
   // A rejected application must not cost the vendor everything they typed.
   const submitted = keepValues(formData, [
     "displayName",
-    "legalName",
     "slug",
     "licenseNumber",
     "permitNumber",
-    "applicationNote",
   ]);
 
   if (!parsed.success) {
@@ -72,7 +70,7 @@ export async function createOrganizationAction(
 
   const supabase = await createServerClient();
   const { error } = await supabase.rpc("create_organization_with_owner", {
-    p_legal_name: parsed.data.legalName,
+    p_legal_name: parsed.data.legalName ?? null,
     p_display_name: parsed.data.displayName,
     p_slug: parsed.data.slug,
     p_license_number: parsed.data.licenseNumber,
@@ -109,7 +107,7 @@ export async function createOrganizationAction(
   // application (the notifier swallows its own failures).
   await notifyVendorApplication({
     displayName: parsed.data.displayName,
-    legalName: parsed.data.legalName,
+    legalName: parsed.data.legalName ?? parsed.data.displayName,
     slug: parsed.data.slug,
     licenseNumber: parsed.data.licenseNumber,
     permitNumber: parsed.data.permitNumber,

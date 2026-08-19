@@ -1,5 +1,6 @@
 -- pgTAP adversarial tests for vendor_location_sessions: any active member
--- (owner/manager/staff) can start/update/end a "go live" session, a
+-- (owner/manager; staff is checkout-only since Aug 2026) can
+-- start/update/end a "go live" session, a
 -- cross-org vendor_unit_id/organization_id mismatch is rejected, at most
 -- one open session exists per unit, base-table visibility is member-only
 -- and organization-isolated, and the public view exposes only currently
@@ -15,7 +16,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(18);
+select plan(20);
 
 -- ----------------------------------------------------------------------------
 -- Fixtures: owner + manager + staff of "taco-cart" (manager also belongs
@@ -184,21 +185,45 @@ select is(
     $$ update public.vendor_location_sessions
        set ended_at = now()
        where id = '30000000-0000-0000-0000-000000000001' $$),
-  1,
-  'staff can end a session belonging to their own organization — operational, not owner/manager-only like vendor_units CRUD'
+  0,
+  'staff is checkout-only: a worker cannot end a live session'
 );
 
--- Now that taco-cart's unit has no open session, staff starting a new one
--- for the SAME unit must succeed (the partial unique index only blocks a
--- second OPEN session, and staff is a permitted writer).
+-- The manager actually ends it, so the unit is free for the next session.
+select test_as_user('00000000-0000-0000-0000-000000000002', 'aal1');
+select is(
+  test_rows_updated(
+    $$ update public.vendor_location_sessions
+       set ended_at = now()
+       where id = '30000000-0000-0000-0000-000000000001' $$),
+  1,
+  'a manager can end their organization''s open session'
+);
+
+-- Staff cannot start sessions at all under checkout-only; the manager
+-- starts the unit's next session (the partial unique index only blocks a
+-- second OPEN session).
+select test_as_user('00000000-0000-0000-0000-000000000003', 'aal1');
+select throws_ok(
+  $$ insert into public.vendor_location_sessions
+       (id, vendor_unit_id, organization_id, latitude, longitude, public_label, created_by)
+     values
+       ('30000000-0000-0000-0000-000000000099', '20000000-0000-0000-0000-000000000001',
+        '10000000-0000-0000-0000-000000000001', 30.27, -97.75, 'Staff attempt',
+        '00000000-0000-0000-0000-000000000003') $$,
+  '42501', null,
+  'staff is checkout-only: a worker cannot start a live session'
+);
+
+select test_as_user('00000000-0000-0000-0000-000000000002', 'aal1');
 select lives_ok(
   $$ insert into public.vendor_location_sessions
        (id, vendor_unit_id, organization_id, latitude, longitude, public_label, created_by)
      values
        ('30000000-0000-0000-0000-000000000002', '20000000-0000-0000-0000-000000000001',
         '10000000-0000-0000-0000-000000000001', 30.27, -97.75, 'Back on 6th Street',
-        '00000000-0000-0000-0000-000000000003') $$,
-  'staff can start a new session once the unit''s previous open session has been ended'
+        '00000000-0000-0000-0000-000000000002') $$,
+  'a manager can start a new session once the previous open session ended'
 );
 
 -- The cross-org manager starts burger-truck's session.

@@ -89,33 +89,13 @@ export function CreateOrganizationForm() {
           ) : (
             <input type="hidden" name="slug" value={effectiveSlug} />
           )}
-
-          <div className="space-y-2">
-            <Label htmlFor="legalName">Legal name</Label>
-            <Input
-              id="legalName"
-              name="legalName"
-              placeholder="Maria's Taco Cart LLC"
-              defaultValue={state.values?.legalName ?? ""}
-              required
-              aria-describedby="legalName-error legalName-hint"
-              aria-invalid={Boolean(state.fieldErrors?.legalName)}
-            />
-            <p id="legalName-hint" className="text-xs text-muted-foreground">
-              Only if the registered name is different.
-            </p>
-            <FieldError
-              id="legalName-error"
-              errors={state.fieldErrors?.legalName}
-            />
-          </div>
         </div>
       </FormQuestion>
 
       <FormQuestion
         n={2}
         title="Your vending credentials"
-        hint="Don't have the numbers on hand? Enter them as best you can and say so below. We confirm every number with you by email before approving, so a best guess won't sink your application."
+        hint="Don't have the numbers on hand? Enter them as best you can. You're approved right away, and we confirm every number with you by email after signup, so a best guess won't sink anything."
       >
         <div className="grid gap-5 sm:grid-cols-2">
           <div className="space-y-2">
@@ -163,26 +143,6 @@ export function CreateOrganizationForm() {
         </div>
       </FormQuestion>
 
-      <FormQuestion
-        n={3}
-        title="Anything we should know?"
-        hint="Optional. Where you park, when you run, or a heads-up about your credentials."
-      >
-        <Input
-          id="applicationNote"
-          name="applicationNote"
-          aria-label="Anything we should know?"
-          placeholder="e.g. We're the cart at 46th & 6th on weekdays"
-          defaultValue={state.values?.applicationNote ?? ""}
-          aria-describedby="applicationNote-error"
-          aria-invalid={Boolean(state.fieldErrors?.applicationNote)}
-        />
-        <FieldError
-          id="applicationNote-error"
-          errors={state.fieldErrors?.applicationNote}
-        />
-      </FormQuestion>
-
       <div className="space-y-3">
         <SubmitButton
           className="h-12 w-full text-base font-semibold sm:w-auto sm:px-8"
@@ -192,12 +152,13 @@ export function CreateOrganizationForm() {
         </SubmitButton>
         <p className="text-sm leading-relaxed text-muted-foreground">
           <strong className="text-foreground">
-            We read every application ourselves.
+            You&apos;re live the moment you submit.
           </strong>{" "}
-          We&apos;ll get back to you within a few hours, one business day at
-          most. While you wait, go ahead and set up your carts and rewards;
-          customers won&apos;t see anything until we approve you. You&apos;ll be
-          the owner, and you can invite your managers and staff from your
+          Right now we approve new businesses instantly, and we individually
+          verify every cart after signup to make sure it&apos;s legit; if
+          anything doesn&apos;t check out we&apos;ll email you first.
+          You&apos;ll be the owner, you can add your registered legal name
+          anytime in settings, and you can invite managers and staff from your
           dashboard whenever you&apos;re ready.
         </p>
       </div>

@@ -913,7 +913,8 @@ export type Database = {
       };
       create_organization_with_owner: {
         Args: {
-          p_legal_name: string;
+          /** Optional since founding auto-approval; null falls back to display name. */
+          p_legal_name: string | null;
           p_display_name: string;
           p_slug: string;
           p_license_number: string;

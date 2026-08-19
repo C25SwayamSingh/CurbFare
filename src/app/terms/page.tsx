@@ -49,8 +49,10 @@ export default function TermsOfServicePage() {
           <h2>For vendors</h2>
           <ul>
             <li>
-              You must hold the licenses and permits your city requires. We
-              review every application before a business goes public.
+              You must hold the licenses and permits your city requires. New
+              businesses go live right away, and we verify every one
+              individually after signup; listings that do not check out may be
+              suspended or removed.
             </li>
             <li>
               You fund your own rewards. Points your customers earn at your

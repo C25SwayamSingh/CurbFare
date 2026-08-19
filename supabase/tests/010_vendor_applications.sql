@@ -1,8 +1,10 @@
--- pgTAP tests for the vendor application gate: pending-by-default creation,
--- the duplicate-license automated filter, admin-only review transitions,
--- and the invariant that a pending business is invisible to customers.
+-- pgTAP tests for the vendor application flow under founding auto-approval:
+-- creation lands ACTIVE-but-unreviewed, the duplicate-license automated
+-- filter still bites, review is admin-only, verification stamps the
+-- reviewer, and a failed retro-check can take an active listing down.
 --
--- Covers: supabase/migrations/20260803000000_vendor_applications.sql
+-- Covers: 20260803000000_vendor_applications.sql,
+-- 20260819090000_founding_auto_approval.sql, 20260819100000_retro_verification.sql
 begin;
 
 create extension if not exists pgtap with schema extensions;
@@ -59,9 +61,10 @@ select lives_ok(
 
 select test_as_service();
 select is(
-  (select status from public.organizations where slug = 'pgtap-cart-one'),
-  'pending'::public.organization_status,
-  'a new application lands as PENDING, never active'
+  (select status::text || '|' || coalesce(reviewed_at::text, 'unreviewed')
+     from public.organizations where slug = 'pgtap-cart-one'),
+  'active|unreviewed',
+  'a new application lands ACTIVE and unreviewed (founding auto-approval)'
 );
 select is(
   (select count(*)::int from public.organization_members om
@@ -88,7 +91,7 @@ select throws_ok(
   'a malformed license number never reaches the table'
 );
 
--- A pending business is invisible to customers even with a unit configured.
+-- An auto-approved business is publicly visible the moment it has a unit.
 select test_as_service();
 insert into public.vendor_units (id, organization_id, name, unit_type, city, slug, created_by)
 select '20000000-0000-0000-0000-000000000021', o.id,
@@ -100,8 +103,8 @@ select test_as_anon();
 select is(
   (select count(*)::int from public.vendor_unit_previews
     where slug = 'pgtap-cart-one'),
-  0,
-  'a pending organization''s units never appear in public previews'
+  1,
+  'an auto-approved organization''s units are publicly visible immediately'
 );
 
 -- ----------------------------------------------------------------------------
@@ -119,7 +122,7 @@ select test_as_user('00000000-0000-0000-0000-000000000011', 'aal2'); -- platform
 select lives_ok(
   $$ select public.vendor_application_approve(
        (select id from public.organizations where slug = 'pgtap-cart-one')) $$,
-  'a platform admin can approve a pending application'
+  'a platform admin can stamp verification on an active business'
 );
 
 select test_as_service();
@@ -139,15 +142,14 @@ select is(
   (select count(*)::int from public.vendor_unit_previews
     where slug = 'pgtap-cart-one'),
   1,
-  'approval is exactly what makes the business publicly visible'
+  'the business stays publicly visible after verification'
 );
 
 select test_as_user('00000000-0000-0000-0000-000000000011', 'aal2');
-select throws_ok(
+select lives_ok(
   $$ select public.vendor_application_approve(
        (select id from public.organizations where slug = 'pgtap-cart-one')) $$,
-  'P0001', null,
-  'only pending applications can be approved'
+  're-verifying an active business is allowed (idempotent retro-check)'
 );
 
 -- Rejection stores the private note and frees the license for reuse.
@@ -164,7 +166,7 @@ select lives_ok(
   $$ select public.vendor_application_reject(
        (select id from public.organizations where slug = 'pgtap-cart-two'),
        'pgtap: license not found in records') $$,
-  'a platform admin can reject with a private note'
+  'a platform admin can take down an active business with a private note'
 );
 
 select test_as_service();

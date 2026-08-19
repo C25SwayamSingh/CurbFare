@@ -30,7 +30,8 @@ const SESSION_NOT_FOUND_ERROR = "That session could not be found.";
  * policy on vendor_location_sessions. See the migration's comment for why
  * this differs from vendor_units CRUD, which stays owner/manager-only.
  */
-const LOCATION_SESSION_ROLES = ["owner", "manager", "staff"] as const;
+// Staff is checkout-only (Aug 2026): going live is an owner/manager act.
+const LOCATION_SESSION_ROLES = ["owner", "manager"] as const;
 
 /**
  * Start a new "go live" session for a vendor unit. Fails with a clear

@@ -46,7 +46,7 @@ export const en = {
       "If Swayam emailed you or left a card at your window, this is that. Curbfare is a website, not an app to download: your page, a pin on a live map, and a points program for your regulars, run from one printed QR code.",
     howHeading: "How it works, in three steps",
     step1:
-      "We set up your page together. It takes about ten minutes, and every business is checked before it goes public.",
+      "We set up your page together. It takes about ten minutes and you are live right away; every business is individually verified after signup.",
     step2:
       "Tape the QR code where customers order. Customers scan it and join free in their phone's browser.",
     step3:

@@ -43,7 +43,7 @@ export const es: Messages = {
       "Si Swayam le mandó un correo o dejó una tarjeta en su ventanilla, es esto. Curbfare es un sitio web, no una app para descargar: su página, un pin en un mapa en vivo y un programa de puntos para sus clientes de siempre, todo con un código QR impreso.",
     howHeading: "Cómo funciona, en tres pasos",
     step1:
-      "Configuramos su página juntos. Toma unos diez minutos, y cada negocio se revisa antes de hacerse público.",
+      "Configuramos su página juntos. Toma unos diez minutos y queda en línea de inmediato; cada negocio se verifica individualmente después de registrarse.",
     step2:
       "Pegue el código QR donde ordenan sus clientes. Ellos lo escanean y se registran gratis en el navegador de su teléfono.",
     step3:
