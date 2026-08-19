@@ -25,8 +25,9 @@ export const ar: Messages = {
     myRewards: "مكافآتي",
     myDashboard: "لوحة التحكم",
     hiName: "أهلًا {name}",
-    vendorsHeading: "لأصحاب العربات",
-    vendorsSub: "امنح زبائنك الدائمين طريقة للعثور عليك.",
+    vendorsHeading: "هل تملك عربة أو شاحنة طعام؟",
+    vendorsSub:
+      "هذا القسم لك أنت، صاحب العربة. امنح زبائنك الدائمين طريقة للعثور عليك.",
     createVendorProfile: "أنشئ ملف البائع الخاص بك",
     cardLiveTitle: "فعّل الوضع المباشر بلمسة واحدة",
     cardLiveBody: "شارك موقع اليوم فورًا.",

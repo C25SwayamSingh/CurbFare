@@ -25,8 +25,9 @@ export const en = {
     myRewards: "My Rewards",
     myDashboard: "My Dashboard",
     hiName: "Hi, {name}",
-    vendorsHeading: "For vendors",
-    vendorsSub: "Give your regulars a way to find you.",
+    vendorsHeading: "Own a food truck or cart?",
+    vendorsSub:
+      "This half is for you, the owner. Give your regulars a way to find you.",
     createVendorProfile: "Create your vendor profile",
     cardLiveTitle: "Go live in one tap",
     cardLiveBody: "Share today's spot instantly.",

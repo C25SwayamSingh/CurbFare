@@ -18,7 +18,7 @@ describe("LandingPage", () => {
     // audience block is the vendor one.
     expect(screen.getByText(/Earn points toward rewards/i)).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: /For vendors/i }),
+      screen.getByRole("heading", { name: /own a food truck or cart/i }),
     ).toBeInTheDocument();
     expect(
       screen.queryByRole("heading", { name: /For customers/i }),

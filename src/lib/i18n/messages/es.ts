@@ -22,8 +22,9 @@ export const es: Messages = {
     myRewards: "Mis recompensas",
     myDashboard: "Mi panel",
     hiName: "Hola, {name}",
-    vendorsHeading: "Para vendedores",
-    vendorsSub: "Dale a tus clientes de siempre una forma de encontrarte.",
+    vendorsHeading: "¿Tienes un troque o carrito de comida?",
+    vendorsSub:
+      "Esta parte es para ti, el dueño. Dale a tus clientes de siempre una forma de encontrarte.",
     createVendorProfile: "Crea tu perfil de vendedor",
     cardLiveTitle: "Ponte en vivo con un toque",
     cardLiveBody: "Comparte tu ubicación de hoy al instante.",
