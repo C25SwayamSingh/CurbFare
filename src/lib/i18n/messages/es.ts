@@ -8,6 +8,7 @@ export const es: Messages = {
     forVendors: "Para vendedores",
     signIn: "Iniciar sesión",
     signUp: "Crear cuenta",
+    signOut: "Cerrar sesión",
     back: "Atrás",
     language: "Idioma",
   },

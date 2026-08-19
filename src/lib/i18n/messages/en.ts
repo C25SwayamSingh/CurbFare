@@ -11,6 +11,7 @@ export const en = {
     forVendors: "For vendors",
     signIn: "Sign in",
     signUp: "Sign up",
+    signOut: "Sign out",
     back: "Back",
     language: "Language",
   },

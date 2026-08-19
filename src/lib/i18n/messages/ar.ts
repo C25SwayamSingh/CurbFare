@@ -11,6 +11,7 @@ export const ar: Messages = {
     forVendors: "لأصحاب العربات",
     signIn: "تسجيل الدخول",
     signUp: "إنشاء حساب",
+    signOut: "تسجيل الخروج",
     back: "رجوع",
     language: "اللغة",
   },

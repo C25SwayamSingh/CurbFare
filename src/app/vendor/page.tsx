@@ -218,8 +218,9 @@ export default async function VendorDashboardPage() {
                   </p>
                 ) : (
                   <p className="mt-2 max-w-md text-sm text-secondary-foreground/85">
-                    No program yet. Design one in minutes. You approve every
-                    cost before anything goes live.
+                    {canManageUnit
+                      ? "No program yet. Design one in minutes. You approve every cost before anything goes live."
+                      : "No rewards program yet. The owner sets one up; checkout works the moment they do."}
                   </p>
                 )}
               </div>
@@ -238,16 +239,19 @@ export default async function VendorDashboardPage() {
                     Open checkout
                   </Link>
                 </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  className="h-11 w-full border-secondary-foreground/30 bg-transparent font-semibold text-secondary-foreground hover:border-primary hover:bg-transparent hover:text-primary"
-                >
-                  <Link href="/vendor/loyalty">
-                    <Gift className="size-4" aria-hidden="true" />
-                    {loyaltyPreview ? "Manage rewards" : "Set up rewards"}
-                  </Link>
-                </Button>
+                {/* Staff is operational: checkout yes, program design no. */}
+                {canManageUnit ? (
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="h-11 w-full border-secondary-foreground/30 bg-transparent font-semibold text-secondary-foreground hover:border-primary hover:bg-transparent hover:text-primary"
+                  >
+                    <Link href="/vendor/loyalty">
+                      <Gift className="size-4" aria-hidden="true" />
+                      {loyaltyPreview ? "Manage rewards" : "Set up rewards"}
+                    </Link>
+                  </Button>
+                ) : null}
               </div>
             </div>
             {loyaltyPreview && loyaltyPreview.catalog.length > 0 ? (
@@ -291,45 +295,49 @@ export default async function VendorDashboardPage() {
           </section>
         ) : null}
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Organization</CardTitle>
-            <CardDescription>Your business details.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {organization ? (
-              <dl className="space-y-2 text-sm">
-                <div>
-                  <dt className="text-muted-foreground">Display name</dt>
-                  <dd className="font-medium">{organization.display_name}</dd>
-                </div>
-                <div>
-                  <dt className="text-muted-foreground">Legal name</dt>
-                  <dd className="font-medium">{organization.legal_name}</dd>
-                </div>
-                <div>
-                  <dt className="text-muted-foreground">URL name</dt>
-                  <dd className="font-medium">{organization.slug}</dd>
-                </div>
-                <div>
-                  <dt className="text-muted-foreground">Status</dt>
-                  <dd className="font-medium capitalize">
-                    {organization.status}
-                  </dd>
-                </div>
-              </dl>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                Organization details are unavailable right now.
-              </p>
-            )}
-            {organization && ctx.membership.role === "owner" ? (
-              <Button asChild variant="outline" size="sm" className="mt-4">
-                <Link href="/vendor/organization/edit">Edit</Link>
-              </Button>
-            ) : null}
-          </CardContent>
-        </Card>
+        {/* Business details are leadership reading; a staff shift doesn't
+            need license plumbing on screen. */}
+        {canManageUnit ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>Organization</CardTitle>
+              <CardDescription>Your business details.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {organization ? (
+                <dl className="space-y-2 text-sm">
+                  <div>
+                    <dt className="text-muted-foreground">Display name</dt>
+                    <dd className="font-medium">{organization.display_name}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground">Legal name</dt>
+                    <dd className="font-medium">{organization.legal_name}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground">URL name</dt>
+                    <dd className="font-medium">{organization.slug}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground">Status</dt>
+                    <dd className="font-medium capitalize">
+                      {organization.status}
+                    </dd>
+                  </div>
+                </dl>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Organization details are unavailable right now.
+                </p>
+              )}
+              {organization && ctx.membership.role === "owner" ? (
+                <Button asChild variant="outline" size="sm" className="mt-4">
+                  <Link href="/vendor/organization/edit">Edit</Link>
+                </Button>
+              ) : null}
+            </CardContent>
+          </Card>
+        ) : null}
 
         {organization ? (
           <VendorUnitsSection
