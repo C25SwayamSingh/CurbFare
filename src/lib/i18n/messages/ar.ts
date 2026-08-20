@@ -12,6 +12,7 @@ export const ar: Messages = {
     signIn: "تسجيل الدخول",
     signUp: "إنشاء حساب",
     signOut: "تسجيل الخروج",
+    account: "الحساب",
     back: "رجوع",
     language: "اللغة",
   },
@@ -62,6 +63,7 @@ export const ar: Messages = {
     readySub:
       "الزر البرتقالي ينشئ حساب البائع الخاص بك. أو ببساطة رُدّ على بريد سوايام وسيجهّزه معك شخصيًا.",
     startCta: "أنشئ ملف البائع الخاص بك",
+    openDashboardCta: "افتح لوحتك",
     emailCta: "راسل swayam@curbfare.app",
     hungryLead: "لست بائعًا، جائع فقط؟",
     hungryLink: "اذهب إلى الصفحة الرئيسية",

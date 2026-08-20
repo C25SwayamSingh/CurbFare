@@ -12,6 +12,7 @@ export const en = {
     signIn: "Sign in",
     signUp: "Sign up",
     signOut: "Sign out",
+    account: "Account",
     back: "Back",
     language: "Language",
   },
@@ -63,6 +64,7 @@ export const en = {
     readySub:
       "The orange button starts your vendor account. Or just reply to Swayam's email and he will set it up with you in person.",
     startCta: "Start your vendor profile",
+    openDashboardCta: "Open your dashboard",
     emailCta: "Email swayam@curbfare.app",
     hungryLead: "Not a vendor, just hungry?",
     hungryLink: "Head to the home page",

@@ -9,6 +9,7 @@ export const es: Messages = {
     signIn: "Iniciar sesión",
     signUp: "Crear cuenta",
     signOut: "Cerrar sesión",
+    account: "Cuenta",
     back: "Atrás",
     language: "Idioma",
   },
@@ -61,6 +62,7 @@ export const es: Messages = {
     readySub:
       "El botón naranja crea su cuenta de vendedor. O simplemente responda al correo de Swayam y él lo deja todo listo con usted en persona.",
     startCta: "Crear su perfil de vendedor",
+    openDashboardCta: "Abrir su panel",
     emailCta: "Escribir a swayam@curbfare.app",
     hungryLead: "¿No es vendedor, solo tiene hambre?",
     hungryLink: "Vaya a la página principal",

@@ -21,7 +21,7 @@ import {
 
 import { getT } from "@/lib/i18n/server";
 import { LanguageSwitcher } from "@/features/i18n/language-switcher";
-import { SignOutButton } from "@/features/authentication/components/sign-out-button";
+import { ViewerMenu } from "@/features/authentication/components/viewer-menu";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { HeroLoopVideo } from "@/components/marketing/hero-loop-video";
@@ -101,14 +101,14 @@ export async function LandingPage({
               <Link href="/vendors">{tc("forVendors")}</Link>
             </Button>
             {viewer ? (
-              <>
-                {viewer.firstName ? (
-                  <span className="text-sm text-secondary-foreground/85">
-                    {t("hiName", { name: viewer.firstName })}
-                  </span>
-                ) : null}
-                <SignOutButton label={tc("signOut")} />
-              </>
+              <ViewerMenu
+                greeting={
+                  viewer.firstName
+                    ? t("hiName", { name: viewer.firstName })
+                    : tc("account")
+                }
+                signOutLabel={tc("signOut")}
+              />
             ) : (
               <>
                 <Button asChild variant="ghost" size="sm">

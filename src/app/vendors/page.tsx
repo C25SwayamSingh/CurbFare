@@ -6,6 +6,8 @@ import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
 import { pageTitle } from "@/lib/app-config";
 import { getT } from "@/lib/i18n/server";
+import { getAuthContext } from "@/lib/auth/guards";
+import { hasVendorMembership } from "@/lib/auth/mode";
 import { LanguageSwitcher } from "@/features/i18n/language-switcher";
 
 export const metadata: Metadata = { title: pageTitle("For vendors") };
@@ -21,6 +23,16 @@ export const metadata: Metadata = { title: pageTitle("For vendors") };
  */
 export default async function ForVendorsPage() {
   const t = await getT("vendorsPage");
+  // The orange button meets people where they are: members go to their
+  // dashboard, signed-in non-vendors go straight into vendor onboarding,
+  // and strangers get the account flow with vendor intent attached.
+  const ctx = await getAuthContext();
+  const isMember = ctx ? hasVendorMembership(ctx) : false;
+  const startHref = isMember
+    ? "/vendor"
+    : ctx
+      ? "/onboarding/vendor/profile"
+      : "/sign-up?intent=vendor";
   return (
     <main className="mx-auto w-full max-w-2xl px-4 py-10 sm:py-16">
       <div className="flex items-center justify-between">
@@ -71,9 +83,9 @@ export default async function ForVendorsPage() {
           </p>
           <div className="mt-4 flex flex-col gap-3 sm:flex-row">
             <Button asChild size="lg" className="w-full sm:w-auto">
-              <Link href="/sign-up?intent=vendor">
+              <Link href={startHref}>
                 <Store aria-hidden="true" />
-                {t("startCta")}
+                {isMember ? t("openDashboardCta") : t("startCta")}
               </Link>
             </Button>
             <Button

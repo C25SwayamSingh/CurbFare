@@ -28,18 +28,15 @@ export default async function OnboardingPage({
   const ctx = await requireMfaSatisfied("/onboarding");
   const { choose } = await searchParams;
 
-  if (
-    ctx.profile?.onboarding_status === "complete" &&
-    hasVendorMembership(ctx)
-  ) {
-    redirect(resolveDashboardPath(ctx));
+  // Someone who already belongs to a vendor team has nothing to choose
+  // here, whatever their onboarding_status says (invited members join
+  // without ever running this flow).
+  if (hasVendorMembership(ctx)) {
+    redirect("/vendor");
   }
 
-  if (
-    ctx.profile?.onboarding_status === "complete" &&
-    !hasVendorMembership(ctx)
-  ) {
-    redirect("/customer");
+  if (ctx.profile?.onboarding_status === "complete") {
+    redirect(resolveDashboardPath(ctx));
   }
 
   // A deliberate "Back" from step 2 (?choose=1) re-shows the path choice

@@ -187,6 +187,20 @@ export async function acceptInvitationAction(
   if (error) return errorState(friendlyDbError(error));
   if (!data?.[0]) return errorState(GENERIC_ERROR);
 
+  // Joining a team IS onboarding: mark it complete so no guard ever
+  // routes a working member back to the pick-a-path screen. Best-effort;
+  // the membership above is what actually grants access.
+  const ctx = await requireAuth(`/invite/${token}`);
+  const { error: profileError } = await supabase
+    .from("profiles")
+    .update({ onboarding_status: "complete", preferred_mode: "vendor" })
+    .eq("id", ctx.user.id);
+  if (profileError) {
+    console.error("invite onboarding update failed", {
+      code: profileError.code,
+    });
+  }
+
   revalidatePath("/vendor");
   // Straight to the workplace: re-rendering the invite page would show
   // "already used" to the very person who just used it.
