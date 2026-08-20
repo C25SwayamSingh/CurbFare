@@ -176,7 +176,7 @@ export function TeamInvitePanel({
                 Staff: run checkout and go live. No editing the business.
               </option>
               <option value="manager">
-                Manager: also edit schedules, rewards, and the team
+                Manager: also edit carts, schedules, and invite the team
               </option>
               {canInviteOwner ? (
                 <option value="owner">Owner: full control</option>
